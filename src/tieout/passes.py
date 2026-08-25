@@ -3,6 +3,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import date
+from itertools import combinations
 
 from .models import (
     CASH_AT_RISK,
@@ -322,5 +323,88 @@ def pass4_amount_date(
         )
         matched_s.add(s_line.id)
         matched_l.add(best.id)
+
+    return matches, matched_s, matched_l
+
+
+def _first_subset_summing_to(
+    lines: list, target: Cents, max_size: int, amount_of
+) -> tuple | None:
+    """Smallest, lexicographically-first subset (size 2..max_size) summing to
+    target. Lines must already be in deterministic order."""
+    for size in range(2, min(max_size, len(lines)) + 1):
+        for combo in combinations(lines, size):
+            if sum(amount_of(l) for l in combo) == target:
+                return combo
+    return None
+
+
+def pass5_subset_sums(
+    statement: list[StatementLine],
+    ledger: list[LedgerLine],
+    max_size: int = 6,
+) -> tuple[list[Match], set[str], set[str]]:
+    """Bounded subset-sum over remaining residuals, both directions.
+
+    Direction A: N ledger lines (2..max_size) summing to 1 statement line.
+    Direction B: N statement lines (2..max_size) summing to 1 ledger line.
+    Confidence capped at 0.65, always flagged for human confirmation.
+
+    Deterministic: targets processed in (doc_date, id) order; candidate pools
+    kept in (doc_date, id) order; the smallest, lexicographically-first
+    subset wins. Lines consumed by a match leave the pool immediately.
+
+    Returns (matches, matched_statement_ids, matched_ledger_ids).
+    """
+    matches: list[Match] = []
+    matched_s: set[str] = set()
+    matched_l: set[str] = set()
+
+    s_sorted = sorted(statement, key=lambda s: (s.doc_date, s.id))
+    l_sorted = sorted(ledger, key=lambda l: (l.doc_date, l.id))
+
+    # Direction A: N ledger -> 1 statement
+    for s_line in s_sorted:
+        pool = [l for l in l_sorted if l.id not in matched_l]
+        combo = _first_subset_summing_to(
+            pool, s_line.amount, max_size, lambda l: l.open_amount
+        )
+        if combo is None:
+            continue
+        matches.append(
+            Match(
+                statement_line_ids=(s_line.id,),
+                ledger_line_ids=tuple(sorted(l.id for l in combo)),
+                method="subset_sum",
+                confidence="0.65",
+                amount_delta=0,
+                requires_human_confirmation=True,
+            )
+        )
+        matched_s.add(s_line.id)
+        matched_l.update(l.id for l in combo)
+
+    # Direction B: N statement -> 1 ledger
+    for l_line in l_sorted:
+        if l_line.id in matched_l:
+            continue
+        pool = [s for s in s_sorted if s.id not in matched_s]
+        combo = _first_subset_summing_to(
+            pool, l_line.open_amount, max_size, lambda s: s.amount
+        )
+        if combo is None:
+            continue
+        matches.append(
+            Match(
+                statement_line_ids=tuple(sorted(s.id for s in combo)),
+                ledger_line_ids=(l_line.id,),
+                method="subset_sum",
+                confidence="0.65",
+                amount_delta=0,
+                requires_human_confirmation=True,
+            )
+        )
+        matched_l.add(l_line.id)
+        matched_s.update(s.id for s in combo)
 
     return matches, matched_s, matched_l
