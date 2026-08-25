@@ -3,7 +3,17 @@ from __future__ import annotations
 
 from datetime import date
 
-from .models import CASH_AT_RISK, DUPLICATE, Cents, Finding, LedgerLine, Match, StatementLine
+from .models import (
+    CASH_AT_RISK,
+    DUPLICATE,
+    Cents,
+    Finding,
+    LedgerLine,
+    Match,
+    ProposedRule,
+    StatementLine,
+)
+from .normalise import alpha_prefix
 
 
 def _fmt_confidence(basis_points: int) -> str:
@@ -133,3 +143,69 @@ def pass1_exact_ref(
             break
 
     return matches, matched_s, matched_l
+
+
+def pass2_normalised_ref(
+    statement: list[StatementLine],
+    ledger: list[LedgerLine],
+    supplier: str,
+) -> tuple[list[Match], list[ProposedRule], set[str], set[str]]:
+    """Normalised reference match: normalised_ref equal AND amounts equal.
+
+    Confidence 0.95. When the raw refs differ but the normalised refs match,
+    a normalisation rule (strip_prefix) is proposed for the supplier alongside
+    the match, deduplicated by prefix value.
+
+    Returns (matches, proposed_rules, matched_statement_ids, matched_ledger_ids).
+    """
+    matches: list[Match] = []
+    rules: dict[tuple[str, str], ProposedRule] = {}
+    matched_s: set[str] = set()
+    matched_l: set[str] = set()
+
+    ledger_by_norm: dict[str, list[LedgerLine]] = {}
+    for line in ledger:
+        if line.normalised_ref:
+            ledger_by_norm.setdefault(line.normalised_ref, []).append(line)
+    for candidates in ledger_by_norm.values():
+        candidates.sort(key=lambda l: (l.doc_date, l.id))
+
+    for s_line in sorted(statement, key=lambda s: (s.doc_date, s.id)):
+        if not s_line.normalised_ref:
+            continue
+        for l_line in ledger_by_norm.get(s_line.normalised_ref, []):
+            if l_line.id in matched_l:
+                continue
+            if s_line.amount != l_line.open_amount:
+                continue
+            matches.append(
+                Match(
+                    statement_line_ids=(s_line.id,),
+                    ledger_line_ids=(l_line.id,),
+                    method="normalised_ref",
+                    confidence="0.95",
+                    amount_delta=0,
+                )
+            )
+            matched_s.add(s_line.id)
+            matched_l.add(l_line.id)
+            if s_line.raw_ref != l_line.raw_ref:
+                prefix = alpha_prefix(l_line.raw_ref) or alpha_prefix(s_line.raw_ref)
+                if prefix:
+                    key = ("strip_prefix", prefix)
+                    existing = rules.get(key)
+                    rules[key] = ProposedRule(
+                        supplier=supplier,
+                        kind="strip_prefix",
+                        value=prefix,
+                        statement_line_ids=tuple(
+                            sorted((existing.statement_line_ids if existing else ()) + (s_line.id,))
+                        ),
+                        ledger_line_ids=tuple(
+                            sorted((existing.ledger_line_ids if existing else ()) + (l_line.id,))
+                        ),
+                    )
+            break
+
+    proposed = [rules[key] for key in sorted(rules)]
+    return matches, proposed, matched_s, matched_l
