@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from datetime import date
 
-from .models import CASH_AT_RISK, DUPLICATE, Cents, Finding, LedgerLine
+from .models import CASH_AT_RISK, DUPLICATE, Cents, Finding, LedgerLine, Match, StatementLine
 
 
 def _fmt_confidence(basis_points: int) -> str:
@@ -89,3 +89,47 @@ def pass0_duplicates(
             excluded.add(extra.id)
 
     return findings, excluded
+
+
+def pass1_exact_ref(
+    statement: list[StatementLine],
+    ledger: list[LedgerLine],
+) -> tuple[list[Match], set[str], set[str]]:
+    """Exact reference match: raw_ref equal on both sides AND amounts equal.
+
+    Statement amount is compared to ledger open_amount. Confidence 1.00.
+    Where a raw_ref appears more than once on a side, candidates are paired
+    greedily in (doc_date, id) order for determinism.
+
+    Returns (matches, matched_statement_ids, matched_ledger_ids).
+    """
+    matches: list[Match] = []
+    matched_s: set[str] = set()
+    matched_l: set[str] = set()
+
+    ledger_by_ref: dict[str, list[LedgerLine]] = {}
+    for line in ledger:
+        ledger_by_ref.setdefault(line.raw_ref, []).append(line)
+    for candidates in ledger_by_ref.values():
+        candidates.sort(key=lambda l: (l.doc_date, l.id))
+
+    for s_line in sorted(statement, key=lambda s: (s.doc_date, s.id)):
+        for l_line in ledger_by_ref.get(s_line.raw_ref, []):
+            if l_line.id in matched_l:
+                continue
+            if s_line.amount != l_line.open_amount:
+                continue
+            matches.append(
+                Match(
+                    statement_line_ids=(s_line.id,),
+                    ledger_line_ids=(l_line.id,),
+                    method="exact_ref",
+                    confidence="1.00",
+                    amount_delta=0,
+                )
+            )
+            matched_s.add(s_line.id)
+            matched_l.add(l_line.id)
+            break
+
+    return matches, matched_s, matched_l
