@@ -1,6 +1,7 @@
 """Cascade passes. Each pass is a pure function; the engine wires them in order."""
 from __future__ import annotations
 
+from dataclasses import dataclass
 from datetime import date
 
 from .models import (
@@ -209,3 +210,58 @@ def pass2_normalised_ref(
 
     proposed = [rules[key] for key in sorted(rules)]
     return matches, proposed, matched_s, matched_l
+
+
+@dataclass(frozen=True)
+class RefLink:
+    """A statement/ledger pair whose references match but amounts differ.
+
+    Not a Match: routed to Pass 6, which classifies it as PART_PAYMENT,
+    AMOUNT_MISMATCH or CURRENCY_MISMATCH using the preserved link.
+    """
+
+    statement_line_id: str
+    ledger_line_id: str
+    via: str  # "exact_ref" | "normalised_ref"
+
+
+def pass3_ref_amount_differ(
+    statement: list[StatementLine],
+    ledger: list[LedgerLine],
+) -> tuple[list[RefLink], set[str], set[str]]:
+    """Reference matches (raw, else normalised) but amounts differ.
+
+    Pairs are consumed (excluded from Passes 4-5) but produce no Match;
+    the link is preserved for classification in Pass 6.
+
+    Returns (links, consumed_statement_ids, consumed_ledger_ids).
+    """
+    links: list[RefLink] = []
+    consumed_s: set[str] = set()
+    consumed_l: set[str] = set()
+
+    by_raw: dict[str, list[LedgerLine]] = {}
+    by_norm: dict[str, list[LedgerLine]] = {}
+    for line in ledger:
+        by_raw.setdefault(line.raw_ref, []).append(line)
+        if line.normalised_ref:
+            by_norm.setdefault(line.normalised_ref, []).append(line)
+    for index in (by_raw, by_norm):
+        for candidates in index.values():
+            candidates.sort(key=lambda l: (l.doc_date, l.id))
+
+    for s_line in sorted(statement, key=lambda s: (s.doc_date, s.id)):
+        candidates = [(l, "exact_ref") for l in by_raw.get(s_line.raw_ref, [])]
+        if not candidates and s_line.normalised_ref:
+            candidates = [
+                (l, "normalised_ref") for l in by_norm.get(s_line.normalised_ref, [])
+            ]
+        for l_line, via in candidates:
+            if l_line.id in consumed_l:
+                continue
+            links.append(RefLink(s_line.id, l_line.id, via))
+            consumed_s.add(s_line.id)
+            consumed_l.add(l_line.id)
+            break
+
+    return links, consumed_s, consumed_l
