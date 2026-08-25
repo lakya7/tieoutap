@@ -265,3 +265,62 @@ def pass3_ref_amount_differ(
             break
 
     return links, consumed_s, consumed_l
+
+
+def pass4_amount_date(
+    statement: list[StatementLine],
+    ledger: list[LedgerLine],
+    window_days: int = 5,
+) -> tuple[list[Match], set[str], set[str]]:
+    """Amount + date window match for lines with no usable reference.
+
+    Applies only where the normalised reference is empty on the line's own
+    side. Equal amount (statement amount vs ledger open_amount) with doc
+    dates within +/- window_days. Confidence capped at 0.70 and every match
+    is flagged requires_human_confirmation.
+
+    Candidates are chosen deterministically: statement lines in (doc_date,
+    id) order, each taking the unconsumed ledger line with the smallest date
+    gap (ties broken by doc_date then id).
+
+    Returns (matches, matched_statement_ids, matched_ledger_ids).
+    """
+    matches: list[Match] = []
+    matched_s: set[str] = set()
+    matched_l: set[str] = set()
+
+    ledger_by_amount: dict[Cents, list[LedgerLine]] = {}
+    for line in ledger:
+        if line.normalised_ref:
+            continue
+        ledger_by_amount.setdefault(line.open_amount, []).append(line)
+
+    for s_line in sorted(statement, key=lambda s: (s.doc_date, s.id)):
+        if s_line.normalised_ref:
+            continue
+        candidates = [
+            l
+            for l in ledger_by_amount.get(s_line.amount, [])
+            if l.id not in matched_l
+            and abs((l.doc_date - s_line.doc_date).days) <= window_days
+        ]
+        if not candidates:
+            continue
+        best = min(
+            candidates,
+            key=lambda l: (abs((l.doc_date - s_line.doc_date).days), l.doc_date, l.id),
+        )
+        matches.append(
+            Match(
+                statement_line_ids=(s_line.id,),
+                ledger_line_ids=(best.id,),
+                method="amount_date",
+                confidence="0.70",
+                amount_delta=0,
+                requires_human_confirmation=True,
+            )
+        )
+        matched_s.add(s_line.id)
+        matched_l.add(best.id)
+
+    return matches, matched_s, matched_l
