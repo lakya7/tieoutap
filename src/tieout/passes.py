@@ -6,8 +6,19 @@ from datetime import date
 from itertools import combinations
 
 from .models import (
+    AMOUNT_MISMATCH,
     CASH_AT_RISK,
+    CURRENCY_MISMATCH,
     DUPLICATE,
+    EXPLAINED,
+    INVESTIGATE,
+    PART_PAYMENT,
+    PAYMENT_NOT_APPLIED,
+    SUPPLIER_OMISSION,
+    TIMING,
+    UNCLAIMED_CREDIT,
+    UNRECORDED_LIABILITY,
+    UNRECORDED_LIABILITY_BUCKET,
     Cents,
     Finding,
     LedgerLine,
@@ -408,3 +419,176 @@ def pass5_subset_sums(
         matched_s.update(s.id for s in combo)
 
     return matches, matched_s, matched_l
+
+
+_PAYMENT_DOC_TYPES = ("PAY", "PAYMENT", "PMT")
+
+
+def pass6_classify(
+    residual_statement: list[StatementLine],
+    residual_ledger: list[LedgerLine],
+    links: list[RefLink],
+    matches: list[Match],
+    s_by_id: dict[str, StatementLine],
+    l_by_id: dict[str, LedgerLine],
+    as_at: date,
+    timing_days: int = 3,
+) -> list[Finding]:
+    """Classify everything that survived Passes 0-5, per the residual table.
+
+    Emitted in deterministic order: linked pairs first, then statement
+    residuals, then ledger residuals, each in (doc_date, id) order. Finding
+    amounts are magnitudes; signed bridge deltas are carried in evidence
+    where the sign is not implied by the type. Never attempts FX conversion.
+    """
+    findings: list[Finding] = []
+    timing_cutoff = date.fromordinal(as_at.toordinal() - timing_days)
+
+    # Currency mismatch across matched pairs (equal-amount matches).
+    for m in matches:
+        currencies = sorted(
+            {s_by_id[i].currency for i in m.statement_line_ids}
+            | {l_by_id[i].currency for i in m.ledger_line_ids}
+        )
+        if len(currencies) > 1:
+            findings.append(
+                Finding(
+                    type=CURRENCY_MISMATCH,
+                    bucket=INVESTIGATE,
+                    amount=sum(abs(s_by_id[i].amount) for i in m.statement_line_ids),
+                    statement_line_ids=m.statement_line_ids,
+                    ledger_line_ids=m.ledger_line_ids,
+                    rule_id="pass6.currency_mismatch",
+                    evidence={"currencies": currencies, "bridge_delta": 0},
+                )
+            )
+
+    # Linked pairs from Pass 3: ref matches, amounts differ.
+    for link in sorted(
+        links, key=lambda x: (s_by_id[x.statement_line_id].doc_date, x.statement_line_id)
+    ):
+        s_line = s_by_id[link.statement_line_id]
+        l_line = l_by_id[link.ledger_line_id]
+        if s_line.currency != l_line.currency:
+            findings.append(
+                Finding(
+                    type=CURRENCY_MISMATCH,
+                    bucket=INVESTIGATE,
+                    amount=abs(s_line.amount),
+                    statement_line_ids=(s_line.id,),
+                    ledger_line_ids=(l_line.id,),
+                    rule_id="pass6.currency_mismatch",
+                    evidence={
+                        "currencies": sorted({s_line.currency, l_line.currency}),
+                        "bridge_delta": s_line.amount - l_line.open_amount,
+                    },
+                )
+            )
+        elif (
+            s_line.amount == l_line.original_amount
+            and l_line.original_amount != l_line.open_amount
+        ):
+            findings.append(
+                Finding(
+                    type=PART_PAYMENT,
+                    bucket=EXPLAINED,
+                    amount=abs(l_line.original_amount - l_line.open_amount),
+                    statement_line_ids=(s_line.id,),
+                    ledger_line_ids=(l_line.id,),
+                    rule_id="pass6.part_payment",
+                    evidence={
+                        "statement_amount": s_line.amount,
+                        "ledger_original_amount": l_line.original_amount,
+                        "ledger_open_amount": l_line.open_amount,
+                        "bridge_delta": l_line.original_amount - l_line.open_amount,
+                    },
+                )
+            )
+        else:
+            findings.append(
+                Finding(
+                    type=AMOUNT_MISMATCH,
+                    bucket=INVESTIGATE,
+                    amount=abs(s_line.amount - l_line.open_amount),
+                    statement_line_ids=(s_line.id,),
+                    ledger_line_ids=(l_line.id,),
+                    rule_id="pass6.amount_mismatch",
+                    evidence={
+                        "statement_amount": s_line.amount,
+                        "ledger_open_amount": l_line.open_amount,
+                        "bridge_delta": s_line.amount - l_line.open_amount,
+                    },
+                )
+            )
+
+    # On statement, not in ledger.
+    for s_line in sorted(residual_statement, key=lambda s: (s.doc_date, s.id)):
+        if s_line.amount < 0:
+            findings.append(
+                Finding(
+                    type=UNCLAIMED_CREDIT,
+                    bucket=CASH_AT_RISK,
+                    amount=abs(s_line.amount),
+                    statement_line_ids=(s_line.id,),
+                    ledger_line_ids=(),
+                    rule_id="pass6.unclaimed_credit",
+                    evidence={"bridge_delta": s_line.amount},
+                )
+            )
+        elif s_line.doc_date > timing_cutoff:
+            findings.append(
+                Finding(
+                    type=TIMING,
+                    bucket=EXPLAINED,
+                    amount=abs(s_line.amount),
+                    statement_line_ids=(s_line.id,),
+                    ledger_line_ids=(),
+                    rule_id="pass6.timing",
+                    evidence={
+                        "doc_date": s_line.doc_date.isoformat(),
+                        "timing_cutoff": timing_cutoff.isoformat(),
+                        "bridge_delta": s_line.amount,
+                    },
+                )
+            )
+        else:
+            findings.append(
+                Finding(
+                    type=UNRECORDED_LIABILITY,
+                    bucket=UNRECORDED_LIABILITY_BUCKET,
+                    amount=abs(s_line.amount),
+                    statement_line_ids=(s_line.id,),
+                    ledger_line_ids=(),
+                    rule_id="pass6.unrecorded_liability",
+                    evidence={"bridge_delta": s_line.amount},
+                )
+            )
+
+    # In ledger, not on statement.
+    for l_line in sorted(residual_ledger, key=lambda l: (l.doc_date, l.id)):
+        if l_line.doc_type in _PAYMENT_DOC_TYPES:
+            findings.append(
+                Finding(
+                    type=PAYMENT_NOT_APPLIED,
+                    bucket=EXPLAINED,
+                    amount=abs(l_line.open_amount),
+                    statement_line_ids=(),
+                    ledger_line_ids=(l_line.id,),
+                    rule_id="pass6.payment_not_applied",
+                    evidence={"bridge_delta": -l_line.open_amount},
+                )
+            )
+        else:
+            findings.append(
+                Finding(
+                    type=SUPPLIER_OMISSION,
+                    bucket=INVESTIGATE,
+                    amount=abs(l_line.open_amount),
+                    statement_line_ids=(),
+                    ledger_line_ids=(l_line.id,),
+                    rule_id="pass6.supplier_omission",
+                    evidence={"bridge_delta": -l_line.open_amount},
+                )
+            )
+
+    return findings
