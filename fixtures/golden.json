@@ -1,0 +1,213 @@
+{
+  "as_at": "2026-07-31",
+  "bridge": {
+    "adjustments": [
+      {
+        "amount": "-7905.00",
+        "finding_type": "DUPLICATE",
+        "label": "duplicate posting in ledger",
+        "ref": "88690A"
+      },
+      {
+        "amount": "-2760.00",
+        "finding_type": "UNCLAIMED_CREDIT",
+        "label": "credit on statement, absent from ledger",
+        "ref": "1147"
+      },
+      {
+        "amount": "15780.00",
+        "finding_type": "UNRECORDED_LIABILITY",
+        "label": "invoice not posted",
+        "ref": "88802"
+      },
+      {
+        "amount": "234.00",
+        "finding_type": "AMOUNT_MISMATCH",
+        "label": "statement above ledger amount",
+        "ref": "88741"
+      },
+      {
+        "amount": "10000.00",
+        "finding_type": "PART_PAYMENT",
+        "label": "part payment applied by us, not by supplier",
+        "ref": "88367"
+      },
+      {
+        "amount": "9120.00",
+        "finding_type": "TIMING",
+        "label": "raised after cut-off",
+        "ref": "88901"
+      }
+    ],
+    "ledger_open_total": "34696.00",
+    "statement_total": "59165.00",
+    "ties_out": true
+  },
+  "bridge_ties_out": true,
+  "diagnostic": null,
+  "findings": [
+    {
+      "amount": "7905.00",
+      "bucket": "cash_at_risk",
+      "evidence": {
+        "confidence": "0.95",
+        "days_apart": 3,
+        "duplicate_ref": "88690A",
+        "original_ledger_line_id": "L4",
+        "original_ref": "88690",
+        "signals": [
+          "near_identical_refs",
+          "po_match",
+          "dates_within_tight_window"
+        ]
+      },
+      "ledger_line_ids": [
+        "L5"
+      ],
+      "rule_id": "pass0.duplicate_scan",
+      "statement_line_ids": [],
+      "type": "DUPLICATE"
+    },
+    {
+      "amount": "2760.00",
+      "bucket": "cash_at_risk",
+      "evidence": {
+        "bridge_delta": -276000
+      },
+      "ledger_line_ids": [],
+      "rule_id": "pass6.unclaimed_credit",
+      "statement_line_ids": [
+        "S4"
+      ],
+      "type": "UNCLAIMED_CREDIT"
+    },
+    {
+      "amount": "15780.00",
+      "bucket": "unrecorded_liability",
+      "evidence": {
+        "bridge_delta": 1578000
+      },
+      "ledger_line_ids": [],
+      "rule_id": "pass6.unrecorded_liability",
+      "statement_line_ids": [
+        "S7"
+      ],
+      "type": "UNRECORDED_LIABILITY"
+    },
+    {
+      "amount": "234.00",
+      "bucket": "investigate",
+      "evidence": {
+        "bridge_delta": 23400,
+        "ledger_open_amount": 302600,
+        "statement_amount": 326000
+      },
+      "ledger_line_ids": [
+        "L6"
+      ],
+      "rule_id": "pass6.amount_mismatch",
+      "statement_line_ids": [
+        "S6"
+      ],
+      "type": "AMOUNT_MISMATCH"
+    },
+    {
+      "amount": "10000.00",
+      "bucket": "explained",
+      "evidence": {
+        "bridge_delta": 1000000,
+        "ledger_open_amount": 245000,
+        "ledger_original_amount": 1245000,
+        "statement_amount": 1245000
+      },
+      "ledger_line_ids": [
+        "L2"
+      ],
+      "rule_id": "pass6.part_payment",
+      "statement_line_ids": [
+        "S2"
+      ],
+      "type": "PART_PAYMENT"
+    },
+    {
+      "amount": "9120.00",
+      "bucket": "explained",
+      "evidence": {
+        "bridge_delta": 912000,
+        "doc_date": "2026-07-29",
+        "timing_cutoff": "2026-07-28"
+      },
+      "ledger_line_ids": [],
+      "rule_id": "pass6.timing",
+      "statement_line_ids": [
+        "S9"
+      ],
+      "type": "TIMING"
+    }
+  ],
+  "matches": [
+    {
+      "amount_delta": "0.00",
+      "confidence": "1.00",
+      "ledger_line_ids": [
+        "L1"
+      ],
+      "method": "exact_ref",
+      "requires_human_confirmation": false,
+      "statement_line_ids": [
+        "S1"
+      ]
+    },
+    {
+      "amount_delta": "0.00",
+      "confidence": "1.00",
+      "ledger_line_ids": [
+        "L4"
+      ],
+      "method": "exact_ref",
+      "requires_human_confirmation": false,
+      "statement_line_ids": [
+        "S5"
+      ]
+    },
+    {
+      "amount_delta": "0.00",
+      "confidence": "1.00",
+      "ledger_line_ids": [
+        "L7"
+      ],
+      "method": "exact_ref",
+      "requires_human_confirmation": false,
+      "statement_line_ids": [
+        "S8"
+      ]
+    },
+    {
+      "amount_delta": "0.00",
+      "confidence": "0.95",
+      "ledger_line_ids": [
+        "L3"
+      ],
+      "method": "normalised_ref",
+      "requires_human_confirmation": false,
+      "statement_line_ids": [
+        "S3"
+      ]
+    }
+  ],
+  "proposed_rules": [
+    {
+      "kind": "strip_prefix",
+      "ledger_line_ids": [
+        "L3"
+      ],
+      "statement_line_ids": [
+        "S3"
+      ],
+      "supplier": "MERIDIAN IND SUPPLIES",
+      "value": "MER-"
+    }
+  ],
+  "supplier": "MERIDIAN IND SUPPLIES",
+  "warnings": []
+}

@@ -109,6 +109,16 @@ def test_differing_as_at_dates_produce_warning():
     assert "timing" in result.warnings[0]
 
 
+def test_golden_json_fixture_is_current():
+    """fixtures/golden.json is the committed Python output that the TS port
+    is validated against byte-for-byte; it must never go stale."""
+    from tieout.serialize import to_json as _to_json
+
+    statement, ledger = _load()
+    result = reconcile(statement, ledger, supplier=SUPPLIER, as_at=AS_AT)
+    assert _to_json(result) == (FIXTURES / "golden.json").read_text()
+
+
 def test_equal_as_at_dates_produce_no_warning():
     statement, ledger = _load()
     result = reconcile(

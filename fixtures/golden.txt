@@ -1,0 +1,27 @@
+TieOut AP — MERIDIAN IND SUPPLIES as at 2026-07-31
+
+FINDINGS
+  [cash_at_risk]
+    DUPLICATE                    7,905.00  lines=L5  rule=pass0.duplicate_scan
+    UNCLAIMED_CREDIT             2,760.00  lines=S4  rule=pass6.unclaimed_credit
+  [unrecorded_liability]
+    UNRECORDED_LIABILITY        15,780.00  lines=S7  rule=pass6.unrecorded_liability
+  [investigate]
+    AMOUNT_MISMATCH                234.00  lines=S6,L6  rule=pass6.amount_mismatch
+  [explained]
+    PART_PAYMENT                10,000.00  lines=S2,L2  rule=pass6.part_payment
+    TIMING                       9,120.00  lines=S9  rule=pass6.timing
+
+PROPOSED NORMALISATION RULES
+  MERIDIAN IND SUPPLIES: strip_prefix 'MER-'
+
+BRIDGE
+       34,696.00  ledger open
+       -7,905.00  88690A  duplicate posting in ledger
+       -2,760.00  1147  credit on statement, absent from ledger
+      +15,780.00  88802  invoice not posted
+         +234.00  88741  statement above ledger amount
+      +10,000.00  88367  part payment applied by us, not by supplier
+       +9,120.00  88901  raised after cut-off
+  --------------
+       59,165.00  statement total  [OK ties out]
