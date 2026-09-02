@@ -1,5 +1,6 @@
-/** Live Anthropic smoke test. Skipped automatically unless ANTHROPIC_API_KEY
- * is set — CI and normal test runs never call the model. */
+/** Live Anthropic smoke test. Opt-in only: set TIEOUT_LIVE_EXTRACTION=1 (and
+ * ANTHROPIC_API_KEY) to run it — CI and normal test runs never call the
+ * model. */
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
@@ -7,8 +8,9 @@ import { anthropicVisionClient } from "../src/extract/anthropic";
 import { extractStatement } from "../src/extract/extract";
 
 const apiKey = process.env["ANTHROPIC_API_KEY"];
+const optIn = process.env["TIEOUT_LIVE_EXTRACTION"] === "1";
 
-describe.skipIf(!apiKey)("live extraction smoke test", () => {
+describe.skipIf(!apiKey || !optIn)("live extraction smoke test", () => {
   it("extracts fixtures/smoke_stmt.pdf and ties to the printed balance", async () => {
     const pdf = readFileSync(
       join(__dirname, "..", "..", "fixtures", "smoke_stmt.pdf"),
