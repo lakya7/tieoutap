@@ -6,3 +6,7 @@ export * from "./passes";
 export * from "./bridge";
 export * from "./engine";
 export * from "./serialize";
+export * from "./extract/types";
+export * from "./extract/schema";
+export * from "./extract/extract";
+export * from "./extract/anthropic";
