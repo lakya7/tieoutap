@@ -81,6 +81,16 @@ describe("golden fixture", () => {
     }
   });
 
+  it("parses identically when the CSVs carry a UTF-8 BOM", () => {
+    const stmtText = readFileSync(join(ROOT, "fixtures", "meridian_stmt.csv"), "utf-8");
+    const ledgerText = readFileSync(join(ROOT, "fixtures", "acme_ledger.csv"), "utf-8");
+    const statement = loadStatementCsv("\uFEFF" + stmtText);
+    const ledger = loadLedgerCsv("\uFEFF" + ledgerText);
+    expect(statement[0]!.raw_ref).not.toBe("");
+    const golden = readFileSync(join(ROOT, "fixtures", "golden.json"), "utf-8");
+    expect(toJson(reconcile(statement, ledger, SUPPLIER, AS_AT))).toBe(golden);
+  });
+
   it("warns when ledger as-at differs", () => {
     const { statement, ledger } = load();
     const result = reconcile(

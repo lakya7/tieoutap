@@ -16,7 +16,7 @@ def _parse_date(raw: str) -> date:
 
 def load_statement_csv(path: str | Path) -> list[StatementLine]:
     lines: list[StatementLine] = []
-    with open(path, newline="", encoding="utf-8") as f:
+    with open(path, newline="", encoding="utf-8-sig") as f:
         for i, row in enumerate(csv.DictReader(f)):
             raw_ref = row["ref"].strip()
             lines.append(
@@ -36,7 +36,7 @@ def load_statement_csv(path: str | Path) -> list[StatementLine]:
 
 def load_ledger_csv(path: str | Path) -> list[LedgerLine]:
     lines: list[LedgerLine] = []
-    with open(path, newline="", encoding="utf-8") as f:
+    with open(path, newline="", encoding="utf-8-sig") as f:
         for i, row in enumerate(csv.DictReader(f)):
             raw_ref = row["ref"].strip()
             lines.append(
