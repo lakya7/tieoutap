@@ -62,6 +62,7 @@ function matchAmount(run: Run, m: Match): number {
 
 export function ExceptionQueue({ run }: { run: Run }) {
   const [open, setOpen] = useState<string | null>(null)
+  const { diagnostic } = run.result
   const findings = run.result.findings
     .slice()
     .sort((a, b) => b.amount - a.amount || a.rule_id.localeCompare(b.rule_id))
@@ -69,6 +70,15 @@ export function ExceptionQueue({ run }: { run: Run }) {
     .filter((m) => m.requires_human_confirmation)
     .slice()
     .sort((a, b) => matchAmount(run, b) - matchAmount(run, a))
+
+  if (diagnostic !== null) {
+    return (
+      <p className="rounded-xl border border-red-200 bg-red-50 p-6 text-sm text-red-800 shadow-sm">
+        Reconciliation failed — the bridge does not tie out, so findings are
+        suppressed. Diagnostic: <span className="font-mono">{diagnostic}</span>
+      </p>
+    )
+  }
 
   if (findings.length === 0 && tentative.length === 0) {
     return (

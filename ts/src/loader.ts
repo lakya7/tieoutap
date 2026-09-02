@@ -6,6 +6,7 @@ import { normaliseRef } from "./normalise";
 
 /** Minimal CSV parser: quoted fields with "" escapes, \r\n or \n line ends. */
 export function parseCsv(text: string): Record<string, string>[] {
+  if (text.startsWith("\uFEFF")) text = text.slice(1);
   const rows: string[][] = [];
   let row: string[] = [];
   let field = "";

@@ -4,6 +4,17 @@ import type { Run } from '../lib/run'
 
 export function EmailDraft({ run }: { run: Run }) {
   const [copied, setCopied] = useState(false)
+
+  if (run.result.diagnostic !== null) {
+    return (
+      <p className="rounded-xl border border-red-200 bg-red-50 p-6 text-sm text-red-800 shadow-sm">
+        No email drafted — reconciliation failed (the bridge does not tie out),
+        so there is nothing safe to send the supplier. Diagnostic:{' '}
+        <span className="font-mono">{run.result.diagnostic}</span>
+      </p>
+    )
+  }
+
   const text = draftEmail(run)
 
   const copy = async () => {
