@@ -57,10 +57,10 @@ function MiniBridge() {
           Ties out
         </span>
       </div>
-      <dl className="mt-4 space-y-2 font-mono text-sm">
+      <dl className="mt-4 space-y-2 font-mono text-xs sm:text-sm">
         <div className="flex justify-between text-stone-300">
-          <dt>AP ledger open balance</dt>
-          <dd>34,696.00</dd>
+          <dt className="min-w-0 truncate pr-4">AP ledger open balance</dt>
+          <dd className="shrink-0">34,696.00</dd>
         </div>
         {[
           ['Invoice missing from ledger', '+15,780.00'],
@@ -69,15 +69,17 @@ function MiniBridge() {
           ['Credit not yet claimed', '\u22122,760.00'],
         ].map(([label, amount]) => (
           <div key={label} className="flex justify-between text-stone-400">
-            <dt className="truncate pr-4">{label}</dt>
-            <dd className={amount.startsWith('+') ? 'text-emerald-300' : 'text-fuchsia-300'}>
+            <dt className="min-w-0 truncate pr-4">{label}</dt>
+            <dd
+              className={`shrink-0 ${amount.startsWith('+') ? 'text-emerald-300' : 'text-fuchsia-300'}`}
+            >
               {amount}
             </dd>
           </div>
         ))}
         <div className="flex justify-between border-t border-white/10 pt-2 font-semibold text-white">
-          <dt>Supplier statement balance</dt>
-          <dd>59,165.00</dd>
+          <dt className="min-w-0 truncate pr-4">Supplier statement balance</dt>
+          <dd className="shrink-0">59,165.00</dd>
         </div>
       </dl>
     </div>
