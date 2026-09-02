@@ -13,12 +13,16 @@ interface FileDropProps {
 
 function FileDrop({ label, hint, fileName, onText }: FileDropProps) {
   const inputRef = useRef<HTMLInputElement>(null)
+  const readSeq = useRef(0)
   const [dragging, setDragging] = useState(false)
 
   const readFile = (file: File | undefined) => {
     if (!file) return
+    const seq = ++readSeq.current
     const reader = new FileReader()
-    reader.onload = () => onText(file.name, String(reader.result))
+    reader.onload = () => {
+      if (seq === readSeq.current) onText(file.name, String(reader.result))
+    }
     reader.readAsText(file)
   }
 
@@ -73,6 +77,8 @@ export function UploadPanel({ onRun, error }: UploadPanelProps) {
   const [ledger, setLedger] = useState<{ name: string; text: string } | null>(null)
   const [supplier, setSupplier] = useState('')
   const [asAt, setAsAt] = useState('')
+  const supplierAuto = useRef(true)
+  const asAtAuto = useRef(true)
 
   const ready = statement !== null && ledger !== null && supplier !== '' && asAt !== ''
 
@@ -81,6 +87,8 @@ export function UploadPanel({ onRun, error }: UploadPanelProps) {
     setLedger({ name: 'acme_ledger.csv', text: ledgerSample })
     setSupplier(deriveSupplier(ledgerSample))
     setAsAt(deriveAsAt(statementSample))
+    supplierAuto.current = true
+    asAtAuto.current = true
   }
 
   return (
@@ -98,7 +106,7 @@ export function UploadPanel({ onRun, error }: UploadPanelProps) {
             fileName={statement?.name ?? null}
             onText={(name, text) => {
               setStatement({ name, text })
-              if (!asAt) setAsAt(deriveAsAt(text))
+              if (asAtAuto.current || !asAt) setAsAt(deriveAsAt(text))
             }}
           />
           <FileDrop
@@ -107,7 +115,7 @@ export function UploadPanel({ onRun, error }: UploadPanelProps) {
             fileName={ledger?.name ?? null}
             onText={(name, text) => {
               setLedger({ name, text })
-              if (!supplier) setSupplier(deriveSupplier(text))
+              if (supplierAuto.current || !supplier) setSupplier(deriveSupplier(text))
             }}
           />
         </div>
@@ -119,7 +127,10 @@ export function UploadPanel({ onRun, error }: UploadPanelProps) {
             <input
               type="text"
               value={supplier}
-              onChange={(e) => setSupplier(e.target.value)}
+              onChange={(e) => {
+                supplierAuto.current = false
+                setSupplier(e.target.value)
+              }}
               placeholder="MERIDIAN IND SUPPLIES"
               className="mt-1 w-full rounded-md border border-stone-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none"
             />
@@ -131,7 +142,10 @@ export function UploadPanel({ onRun, error }: UploadPanelProps) {
             <input
               type="date"
               value={asAt}
-              onChange={(e) => setAsAt(e.target.value)}
+              onChange={(e) => {
+                asAtAuto.current = false
+                setAsAt(e.target.value)
+              }}
               className="mt-1 w-full rounded-md border border-stone-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none"
             />
           </label>

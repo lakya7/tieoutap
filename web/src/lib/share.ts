@@ -51,7 +51,14 @@ export function shareUrl(input: RunInput): string {
   return `${location.origin}${location.pathname}#run=${encodeRun(input)}`
 }
 
-export function runFromLocation(): RunInput | null {
+export type LocationRun =
+  | { kind: 'none' }
+  | { kind: 'invalid' }
+  | { kind: 'run'; input: RunInput }
+
+export function runFromLocation(): LocationRun {
   const m = location.hash.match(/^#run=(.+)$/)
-  return m ? decodeRun(m[1]!) : null
+  if (!m) return { kind: 'none' }
+  const input = decodeRun(m[1]!)
+  return input ? { kind: 'run', input } : { kind: 'invalid' }
 }

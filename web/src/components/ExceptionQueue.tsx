@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { formatCentsGrouped } from '../../../ts/src'
-import type { Finding } from '../../../ts/src'
+import type { Finding, Match } from '../../../ts/src'
 import { findingRefs } from '../lib/email'
 import type { Run } from '../lib/run'
 
@@ -16,6 +16,11 @@ const BUCKET_LABELS: Record<string, string> = {
   unrecorded_liability: 'Unrecorded liability',
   investigate: 'Investigate',
   explained: 'Explained',
+}
+
+const METHOD_LABELS: Record<string, string> = {
+  amount_date: 'Amount + date',
+  subset_sum: 'Sum of lines',
 }
 
 function EvidenceRow({ finding }: { finding: Finding }) {
@@ -43,13 +48,29 @@ function EvidenceRow({ finding }: { finding: Finding }) {
   )
 }
 
+function refsFor(run: Run, ids: string[]): string {
+  const byId = new Map<string, string>()
+  for (const l of run.statement) byId.set(l.id, l.raw_ref)
+  for (const l of run.ledger) byId.set(l.id, l.raw_ref)
+  return [...new Set(ids.map((id) => byId.get(id) ?? id))].join(', ')
+}
+
+function matchAmount(run: Run, m: Match): number {
+  const byId = new Map(run.statement.map((l) => [l.id, l.amount]))
+  return m.statement_line_ids.reduce((sum, id) => sum + (byId.get(id) ?? 0), 0)
+}
+
 export function ExceptionQueue({ run }: { run: Run }) {
-  const [open, setOpen] = useState<number | null>(null)
+  const [open, setOpen] = useState<string | null>(null)
   const findings = run.result.findings
     .slice()
     .sort((a, b) => b.amount - a.amount || a.rule_id.localeCompare(b.rule_id))
+  const tentative = run.result.matches
+    .filter((m) => m.requires_human_confirmation)
+    .slice()
+    .sort((a, b) => matchAmount(run, b) - matchAmount(run, a))
 
-  if (findings.length === 0) {
+  if (findings.length === 0 && tentative.length === 0) {
     return (
       <p className="rounded-xl border border-stone-200 bg-white p-6 text-sm text-stone-500 shadow-sm">
         No exceptions — every statement line matched the ledger.
@@ -58,29 +79,78 @@ export function ExceptionQueue({ run }: { run: Run }) {
   }
 
   return (
-    <div className="overflow-hidden rounded-xl border border-stone-200 bg-white shadow-sm">
-      <table className="w-full text-left text-sm">
-        <thead>
-          <tr className="border-b border-stone-200 text-xs uppercase tracking-wide text-stone-500">
-            <th className="px-4 py-3 font-medium">Type</th>
-            <th className="px-4 py-3 font-medium">Bucket</th>
-            <th className="px-4 py-3 font-medium">References</th>
-            <th className="px-4 py-3 text-right font-medium">Amount</th>
-            <th className="px-4 py-3" />
-          </tr>
-        </thead>
-        <tbody>
-          {findings.map((f, i) => (
-            <FindingRows
-              key={`${f.rule_id}-${i}`}
-              run={run}
-              finding={f}
-              open={open === i}
-              onToggle={() => setOpen(open === i ? null : i)}
-            />
-          ))}
-        </tbody>
-      </table>
+    <div className="space-y-6">
+      {findings.length > 0 && (
+        <div className="rounded-xl border border-stone-200 bg-white shadow-sm">
+          <div className="overflow-x-auto rounded-xl">
+            <table className="w-full text-left text-sm">
+              <thead>
+                <tr className="border-b border-stone-200 text-xs uppercase tracking-wide text-stone-500">
+                  <th className="px-4 py-3 font-medium">Type</th>
+                  <th className="px-4 py-3 font-medium">Bucket</th>
+                  <th className="px-4 py-3 font-medium">References</th>
+                  <th className="px-4 py-3 text-right font-medium">Amount</th>
+                  <th className="px-4 py-3" />
+                </tr>
+              </thead>
+              <tbody>
+                {findings.map((f, i) => (
+                  <FindingRows
+                    key={`f-${i}`}
+                    run={run}
+                    finding={f}
+                    open={open === `f-${i}`}
+                    onToggle={() => setOpen(open === `f-${i}` ? null : `f-${i}`)}
+                  />
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {tentative.length > 0 && (
+        <div className="rounded-xl border border-stone-200 bg-white shadow-sm">
+          <div className="border-b border-stone-200 px-4 py-3">
+            <h3 className="text-sm font-semibold">Matches needing confirmation</h3>
+            <p className="mt-0.5 text-xs text-stone-500">
+              Matched without a reference — confirm each pairing before relying on it.
+            </p>
+          </div>
+          <div className="overflow-x-auto rounded-b-xl">
+            <table className="w-full text-left text-sm">
+              <thead>
+                <tr className="border-b border-stone-200 text-xs uppercase tracking-wide text-stone-500">
+                  <th className="px-4 py-3 font-medium">Method</th>
+                  <th className="px-4 py-3 font-medium">Confidence</th>
+                  <th className="px-4 py-3 font-medium">Statement refs</th>
+                  <th className="px-4 py-3 font-medium">Ledger refs</th>
+                  <th className="px-4 py-3 text-right font-medium">Amount</th>
+                </tr>
+              </thead>
+              <tbody>
+                {tentative.map((m, i) => (
+                  <tr key={`m-${i}`} className="border-b border-stone-100 last:border-b-0">
+                    <td className="px-4 py-3 text-xs">
+                      {METHOD_LABELS[m.method] ?? m.method}
+                    </td>
+                    <td className="px-4 py-3 font-mono text-xs">{m.confidence}</td>
+                    <td className="px-4 py-3 font-mono text-xs">
+                      {refsFor(run, m.statement_line_ids)}
+                    </td>
+                    <td className="px-4 py-3 font-mono text-xs">
+                      {refsFor(run, m.ledger_line_ids)}
+                    </td>
+                    <td className="px-4 py-3 text-right font-mono tabular-nums">
+                      {formatCentsGrouped(matchAmount(run, m))}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
@@ -105,7 +175,7 @@ function FindingRows({
         <td className="px-4 py-3 font-mono text-xs font-semibold">{finding.type}</td>
         <td className="px-4 py-3">
           <span
-            className={`rounded-full px-2 py-0.5 text-xs font-medium ${
+            className={`whitespace-nowrap rounded-full px-2 py-0.5 text-xs font-medium ${
               BUCKET_STYLES[finding.bucket] ?? 'bg-stone-100 text-stone-600'
             }`}
           >

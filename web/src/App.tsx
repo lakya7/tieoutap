@@ -29,15 +29,18 @@ export default function App() {
       setTab('queue')
       history.replaceState(null, '', `#run=${shareUrl(input).split('#run=')[1]}`)
     } catch (e) {
-      setError(e instanceof Error ? e.message : String(e))
+      const detail = e instanceof Error ? e.message : String(e)
+      setError(`Could not read the CSV files (${detail}). Check the column layout against the hints on each upload box.`)
     }
   }
 
   useEffect(() => {
     const fromUrl = runFromLocation()
-    if (fromUrl) {
+    if (fromUrl.kind === 'invalid') {
+      setError('The shared run link is malformed or incomplete — ask the sender to copy it again.')
+    } else if (fromUrl.kind === 'run') {
       try {
-        setRun(executeRun(fromUrl))
+        setRun(executeRun(fromUrl.input))
       } catch {
         setError('The shared run link could not be loaded.')
       }
