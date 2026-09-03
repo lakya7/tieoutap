@@ -98,7 +98,7 @@ export default function App() {
         <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
           <div className="flex items-baseline gap-3">
             <button type="button" onClick={goHome} className="text-xl font-bold tracking-tight">
-              TieOut <span className="text-emerald-600">AP</span>
+              TieOut <span className="text-blue-700">AP</span>
             </button>
             <span className="hidden text-sm text-stone-500 sm:inline">
               supplier statement reconciliation
