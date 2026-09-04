@@ -3,43 +3,21 @@ import statementSample from '../../../fixtures/meridian_stmt.csv?raw'
 import ledgerSample from '../../../fixtures/acme_ledger.csv?raw'
 import { deriveAsAt, deriveSupplier } from '../lib/run'
 import type { RunInput } from '../lib/run'
-import {
-  documentMediaType,
-  extractDocument,
-  linesToStatementCsv,
-  refusalMessage,
-} from '../lib/extract'
 
 interface FileDropProps {
   label: string
   hint: string
   fileName: string | null
-  accept: string
-  busy?: boolean
   onText: (name: string, text: string) => void
-  onDocument?: (file: File, mediaType: string) => void
 }
 
-function FileDrop({
-  label,
-  hint,
-  fileName,
-  accept,
-  busy,
-  onText,
-  onDocument,
-}: FileDropProps) {
+function FileDrop({ label, hint, fileName, onText }: FileDropProps) {
   const inputRef = useRef<HTMLInputElement>(null)
   const readSeq = useRef(0)
   const [dragging, setDragging] = useState(false)
 
   const readFile = (file: File | undefined) => {
     if (!file) return
-    const mediaType = onDocument ? documentMediaType(file) : null
-    if (mediaType && onDocument) {
-      onDocument(file, mediaType)
-      return
-    }
     const seq = ++readSeq.current
     const reader = new FileReader()
     reader.onload = () => {
@@ -73,14 +51,12 @@ function FileDrop({
       <input
         ref={inputRef}
         type="file"
-        accept={accept}
+        accept=".csv,text/csv"
         className="hidden"
         onChange={(e) => readFile(e.target.files?.[0])}
       />
       <span className="text-sm font-semibold text-stone-700">{label}</span>
-      {busy ? (
-        <span className="text-xs text-stone-500">Reading the statement…</span>
-      ) : fileName ? (
+      {fileName ? (
         <span className="rounded bg-emerald-100 px-2 py-0.5 font-mono text-xs text-emerald-800">
           {fileName}
         </span>
@@ -101,44 +77,8 @@ export function UploadPanel({ onRun, error }: UploadPanelProps) {
   const [ledger, setLedger] = useState<{ name: string; text: string } | null>(null)
   const [supplier, setSupplier] = useState('')
   const [asAt, setAsAt] = useState('')
-  const [extracting, setExtracting] = useState(false)
-  const [extractionNote, setExtractionNote] = useState<
-    { kind: 'ok' | 'error'; text: string } | null
-  >(null)
   const supplierAuto = useRef(true)
   const asAtAuto = useRef(true)
-  const extractSeq = useRef(0)
-
-  const runExtraction = (file: File, mediaType: string) => {
-    const seq = ++extractSeq.current
-    setExtracting(true)
-    setExtractionNote(null)
-    void extractDocument(file, mediaType)
-      .then((result) => {
-        if (seq !== extractSeq.current) return
-        if (!result.ok) {
-          setExtractionNote({ kind: 'error', text: refusalMessage(result) })
-          return
-        }
-        setStatement({ name: file.name, text: linesToStatementCsv(result.lines) })
-        if (supplierAuto.current || !supplier) setSupplier(result.supplier)
-        if (asAtAuto.current || !asAt) setAsAt(result.as_at)
-        setExtractionNote({
-          kind: 'ok',
-          text: `Read ${result.lines.length} lines from ${file.name}; they add up to the statement’s printed closing balance.`,
-        })
-      })
-      .catch((e: unknown) => {
-        if (seq !== extractSeq.current) return
-        setExtractionNote({
-          kind: 'error',
-          text: `Could not reach the extraction service: ${e instanceof Error ? e.message : String(e)}`,
-        })
-      })
-      .finally(() => {
-        if (seq === extractSeq.current) setExtracting(false)
-      })
-  }
 
   const ready = statement !== null && ledger !== null && supplier !== '' && asAt !== ''
 
@@ -149,9 +89,6 @@ export function UploadPanel({ onRun, error }: UploadPanelProps) {
     setAsAt(deriveAsAt(statementSample))
     supplierAuto.current = true
     asAtAuto.current = true
-    extractSeq.current++
-    setExtracting(false)
-    setExtractionNote(null)
   }
 
   return (
@@ -159,22 +96,15 @@ export function UploadPanel({ onRun, error }: UploadPanelProps) {
       <div className="rounded-xl border border-stone-200 bg-white p-6 shadow-sm">
         <h2 className="text-lg font-semibold">Start a reconciliation run</h2>
         <p className="mt-1 text-sm text-stone-500">
-          Upload the supplier statement and your AP open-items export. Reconciliation runs
-          in your browser; only a PDF or image statement is sent to the server, to be read
-          into lines.
+          Upload the supplier statement and your AP open-items export. Everything runs in
+          your browser — no data leaves this page.
         </p>
         <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
           <FileDrop
-            label="Supplier statement (PDF, image or CSV)"
-            hint="PDF/PNG/JPG are read for you; CSV columns: ref, date, type, amount, po, currency"
-            accept=".csv,text/csv,.pdf,application/pdf,image/png,image/jpeg,image/gif,image/webp"
-            busy={extracting}
+            label="Supplier statement (CSV)"
+            hint="columns: ref, date, type, amount, po, currency"
             fileName={statement?.name ?? null}
-            onDocument={runExtraction}
             onText={(name, text) => {
-              extractSeq.current++
-              setExtracting(false)
-              setExtractionNote(null)
               setStatement({ name, text })
               if (asAtAuto.current || !asAt) setAsAt(deriveAsAt(text))
             }}
@@ -182,7 +112,6 @@ export function UploadPanel({ onRun, error }: UploadPanelProps) {
           <FileDrop
             label="AP open-items export (CSV)"
             hint="columns: supplier, ref, date, type, original, open, po, currency"
-            accept=".csv,text/csv"
             fileName={ledger?.name ?? null}
             onText={(name, text) => {
               setLedger({ name, text })
@@ -221,17 +150,6 @@ export function UploadPanel({ onRun, error }: UploadPanelProps) {
             />
           </label>
         </div>
-        {extractionNote && (
-          <p
-            className={`mt-4 rounded-md border px-3 py-2 text-sm ${
-              extractionNote.kind === 'ok'
-                ? 'border-blue-200 bg-blue-50 text-blue-800'
-                : 'border-amber-200 bg-amber-50 text-amber-800'
-            }`}
-          >
-            {extractionNote.text}
-          </p>
-        )}
         {error && (
           <p className="mt-4 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
             {error}
@@ -247,7 +165,7 @@ export function UploadPanel({ onRun, error }: UploadPanelProps) {
           </button>
           <button
             type="button"
-            disabled={!ready || extracting}
+            disabled={!ready}
             onClick={() =>
               ready &&
               onRun({
