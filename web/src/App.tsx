@@ -1,10 +1,13 @@
 import { useEffect, useState } from 'react'
+import statementSample from '../../fixtures/meridian_stmt.csv?raw'
+import ledgerSample from '../../fixtures/acme_ledger.csv?raw'
 import { BridgeView } from './components/BridgeView'
 import { EmailDraft } from './components/EmailDraft'
 import { ExceptionQueue } from './components/ExceptionQueue'
+import { Landing } from './components/Landing'
 import { SummaryBar } from './components/SummaryBar'
 import { UploadPanel } from './components/UploadPanel'
-import { executeRun } from './lib/run'
+import { deriveAsAt, deriveSupplier, executeRun } from './lib/run'
 import type { Run, RunInput } from './lib/run'
 import { runFromLocation, shareUrl } from './lib/share'
 
@@ -21,6 +24,9 @@ export default function App() {
   const [error, setError] = useState<string | null>(null)
   const [tab, setTab] = useState<Tab>('queue')
   const [linkCopied, setLinkCopied] = useState(false)
+  const [view, setView] = useState<'landing' | 'app'>(() =>
+    location.hash === '' ? 'landing' : 'app',
+  )
 
   const start = (input: RunInput) => {
     try {
@@ -50,6 +56,28 @@ export default function App() {
   const reset = () => {
     setRun(null)
     setError(null)
+    history.replaceState(null, '', `${location.pathname}#app`)
+  }
+
+  const openApp = () => {
+    setView('app')
+    history.replaceState(null, '', `${location.pathname}#app`)
+  }
+
+  const sampleRun = () => {
+    setView('app')
+    start({
+      statementCsv: statementSample,
+      ledgerCsv: ledgerSample,
+      supplier: deriveSupplier(ledgerSample),
+      asAt: deriveAsAt(statementSample),
+    })
+  }
+
+  const goHome = () => {
+    setView('landing')
+    setRun(null)
+    setError(null)
     history.replaceState(null, '', location.pathname)
   }
 
@@ -60,14 +88,18 @@ export default function App() {
     setTimeout(() => setLinkCopied(false), 2000)
   }
 
+  if (view === 'landing') {
+    return <Landing onOpenApp={openApp} onSampleRun={sampleRun} />
+  }
+
   return (
     <div className="min-h-screen">
       <header className="border-b border-stone-200 bg-white">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
           <div className="flex items-baseline gap-3">
-            <h1 className="text-xl font-bold tracking-tight">
-              TieOut <span className="text-emerald-600">AP</span>
-            </h1>
+            <button type="button" onClick={goHome} className="text-xl font-bold tracking-tight">
+              TieOut <span className="text-blue-700">AP</span>
+            </button>
             <span className="hidden text-sm text-stone-500 sm:inline">
               supplier statement reconciliation
             </span>
