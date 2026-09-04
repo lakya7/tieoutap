@@ -25,16 +25,31 @@ const FEATURES = [
   },
 ]
 
+const AI_SPLIT = [
+  {
+    label: 'AI does the reading',
+    body: 'A vision model transcribes the supplier’s PDF or scan into lines — reference, date, type, amount, PO — so nobody rekeys a statement again. It only ever reads; it never decides anything.',
+    guard:
+      'Guard rail: the extracted lines must add up to the statement’s own printed closing balance. If they do not, TieOut AP refuses to reconcile rather than hand you a plausible wrong number.',
+  },
+  {
+    label: 'The engine does the accounting',
+    body: 'Matching, arithmetic, classification and the bridge run in a deterministic six-pass cascade with no model anywhere in the path. The same lines always produce the same findings and the same bridge.',
+    guard:
+      'Low-confidence matches are surfaced as needing human confirmation, never quietly applied. You review and decide.',
+  },
+]
+
 const STEPS = [
   {
     n: '1',
     title: 'Drop in two files',
-    body: 'The supplier statement and your AP open-items export. Any ERP — it is just CSV.',
+    body: 'The supplier statement as a PDF, scan or CSV, plus your AP open-items export. Any ERP.',
   },
   {
     n: '2',
     title: 'Reconcile in the browser',
-    body: 'The deterministic engine matches line by line. Your data never leaves the machine.',
+    body: 'The deterministic engine matches line by line, in the browser, on your own machine.',
   },
   {
     n: '3',
@@ -138,7 +153,8 @@ export function Landing({ onOpenApp, onSampleRun }: LandingProps) {
               </button>
             </div>
             <p className="mt-6 text-sm text-slate-500">
-              Runs entirely in your browser — your ledger never leaves the machine.
+              Reconciliation runs in your browser — your AP ledger never leaves the
+              machine. Only a PDF or scanned statement is sent out, to be read.
             </p>
           </div>
           <div className="flex justify-center lg:justify-end">
@@ -178,6 +194,31 @@ export function Landing({ onOpenApp, onSampleRun }: LandingProps) {
         </div>
       </section>
 
+      {/* AI where it helps */}
+      <section className="border-t border-slate-200 bg-white">
+        <div className="mx-auto max-w-6xl px-6 pb-20">
+          <h2 className="font-display text-center text-3xl font-bold tracking-tight text-slate-900">
+            AI where it helps, determinism where it counts
+          </h2>
+          <p className="mx-auto mt-4 max-w-2xl text-center text-slate-600">
+            Reading a supplier statement is a document problem. Reconciling one is an
+            arithmetic problem. TieOut AP uses AI for the first and refuses to use it for
+            the second.
+          </p>
+          <div className="mt-12 grid gap-6 md:grid-cols-2">
+            {AI_SPLIT.map((c) => (
+              <div key={c.label} className="rounded-2xl border border-slate-200 bg-slate-50 p-7">
+                <h3 className="font-display text-xl font-bold text-slate-900">{c.label}</h3>
+                <p className="mt-3 text-sm leading-relaxed text-slate-600">{c.body}</p>
+                <p className="mt-4 border-l-2 border-blue-700 pl-4 text-sm leading-relaxed text-slate-700">
+                  {c.guard}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* How it works */}
       <section className="border-y border-slate-200 bg-slate-50">
         <div className="mx-auto max-w-6xl px-6 py-20">
@@ -205,8 +246,9 @@ export function Landing({ onOpenApp, onSampleRun }: LandingProps) {
         </h2>
         <p className="mt-4 text-slate-600">
           The engine is deterministic: the same two files always produce the same
-          findings, the same bridge, the same email. No model in the matching path, no
-          ERP writes, no stored credentials, and nothing is ever sent on your behalf.
+          findings, the same bridge, the same email. AI reads the statement and nothing
+          else — no model in the matching path, no ERP writes, no stored credentials, and
+          nothing is ever sent on your behalf.
         </p>
       </section>
 
