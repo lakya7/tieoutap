@@ -29,7 +29,7 @@ const STEPS = [
   {
     n: '1',
     title: 'Drop in two files',
-    body: 'The supplier statement and your AP open-items export. Any ERP — it is just CSV.',
+    body: 'The supplier statement and your AP open-items export — CSV, TSV, or Excel, straight from any ERP.',
   },
   {
     n: '2',

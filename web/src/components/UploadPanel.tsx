@@ -3,6 +3,7 @@ import statementSample from '../../../fixtures/meridian_stmt.csv?raw'
 import ledgerSample from '../../../fixtures/acme_ledger.csv?raw'
 import { deriveAsAt, deriveSupplier } from '../lib/run'
 import type { RunInput } from '../lib/run'
+import { fileToCsvText } from '../lib/tabular'
 
 interface FileDropProps {
   label: string
@@ -15,15 +16,21 @@ function FileDrop({ label, hint, fileName, onText }: FileDropProps) {
   const inputRef = useRef<HTMLInputElement>(null)
   const readSeq = useRef(0)
   const [dragging, setDragging] = useState(false)
+  const [readError, setReadError] = useState<string | null>(null)
 
   const readFile = (file: File | undefined) => {
     if (!file) return
     const seq = ++readSeq.current
-    const reader = new FileReader()
-    reader.onload = () => {
-      if (seq === readSeq.current) onText(file.name, String(reader.result))
-    }
-    reader.readAsText(file)
+    fileToCsvText(file)
+      .then((text) => {
+        if (seq !== readSeq.current) return
+        setReadError(null)
+        onText(file.name, text)
+      })
+      .catch((e: unknown) => {
+        if (seq !== readSeq.current) return
+        setReadError(`Could not read ${file.name}: ${e instanceof Error ? e.message : String(e)}`)
+      })
   }
 
   return (
@@ -51,12 +58,14 @@ function FileDrop({ label, hint, fileName, onText }: FileDropProps) {
       <input
         ref={inputRef}
         type="file"
-        accept=".csv,text/csv"
+        accept=".csv,.tsv,.txt,.xlsx,.xls,.xlsm,.xlsb,.ods,text/csv,text/tab-separated-values,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         className="hidden"
         onChange={(e) => readFile(e.target.files?.[0])}
       />
       <span className="text-sm font-semibold text-stone-700">{label}</span>
-      {fileName ? (
+      {readError ? (
+        <span className="px-2 text-xs text-red-600">{readError}</span>
+      ) : fileName ? (
         <span className="rounded bg-emerald-100 px-2 py-0.5 font-mono text-xs text-emerald-800">
           {fileName}
         </span>
@@ -101,8 +110,8 @@ export function UploadPanel({ onRun, error }: UploadPanelProps) {
         </p>
         <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
           <FileDrop
-            label="Supplier statement (CSV)"
-            hint="columns: ref, date, type, amount, po, currency"
+            label="Supplier statement (CSV / Excel)"
+            hint="CSV, TSV, or Excel — columns: ref, date, type, amount, po, currency"
             fileName={statement?.name ?? null}
             onText={(name, text) => {
               setStatement({ name, text })
@@ -110,8 +119,8 @@ export function UploadPanel({ onRun, error }: UploadPanelProps) {
             }}
           />
           <FileDrop
-            label="AP open-items export (CSV)"
-            hint="columns: supplier, ref, date, type, original, open, po, currency"
+            label="AP open-items export (CSV / Excel)"
+            hint="CSV, TSV, or Excel — columns: supplier, ref, date, type, original, open, po, currency"
             fileName={ledger?.name ?? null}
             onText={(name, text) => {
               setLedger({ name, text })
