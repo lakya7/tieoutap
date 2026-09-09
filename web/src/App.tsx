@@ -25,7 +25,7 @@ export default function App() {
   const [tab, setTab] = useState<Tab>('queue')
   const [linkCopied, setLinkCopied] = useState(false)
   const [view, setView] = useState<'landing' | 'app'>(() =>
-    location.hash === '' ? 'landing' : 'app',
+    location.hash === '' || location.hash === '#contact' ? 'landing' : 'app',
   )
 
   const start = (input: RunInput) => {

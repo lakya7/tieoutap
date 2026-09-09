@@ -1,3 +1,5 @@
+import { ContactSection } from './ContactSection'
+
 interface LandingProps {
   onOpenApp: () => void
   onSampleRun: () => void
@@ -106,6 +108,12 @@ export function Landing({ onOpenApp, onSampleRun }: LandingProps) {
             TieOut <span className="text-blue-700">AP</span>
           </span>
           <div className="flex items-center gap-3">
+            <a
+              href="#contact"
+              className="hidden px-2 py-2 text-sm font-medium text-slate-700 hover:text-blue-700 sm:block"
+            >
+              Contact
+            </a>
             <button
               type="button"
               onClick={onSampleRun}
@@ -247,6 +255,9 @@ export function Landing({ onOpenApp, onSampleRun }: LandingProps) {
         </p>
       </section>
 
+      {/* Contact */}
+      <ContactSection />
+
       {/* Final CTA */}
       <section className="bg-slate-900">
         <div className="mx-auto max-w-6xl px-6 py-16 text-center text-white">
@@ -275,8 +286,13 @@ export function Landing({ onOpenApp, onSampleRun }: LandingProps) {
             <span>
               TieOut <span className="text-blue-400">AP</span> — tieoutap.com
             </span>
-            <span>
-              Never writes to your ERP. Holds no credentials. Sends nothing on your behalf.
+            <span className="flex items-center gap-4">
+              <a href="#contact" className="text-slate-300 hover:text-white">
+                Contact
+              </a>
+              <span>
+                Never writes to your ERP. Holds no credentials. Sends nothing on your behalf.
+              </span>
             </span>
           </div>
         </footer>
