@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import statementSample from '../../fixtures/meridian_stmt.csv?raw'
 import ledgerSample from '../../fixtures/acme_ledger.csv?raw'
+import { AuthPanel } from './components/AuthPanel'
 import { BridgeView } from './components/BridgeView'
 import { EmailDraft } from './components/EmailDraft'
 import { ExceptionQueue } from './components/ExceptionQueue'
@@ -10,6 +11,7 @@ import { UploadPanel } from './components/UploadPanel'
 import { deriveAsAt, deriveSupplier, executeRun } from './lib/run'
 import type { Run, RunInput } from './lib/run'
 import { runFromLocation, shareUrl } from './lib/share'
+import { useAuth } from './lib/auth'
 
 type Tab = 'queue' | 'bridge' | 'email'
 
@@ -27,6 +29,7 @@ export default function App() {
   const [view, setView] = useState<'landing' | 'app'>(() =>
     location.hash === '' || location.hash === '#contact' ? 'landing' : 'app',
   )
+  const { session, loading: authLoading, enabled: authEnabled, signOut } = useAuth()
 
   const start = (input: RunInput) => {
     try {
@@ -104,8 +107,23 @@ export default function App() {
               supplier statement reconciliation
             </span>
           </div>
-          {run && (
-            <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3">
+            {authEnabled && session && (
+              <>
+                <span className="hidden text-sm text-stone-500 sm:inline">
+                  {session.user.email}
+                </span>
+                <button
+                  type="button"
+                  onClick={signOut}
+                  className="rounded-md border border-stone-300 px-3 py-1.5 text-sm font-medium hover:bg-stone-50"
+                >
+                  Sign out
+                </button>
+              </>
+            )}
+            {run && (
+              <>
               <button
                 type="button"
                 onClick={copyLink}
@@ -120,14 +138,23 @@ export default function App() {
               >
                 New run
               </button>
-            </div>
-          )}
+              </>
+            )}
+          </div>
         </div>
       </header>
 
       <main className="mx-auto max-w-5xl px-6 py-8">
         {!run ? (
-          <UploadPanel onRun={start} error={error} />
+          authEnabled && !session ? (
+            authLoading ? (
+              <p className="py-16 text-center text-sm text-stone-500">Loading…</p>
+            ) : (
+              <AuthPanel />
+            )
+          ) : (
+            <UploadPanel onRun={start} error={error} />
+          )
         ) : (
           <div className="space-y-6">
             <SummaryBar result={run.result} />
