@@ -7,16 +7,16 @@ interface LandingProps {
 }
 
 const STATS = [
-  { value: '6-pass', label: 'matching cascade' },
+  { value: '0.00', label: 'unexplained — the bridge ties exactly or the tool refuses' },
+  { value: '6 kinds', label: 'of difference, named in AP language' },
   { value: '100%', label: 'deterministic — same files, same answer' },
-  { value: 'To the penny', label: 'exact bridge between both balances' },
-  { value: '0', label: 'ERP writes, credentials, or auto-emails' },
+  { value: 'None', label: 'ERP integration, credentials, or auto-emails' },
 ]
 
 const FEATURES = [
   {
-    title: 'Exception queue',
-    body: 'Every difference classified and sorted by amount — duplicates, unrecorded liabilities, unclaimed credits, part payments, mismatches, timing — each with the evidence behind it.',
+    title: 'Every difference, named',
+    body: 'Duplicate payments, invoices missing from your ledger, credits you haven\u2019t claimed, payments the supplier hasn\u2019t applied, amounts keyed differently, timing — sorted largest first, each with the evidence behind it.',
   },
   {
     title: 'Exact bridge',
@@ -31,18 +31,23 @@ const FEATURES = [
 const STEPS = [
   {
     n: '1',
-    title: 'Drop in two files',
-    body: 'The supplier statement and your AP open-items export — CSV, TSV, or Excel, straight from any ERP.',
+    title: 'Match',
+    body: 'Drop in the supplier statement and your AP export — Excel, CSV, or TSV, straight from any ERP. The engine matches invoices, payments, and credits line by line, in your browser.',
   },
   {
     n: '2',
-    title: 'Reconcile in the browser',
-    body: 'The deterministic engine matches line by line. Your data never leaves the machine.',
+    title: 'Explain',
+    body: 'Every unmatched line is classified in AP language, and the two balances are bridged exactly — 0.00 unexplained, or the tool tells you why it refused.',
   },
   {
     n: '3',
-    title: 'Clear the differences',
-    body: 'Work the queue, check the bridge, copy the drafted email, share the run with a link.',
+    title: 'Investigate',
+    body: 'Work the exception queue largest-first. Uncertain matches are flagged for your confirmation, never quietly applied.',
+  },
+  {
+    n: '4',
+    title: 'Resolve',
+    body: 'Copy the drafted supplier email, share the run with a link, and sign the statement off.',
   },
 ]
 
@@ -61,25 +66,42 @@ const NO_AI = [
   },
 ]
 
-function MiniBridge() {
+function ResultCard() {
   return (
     <div className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-5 shadow-xl shadow-slate-900/5">
       <div className="flex items-center justify-between">
-        <span className="text-xs font-semibold uppercase tracking-wider text-blue-700">Bridge</span>
+        <span className="text-xs font-semibold uppercase tracking-wider text-blue-700">
+          Reconciliation result
+        </span>
         <span className="rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-semibold text-emerald-700 ring-1 ring-inset ring-emerald-200">
-          Ties out
+          0.00 unexplained
         </span>
       </div>
-      <dl className="mt-4 space-y-2 font-mono text-xs sm:text-sm">
+      <dl className="mt-4 space-y-1.5 font-mono text-xs sm:text-sm">
         <div className="flex justify-between text-slate-700">
-          <dt className="min-w-0 truncate pr-4">AP ledger open balance</dt>
+          <dt className="min-w-0 truncate pr-4">Supplier statement balance</dt>
+          <dd className="shrink-0">59,165.00</dd>
+        </div>
+        <div className="flex justify-between text-slate-700">
+          <dt className="min-w-0 truncate pr-4">Your AP ledger balance</dt>
           <dd className="shrink-0">34,696.00</dd>
         </div>
+        <div className="flex justify-between border-t border-slate-200 pt-1.5 font-semibold text-slate-900">
+          <dt className="min-w-0 truncate pr-4">Difference</dt>
+          <dd className="shrink-0">24,469.00</dd>
+        </div>
+      </dl>
+      <p className="mt-4 text-xs font-semibold uppercase tracking-wider text-slate-400">
+        Explained by
+      </p>
+      <dl className="mt-2 space-y-1.5 font-mono text-xs sm:text-sm">
         {[
-          ['Invoice missing from ledger', '+15,780.00'],
-          ['Part payment in transit', '+10,000.00'],
-          ['Duplicate ledger posting', '\u22127,905.00'],
-          ['Credit not yet claimed', '\u22122,760.00'],
+          ['Invoice missing from your ledger', '+15,780.00'],
+          ['Your payment not yet applied', '+10,000.00'],
+          ['Invoice in transit (timing)', '+9,120.00'],
+          ['Duplicate posting in your ledger', '\u22127,905.00'],
+          ['Credit you haven\u2019t claimed', '\u22122,760.00'],
+          ['Amount keyed differently', '+234.00'],
         ].map(([label, amount]) => (
           <div key={label} className="flex justify-between text-slate-500">
             <dt className="min-w-0 truncate pr-4">{label}</dt>
@@ -90,9 +112,9 @@ function MiniBridge() {
             </dd>
           </div>
         ))}
-        <div className="flex justify-between border-t border-slate-200 pt-2 font-semibold text-slate-900">
-          <dt className="min-w-0 truncate pr-4">Supplier statement balance</dt>
-          <dd className="shrink-0">59,165.00</dd>
+        <div className="flex justify-between border-t border-slate-200 pt-1.5 font-semibold text-emerald-700">
+          <dt className="min-w-0 truncate pr-4">Unexplained</dt>
+          <dd className="shrink-0">0.00</dd>
         </div>
       </dl>
     </div>
@@ -144,12 +166,12 @@ export function Landing({ onOpenApp, onSampleRun }: LandingProps) {
               Supplier statement reconciliation
             </p>
             <h1 className="font-display mt-4 text-4xl font-bold leading-tight tracking-tight text-slate-900 sm:text-5xl">
-              Tie out every supplier statement. To the penny.
+              Know exactly why your supplier balance doesn&rsquo;t match.
             </h1>
             <p className="mt-5 max-w-xl text-lg leading-relaxed text-slate-600">
-              TieOut AP compares a supplier&rsquo;s statement against your AP ledger
-              export and hands you the answer: every difference classified, every
-              balance bridged exactly, and the query email already drafted.
+              Upload a supplier statement and your AP ledger export. TieOut matches
+              invoices, payments, and credits, classifies every difference, and
+              bridges the two balances exactly &mdash; down to 0.00 unexplained.
             </p>
             <div className="mt-8 flex flex-wrap gap-4">
               <button
@@ -167,12 +189,21 @@ export function Landing({ onOpenApp, onSampleRun }: LandingProps) {
                 See a sample run
               </button>
             </div>
-            <p className="mt-6 text-sm text-slate-500">
-              Runs entirely in your browser — your ledger never leaves the machine.
-            </p>
+            <ul className="mt-6 flex flex-wrap gap-x-5 gap-y-2 text-sm text-slate-500">
+              {[
+                'No ERP integration required',
+                'Files never leave your browser',
+                'Works with Excel & CSV',
+              ].map((item) => (
+                <li key={item} className="flex items-center gap-1.5">
+                  <span aria-hidden="true" className="text-emerald-600">✓</span>
+                  {item}
+                </li>
+              ))}
+            </ul>
           </div>
           <div className="flex justify-center lg:justify-end">
-            <MiniBridge />
+            <ResultCard />
           </div>
         </div>
       </div>
@@ -236,7 +267,7 @@ export function Landing({ onOpenApp, onSampleRun }: LandingProps) {
           <h2 className="font-display text-center text-3xl font-bold tracking-tight text-slate-900">
             From statement to signed-off in minutes
           </h2>
-          <div className="mt-12 grid gap-8 md:grid-cols-3">
+          <div className="mt-12 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
             {STEPS.map((s) => (
               <div key={s.n} className="text-center">
                 <div className="font-display mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-blue-700 text-lg font-bold text-white">
@@ -250,15 +281,44 @@ export function Landing({ onOpenApp, onSampleRun }: LandingProps) {
         </div>
       </section>
 
+      {/* Formats & privacy */}
+      <section className="mx-auto max-w-6xl px-6 py-20">
+        <div className="grid gap-6 md:grid-cols-2">
+          <div className="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
+            <div className="h-1 w-10 rounded-full bg-blue-700" />
+            <h3 className="font-display mt-4 text-xl font-bold text-slate-900">
+              No ERP integration required
+            </h3>
+            <p className="mt-3 text-sm leading-relaxed text-slate-600">
+              Works with the files you already have: Excel (.xlsx, .xls), CSV, TSV, and
+              semicolon-delimited exports from any ERP or accounting system. No connectors,
+              no IT project, no credentials &mdash; export, upload, reconcile.
+            </p>
+          </div>
+          <div className="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
+            <div className="h-1 w-10 rounded-full bg-blue-700" />
+            <h3 className="font-display mt-4 text-xl font-bold text-slate-900">
+              Your files never leave your browser
+            </h3>
+            <p className="mt-3 text-sm leading-relaxed text-slate-600">
+              Parsing, matching, and every calculation run locally on your machine. There
+              is no upload and no server-side copy &mdash; nothing to store, nothing to
+              delete, nothing to trust us with. Nothing is ever written to your ERP or
+              sent on your behalf.
+            </p>
+          </div>
+        </div>
+      </section>
+
       {/* Trust strip */}
-      <section className="mx-auto max-w-4xl px-6 py-16 text-center">
+      <section className="mx-auto max-w-4xl px-6 pb-16 text-center">
         <h2 className="font-display text-2xl font-bold tracking-tight text-slate-900">
           Built for controllers who need to trust the number
         </h2>
         <p className="mt-4 text-slate-600">
           The engine is deterministic: the same two files always produce the same
-          findings, the same bridge, the same email. No model in the matching path, no
-          ERP writes, no stored credentials, and nothing is ever sent on your behalf.
+          findings, the same bridge, the same email. Uncertain matches are surfaced
+          for human review, never quietly applied.
         </p>
       </section>
 
@@ -269,7 +329,7 @@ export function Landing({ onOpenApp, onSampleRun }: LandingProps) {
       <section className="bg-slate-900">
         <div className="mx-auto max-w-6xl px-6 py-16 text-center text-white">
           <h2 className="font-display text-3xl font-bold tracking-tight">
-            Your next statement takes minutes, not an afternoon
+            Find out why it doesn&rsquo;t match &mdash; in minutes
           </h2>
           <div className="mt-8 flex flex-wrap justify-center gap-4">
             <button
