@@ -81,5 +81,6 @@ export function refusalMessage(result: Extract<ExtractionResult, { ok: false }>)
       : result.reason === 'closing_balance_mismatch'
         ? 'The extracted lines do not add up to the statement’s own closing balance'
         : 'The statement could not be read reliably'
-  return `${prefix} — ${result.detail} You can still upload the statement as CSV.`
+  const detail = /[.!?]$/.test(result.detail) ? result.detail : `${result.detail}.`
+  return `${prefix} — ${detail} You can still upload the statement as CSV.`
 }
