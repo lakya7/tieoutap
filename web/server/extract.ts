@@ -4,6 +4,8 @@
  * ExtractionResult the Phase 2 module produces — including its refusals. */
 import { anthropicVisionClient, buildExtractionResult, extractStatement } from '../../ts/src/index.js'
 import type { ExtractionResult, RawExtraction, StatementDocument } from '../../ts/src/index.js'
+import { authError, reject } from './ai.js'
+import type { ApiResponse } from './ai.js'
 
 const MEDIA_TYPES: StatementDocument['media_type'][] = [
   'application/pdf',
@@ -17,36 +19,9 @@ const MEDIA_TYPES: StatementDocument['media_type'][] = [
  * slow and a sign the wrong file was picked. */
 const MAX_BYTES = 12 * 1024 * 1024
 
-export interface ExtractResponse {
-  status: number
-  body:
-    | ExtractionResult
-    | { ok: false; reason: 'bad_request' | 'unauthorized' | 'server_error'; detail: string }
-}
-
-function reject(
-  status: number,
-  reason: 'bad_request' | 'unauthorized' | 'server_error',
-  detail: string,
-): ExtractResponse {
-  return { status, body: { ok: false, reason, detail } }
-}
+export type ExtractResponse = ApiResponse<ExtractionResult>
 
 const BASE64_RE = /^[A-Za-z0-9+/]+={0,2}$/
-
-/** When the deployment has Supabase configured, extraction requires a valid
- * signed-in session so anonymous callers cannot spend the vision quota. */
-async function authError(authHeader: string | undefined): Promise<string | null> {
-  const url = process.env.SUPABASE_URL ?? process.env.VITE_SUPABASE_URL
-  const anonKey = process.env.SUPABASE_ANON_KEY ?? process.env.VITE_SUPABASE_ANON_KEY
-  if (!url || !anonKey) return null
-  const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : ''
-  if (!token) return 'sign in to read PDF or image statements'
-  const response = await fetch(`${url}/auth/v1/user`, {
-    headers: { apikey: anonKey, authorization: `Bearer ${token}` },
-  })
-  return response.ok ? null : 'your session has expired — sign in again'
-}
 
 function parseDocument(payload: unknown): StatementDocument | string {
   if (typeof payload !== 'object' || payload === null) return 'body must be a JSON object'
@@ -65,7 +40,7 @@ export async function handleExtract(
   payload: unknown,
   authHeader?: string,
 ): Promise<ExtractResponse> {
-  const denied = await authError(authHeader)
+  const denied = await authError(authHeader, 'read PDF or image statements')
   if (denied) return reject(401, 'unauthorized', denied)
 
   const document = parseDocument(payload)
