@@ -19,15 +19,33 @@ const MAX_BYTES = 12 * 1024 * 1024
 
 export interface ExtractResponse {
   status: number
-  body: ExtractionResult | { ok: false; reason: 'bad_request' | 'server_error'; detail: string }
+  body:
+    | ExtractionResult
+    | { ok: false; reason: 'bad_request' | 'unauthorized' | 'server_error'; detail: string }
 }
 
 function reject(
   status: number,
-  reason: 'bad_request' | 'server_error',
+  reason: 'bad_request' | 'unauthorized' | 'server_error',
   detail: string,
 ): ExtractResponse {
   return { status, body: { ok: false, reason, detail } }
+}
+
+const BASE64_RE = /^[A-Za-z0-9+/]+={0,2}$/
+
+/** When the deployment has Supabase configured, extraction requires a valid
+ * signed-in session so anonymous callers cannot spend the vision quota. */
+async function authError(authHeader: string | undefined): Promise<string | null> {
+  const url = process.env.SUPABASE_URL ?? process.env.VITE_SUPABASE_URL
+  const anonKey = process.env.SUPABASE_ANON_KEY ?? process.env.VITE_SUPABASE_ANON_KEY
+  if (!url || !anonKey) return null
+  const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : ''
+  if (!token) return 'sign in to read PDF or image statements'
+  const response = await fetch(`${url}/auth/v1/user`, {
+    headers: { apikey: anonKey, authorization: `Bearer ${token}` },
+  })
+  return response.ok ? null : 'your session has expired — sign in again'
 }
 
 function parseDocument(payload: unknown): StatementDocument | string {
@@ -36,12 +54,20 @@ function parseDocument(payload: unknown): StatementDocument | string {
   if (typeof mediaType !== 'string' || !MEDIA_TYPES.includes(mediaType as never)) {
     return `media_type must be one of ${MEDIA_TYPES.join(', ')}`
   }
-  if (typeof data !== 'string' || data === '') return 'data must be a base64 string'
+  if (typeof data !== 'string' || data === '' || data.length % 4 !== 0 || !BASE64_RE.test(data)) {
+    return 'data must be a base64 string'
+  }
   if (data.length * 0.75 > MAX_BYTES) return 'document exceeds the 12 MB limit'
   return { media_type: mediaType as StatementDocument['media_type'], data }
 }
 
-export async function handleExtract(payload: unknown): Promise<ExtractResponse> {
+export async function handleExtract(
+  payload: unknown,
+  authHeader?: string,
+): Promise<ExtractResponse> {
+  const denied = await authError(authHeader)
+  if (denied) return reject(401, 'unauthorized', denied)
+
   const document = parseDocument(payload)
   if (typeof document === 'string') return reject(400, 'bad_request', document)
 

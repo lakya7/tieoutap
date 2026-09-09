@@ -29,13 +29,13 @@ function FileDrop({ label, hint, fileName, accept, busy, onText, onDocument }: F
 
   const readFile = (file: File | undefined) => {
     if (!file) return
+    const seq = ++readSeq.current
     const mediaType = onDocument ? documentMediaType(file) : null
     if (mediaType && onDocument) {
       setReadError(null)
       onDocument(file, mediaType)
       return
     }
-    const seq = ++readSeq.current
     fileToCsvText(file)
       .then((text) => {
         if (seq !== readSeq.current) return
@@ -115,6 +115,7 @@ export function UploadPanel({ onRun, error }: UploadPanelProps) {
     const seq = ++extractSeq.current
     setExtracting(true)
     setExtractionNote(null)
+    setStatement(null)
     void extractDocument(file, mediaType)
       .then((result) => {
         if (seq !== extractSeq.current) return

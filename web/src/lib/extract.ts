@@ -4,6 +4,7 @@
  * downstream feature — runs, share links, the bridge — is unchanged. */
 import { formatCents } from '../../../ts/src'
 import type { ExtractionResult, StatementLine } from '../../../ts/src'
+import { supabase } from './supabase'
 
 const DOCUMENT_MEDIA_TYPES: Record<string, string> = {
   pdf: 'application/pdf',
@@ -35,9 +36,14 @@ export async function extractDocument(
   file: File,
   mediaType: string,
 ): Promise<ExtractionResult> {
+  const headers: Record<string, string> = { 'content-type': 'application/json' }
+  if (supabase) {
+    const token = (await supabase.auth.getSession()).data.session?.access_token
+    if (token) headers['authorization'] = `Bearer ${token}`
+  }
   const response = await fetch('/api/extract', {
     method: 'POST',
-    headers: { 'content-type': 'application/json' },
+    headers,
     body: JSON.stringify({ media_type: mediaType, data: toBase64(await file.arrayBuffer()) }),
   })
   if (response.ok) return (await response.json()) as ExtractionResult
@@ -61,7 +67,7 @@ export function linesToStatementCsv(lines: StatementLine[]): string {
       l.po_number,
       l.currency,
     ]
-      .map((field) => (field.includes(',') || field.includes('"') ? `"${field.replaceAll('"', '""')}"` : field))
+      .map((field) => (/[",\n\r]/.test(field) ? `"${field.replaceAll('"', '""')}"` : field))
       .join(','),
   )
   return ['ref,date,type,amount,po,currency', ...rows, ''].join('\n')

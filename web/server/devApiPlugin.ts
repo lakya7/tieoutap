@@ -8,7 +8,7 @@ import type { ExtractResponse } from './extract.ts'
 const MAX_BODY_BYTES = 24 * 1024 * 1024
 
 interface ExtractModule {
-  handleExtract(payload: unknown): Promise<ExtractResponse>
+  handleExtract(payload: unknown, authHeader?: string): Promise<ExtractResponse>
 }
 
 function readBody(req: NodeJS.ReadableStream): Promise<string> {
@@ -33,7 +33,11 @@ export function devApiPlugin(): Plugin {
           try {
             const payload: unknown = JSON.parse(await readBody(req))
             const mod = (await server.ssrLoadModule('/server/extract.ts')) as ExtractModule
-            const { status, body } = await mod.handleExtract(payload)
+            const auth = req.headers['authorization']
+            const { status, body } = await mod.handleExtract(
+              payload,
+              Array.isArray(auth) ? auth[0] : auth,
+            )
             res.statusCode = status
             res.setHeader('content-type', 'application/json')
             res.end(JSON.stringify(body))

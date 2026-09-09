@@ -5,6 +5,7 @@ import { handleExtract } from '../server/extract.ts'
 interface ApiRequest {
   method?: string
   body?: unknown
+  headers?: Record<string, string | string[] | undefined>
 }
 
 interface ApiResponse {
@@ -18,6 +19,7 @@ export default async function handler(req: ApiRequest, res: ApiResponse): Promis
     return
   }
   const payload = typeof req.body === 'string' ? JSON.parse(req.body) : req.body
-  const { status, body } = await handleExtract(payload)
+  const auth = req.headers?.['authorization']
+  const { status, body } = await handleExtract(payload, Array.isArray(auth) ? auth[0] : auth)
   res.status(status).json(body)
 }
