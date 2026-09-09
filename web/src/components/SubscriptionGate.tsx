@@ -92,7 +92,7 @@ export function SubscriptionGate({ children }: { children: ReactNode }) {
 
   return (
     <div className="mx-auto max-w-md rounded-xl border border-stone-200 bg-white p-8 shadow-sm">
-      <h2 className="text-xl font-bold tracking-tight">Start your 30-day free trial</h2>
+      <h2 className="text-xl font-bold tracking-tight">Start your 14-day free trial</h2>
       <p className="mt-1 text-sm text-stone-500">
         Full access to reconciliation, AI column mapping, AI summaries, and PDF
         statement reading. $19/month after the trial — cancel anytime.

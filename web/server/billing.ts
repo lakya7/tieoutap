@@ -179,7 +179,7 @@ export async function handleCheckout(
     if (existing && ACTIVE_STATUSES.includes(existing.status)) {
       return reject(409, 'bad_request', 'you already have an active subscription')
     }
-    const trialDays = process.env.STRIPE_TRIAL_DAYS ?? '30'
+    const trialDays = process.env.STRIPE_TRIAL_DAYS ?? '14'
     const session = await stripeRequest<{ url: string }>('/checkout/sessions', {
       mode: 'subscription',
       customer_email: user.email,
