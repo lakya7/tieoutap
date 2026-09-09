@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { ContactSection } from './ContactSection'
 
 interface LandingProps {
@@ -99,6 +100,12 @@ function MiniBridge() {
 }
 
 export function Landing({ onOpenApp, onSampleRun }: LandingProps) {
+  useEffect(() => {
+    if (location.hash === '#contact') {
+      document.getElementById('contact')?.scrollIntoView()
+    }
+  }, [])
+
   return (
     <div className="bg-white">
       {/* Hero */}
@@ -110,7 +117,7 @@ export function Landing({ onOpenApp, onSampleRun }: LandingProps) {
           <div className="flex items-center gap-3">
             <a
               href="#contact"
-              className="hidden px-2 py-2 text-sm font-medium text-slate-700 hover:text-blue-700 sm:block"
+              className="px-2 py-2 text-sm font-medium text-slate-700 hover:text-blue-700"
             >
               Contact
             </a>
