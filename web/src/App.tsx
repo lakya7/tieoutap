@@ -100,7 +100,12 @@ export default function App() {
       <header className="border-b border-stone-200 bg-white">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
           <div className="flex items-baseline gap-3">
-            <button type="button" onClick={goHome} className="text-xl font-bold tracking-tight">
+            <button
+              type="button"
+              onClick={goHome}
+              className="text-xl font-bold tracking-tight hover:text-blue-700"
+              title="Back to home page"
+            >
               TieOut <span className="text-blue-700">AP</span>
             </button>
             <span className="hidden text-sm text-stone-500 sm:inline">
@@ -108,6 +113,13 @@ export default function App() {
             </span>
           </div>
           <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={goHome}
+              className="text-sm font-medium text-stone-600 hover:text-blue-700"
+            >
+              &larr; Home
+            </button>
             {authEnabled && session && (
               <>
                 <span className="hidden text-sm text-stone-500 sm:inline">
