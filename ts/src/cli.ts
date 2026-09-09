@@ -2,9 +2,9 @@
  * Only this file touches the filesystem; the engine itself is pure. */
 import { readFileSync } from "node:fs";
 
-import { DEFAULT_CONFIG, reconcile } from "./engine";
-import { loadLedgerCsv, loadStatementCsv } from "./loader";
-import { renderText, toJson } from "./serialize";
+import { DEFAULT_CONFIG, reconcile } from "./engine.js";
+import { loadLedgerCsv, loadStatementCsv } from "./loader.js";
+import { renderText, toJson } from "./serialize.js";
 
 function parseArgs(argv: string[]): Map<string, string | boolean> {
   const args = new Map<string, string | boolean>();

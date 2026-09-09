@@ -6,12 +6,12 @@ import {
   AMOUNT_MISMATCH, CASH_AT_RISK, CURRENCY_MISMATCH, DUPLICATE, EXPLAINED,
   INVESTIGATE, PART_PAYMENT, PAYMENT_NOT_APPLIED, SUPPLIER_OMISSION, TIMING,
   UNCLAIMED_CREDIT, UNRECORDED_LIABILITY, UNRECORDED_LIABILITY_BUCKET,
-} from "./models";
+} from "./models.js";
 import type {
   Cents, Evidence, Finding, LedgerLine, Match, ProposedRule, StatementLine,
-} from "./models";
-import { daysBetween, addDays } from "./models";
-import { alphaPrefix } from "./normalise";
+} from "./models.js";
+import { daysBetween, addDays } from "./models.js";
+import { alphaPrefix } from "./normalise.js";
 
 function cmp(a: string | number, b: string | number): number {
   return a < b ? -1 : a > b ? 1 : 0;

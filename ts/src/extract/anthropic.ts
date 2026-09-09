@@ -2,8 +2,8 @@
  * model is forced into a single tool call whose input schema is
  * EXTRACTION_SCHEMA, at temperature 0. The engine and the rest of extraction
  * never import this module. */
-import { EXTRACTION_SCHEMA, EXTRACTION_TOOL_NAME } from "./schema";
-import type { StatementDocument, VisionClient } from "./types";
+import { EXTRACTION_SCHEMA, EXTRACTION_TOOL_NAME } from "./schema.js";
+import type { StatementDocument, VisionClient } from "./types.js";
 
 const API_URL = "https://api.anthropic.com/v1/messages";
 const API_VERSION = "2023-06-01";

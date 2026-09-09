@@ -9,13 +9,13 @@
  *
  * The model is only ever asked to transcribe; all arithmetic and all
  * decisions happen here, deterministically, in integer cents. */
-import type { StatementLine } from "../models";
-import { parseAmount } from "../money";
-import { normaliseRef } from "../normalise";
-import { validateExtraction } from "./schema";
+import type { StatementLine } from "../models.js";
+import { parseAmount } from "../money.js";
+import { normaliseRef } from "../normalise.js";
+import { validateExtraction } from "./schema.js";
 import type {
   ExtractionResult, RawExtraction, SourceBox, StatementDocument, VisionClient,
-} from "./types";
+} from "./types.js";
 
 const CREDIT_DOC_TYPES = ["CRN", "CR", "CREDIT", "CREDIT NOTE", "CN"];
 

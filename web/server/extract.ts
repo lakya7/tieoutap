@@ -2,8 +2,8 @@
  * and the deployed serverless function. The API key never reaches the
  * browser: the client posts document bytes here and gets back the same
  * ExtractionResult the Phase 2 module produces — including its refusals. */
-import { anthropicVisionClient, buildExtractionResult, extractStatement } from '../../ts/src'
-import type { ExtractionResult, RawExtraction, StatementDocument } from '../../ts/src'
+import { anthropicVisionClient, buildExtractionResult, extractStatement } from '../../ts/src/index.js'
+import type { ExtractionResult, RawExtraction, StatementDocument } from '../../ts/src/index.js'
 
 const MEDIA_TYPES: StatementDocument['media_type'][] = [
   'application/pdf',

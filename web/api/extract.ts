@@ -1,6 +1,6 @@
 /** Deployed serverless entry point (Vercel-style signature) wrapping the
  * shared handler. */
-import { handleExtract } from '../server/extract.ts'
+import { handleExtract } from '../server/extract.js'
 
 interface ApiRequest {
   method?: string

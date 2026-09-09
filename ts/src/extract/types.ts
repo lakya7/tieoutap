@@ -1,7 +1,7 @@
 /** Phase 2 extraction: statement document -> the same StatementLine list the
  * engine consumes, plus provenance and safety-rail outcomes. The engine never
  * depends on any of this; extraction is a separate, optional front door. */
-import type { Cents, StatementLine } from "../models";
+import type { Cents, StatementLine } from "../models.js";
 
 /** A statement document to extract: base64 data plus its media type. */
 export interface StatementDocument {
