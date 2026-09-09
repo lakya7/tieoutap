@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import statementSample from '../../fixtures/meridian_stmt.csv?raw'
 import ledgerSample from '../../fixtures/acme_ledger.csv?raw'
+import { AiSummary } from './components/AiSummary'
 import { AuthPanel } from './components/AuthPanel'
 import { BridgeView } from './components/BridgeView'
 import { EmailDraft } from './components/EmailDraft'
@@ -14,6 +15,18 @@ import { runFromLocation, shareUrl } from './lib/share'
 import { useAuth } from './lib/auth'
 
 type Tab = 'queue' | 'bridge' | 'email'
+
+const runKeys = new WeakMap<Run, number>()
+let nextRunKey = 1
+
+function runKey(run: Run): number {
+  let key = runKeys.get(run)
+  if (key === undefined) {
+    key = nextRunKey++
+    runKeys.set(run, key)
+  }
+  return key
+}
 
 const TABS: { id: Tab; label: string }[] = [
   { id: 'queue', label: 'Exception queue' },
@@ -170,6 +183,7 @@ export default function App() {
         ) : (
           <div className="space-y-6">
             <SummaryBar result={run.result} />
+            {(!authEnabled || session) && <AiSummary key={runKey(run)} run={run} />}
             <nav className="flex gap-1 rounded-lg border border-stone-200 bg-white p-1 shadow-sm">
               {TABS.map((t) => (
                 <button

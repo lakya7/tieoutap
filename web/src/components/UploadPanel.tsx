@@ -3,7 +3,8 @@ import statementSample from '../../../fixtures/meridian_stmt.csv?raw'
 import ledgerSample from '../../../fixtures/acme_ledger.csv?raw'
 import { deriveAsAt, deriveSupplier } from '../lib/run'
 import type { RunInput } from '../lib/run'
-import { fileToCsvText } from '../lib/tabular'
+import { fileToRawCsv, hasEngineColumns } from '../lib/tabular'
+import { applyMapping, describeMapping, requestMapping } from '../lib/ai'
 import {
   documentMediaType,
   extractDocument,
@@ -18,10 +19,20 @@ interface FileDropProps {
   accept: string
   busy?: boolean
   onText: (name: string, text: string) => void
+  onUnmapped: (name: string, csv: string) => void
   onDocument?: (file: File, mediaType: string) => void
 }
 
-function FileDrop({ label, hint, fileName, accept, busy, onText, onDocument }: FileDropProps) {
+function FileDrop({
+  label,
+  hint,
+  fileName,
+  accept,
+  busy,
+  onText,
+  onUnmapped,
+  onDocument,
+}: FileDropProps) {
   const inputRef = useRef<HTMLInputElement>(null)
   const readSeq = useRef(0)
   const [dragging, setDragging] = useState(false)
@@ -36,11 +47,12 @@ function FileDrop({ label, hint, fileName, accept, busy, onText, onDocument }: F
       onDocument(file, mediaType)
       return
     }
-    fileToCsvText(file)
+    fileToRawCsv(file)
       .then((text) => {
         if (seq !== readSeq.current) return
         setReadError(null)
-        onText(file.name, text)
+        if (hasEngineColumns(text)) onText(file.name, text)
+        else onUnmapped(file.name, text)
       })
       .catch((e: unknown) => {
         if (seq !== readSeq.current) return
@@ -98,6 +110,15 @@ interface UploadPanelProps {
   error: string | null
 }
 
+type MapKind = 'statement' | 'ledger'
+
+interface MapOffer {
+  name: string
+  csv: string
+  status: 'offer' | 'busy' | 'error'
+  detail?: string
+}
+
 export function UploadPanel({ onRun, error }: UploadPanelProps) {
   const [statement, setStatement] = useState<{ name: string; text: string } | null>(null)
   const [ledger, setLedger] = useState<{ name: string; text: string } | null>(null)
@@ -107,9 +128,51 @@ export function UploadPanel({ onRun, error }: UploadPanelProps) {
   const [extractionNote, setExtractionNote] = useState<
     { kind: 'ok' | 'error'; text: string } | null
   >(null)
+  const [mapOffers, setMapOffers] = useState<Partial<Record<MapKind, MapOffer>>>({})
   const supplierAuto = useRef(true)
   const asAtAuto = useRef(true)
   const extractSeq = useRef(0)
+  const mapSeq = useRef(0)
+
+  const offerMapping = (kind: MapKind) => (name: string, csv: string) => {
+    mapSeq.current++
+    setMapOffers((prev) => ({ ...prev, [kind]: { name, csv, status: 'offer' } }))
+  }
+
+  const clearMapOffer = (kind: MapKind) => {
+    mapSeq.current++
+    setMapOffers((prev) => ({ ...prev, [kind]: undefined }))
+  }
+
+  const runMapping = (kind: MapKind) => {
+    const offer = mapOffers[kind]
+    if (!offer || offer.status === 'busy') return
+    const seq = ++mapSeq.current
+    setMapOffers((prev) => ({ ...prev, [kind]: { ...offer, status: 'busy' } }))
+    void requestMapping(kind, offer.csv).then((res) => {
+      if (seq !== mapSeq.current) return
+      if (!res.ok) {
+        setMapOffers((prev) => ({
+          ...prev,
+          [kind]: { ...offer, status: 'error', detail: res.detail },
+        }))
+        return
+      }
+      const mapped = applyMapping(offer.csv, res.mapping)
+      setMapOffers((prev) => ({ ...prev, [kind]: undefined }))
+      if (kind === 'statement') {
+        setStatement({ name: offer.name, text: mapped })
+        if (asAtAuto.current || !asAt) setAsAt(deriveAsAt(mapped))
+      } else {
+        setLedger({ name: offer.name, text: mapped })
+        if (supplierAuto.current || !supplier) setSupplier(deriveSupplier(mapped))
+      }
+      setExtractionNote({
+        kind: 'ok',
+        text: `AI mapped the columns in ${offer.name}: ${describeMapping(res.mapping)}. Review before you rely on the run.`,
+      })
+    })
+  }
 
   const runExtraction = (file: File, mediaType: string) => {
     const seq = ++extractSeq.current
@@ -153,8 +216,10 @@ export function UploadPanel({ onRun, error }: UploadPanelProps) {
     supplierAuto.current = true
     asAtAuto.current = true
     extractSeq.current++
+    mapSeq.current++
     setExtracting(false)
     setExtractionNote(null)
+    setMapOffers({})
   }
 
   return (
@@ -163,8 +228,9 @@ export function UploadPanel({ onRun, error }: UploadPanelProps) {
         <h2 className="text-lg font-semibold">Start a reconciliation run</h2>
         <p className="mt-1 text-sm text-stone-500">
           Upload the supplier statement and your AP open-items export. Reconciliation runs
-          in your browser; only a PDF or image statement makes one trip to the server to
-          be read into lines, then is discarded.
+          in your browser. Server trips are opt-in and minimal: a PDF or image statement is
+          read into lines then discarded, and AI column mapping sends only the header row
+          plus three sample values — never the file.
         </p>
         <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
           <FileDrop
@@ -173,6 +239,7 @@ export function UploadPanel({ onRun, error }: UploadPanelProps) {
             accept=".csv,.tsv,.txt,.xlsx,.xls,.xlsm,.xlsb,.ods,text/csv,text/tab-separated-values,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,.pdf,application/pdf,image/png,image/jpeg,image/gif,image/webp"
             busy={extracting}
             fileName={statement?.name ?? null}
+            onUnmapped={offerMapping('statement')}
             onDocument={runExtraction}
             onText={(name, text) => {
               extractSeq.current++
@@ -187,6 +254,7 @@ export function UploadPanel({ onRun, error }: UploadPanelProps) {
             hint="CSV, TSV, or Excel — columns: supplier, ref, date, type, original, open, po, currency"
             accept=".csv,.tsv,.txt,.xlsx,.xls,.xlsm,.xlsb,.ods,text/csv,text/tab-separated-values,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
             fileName={ledger?.name ?? null}
+            onUnmapped={offerMapping('ledger')}
             onText={(name, text) => {
               setLedger({ name, text })
               if (supplierAuto.current || !supplier) setSupplier(deriveSupplier(text))
@@ -224,6 +292,46 @@ export function UploadPanel({ onRun, error }: UploadPanelProps) {
             />
           </label>
         </div>
+        {(['statement', 'ledger'] as const).map((kind) => {
+          const offer = mapOffers[kind]
+          if (!offer) return null
+          return (
+            <div
+              key={kind}
+              className="mt-4 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800"
+            >
+              <p>
+                <span className="font-mono">{offer.name}</span> doesn&rsquo;t use the standard
+                column names. AI can map them — only the header row and 3 sample values are
+                sent, never the file.
+              </p>
+              {offer.status === 'error' && (
+                <p className="mt-1 text-red-700">Mapping failed: {offer.detail}</p>
+              )}
+              <div className="mt-2 flex gap-3">
+                <button
+                  type="button"
+                  disabled={offer.status === 'busy'}
+                  onClick={() => runMapping(kind)}
+                  className="rounded-md bg-blue-700 px-3 py-1 text-xs font-semibold text-white hover:bg-blue-800 disabled:cursor-not-allowed disabled:bg-stone-300"
+                >
+                  {offer.status === 'busy'
+                    ? 'Mapping…'
+                    : offer.status === 'error'
+                      ? 'Try again'
+                      : 'Map columns with AI'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => clearMapOffer(kind)}
+                  className="text-xs text-stone-500 underline decoration-dotted underline-offset-4 hover:text-stone-700"
+                >
+                  Dismiss
+                </button>
+              </div>
+            </div>
+          )
+        })}
         {extractionNote && (
           <p
             className={`mt-4 rounded-md border px-3 py-2 text-sm ${

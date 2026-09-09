@@ -1,25 +1,5 @@
-/** Deployed serverless entry point (Vercel-style signature) wrapping the
- * shared handler. */
+/** Deployed serverless entry point for PDF/image statement extraction. */
 import { handleExtract } from '../server/extract.js'
+import { vercelHandler } from '../server/vercel.js'
 
-interface ApiRequest {
-  method?: string
-  body?: unknown
-  headers?: Record<string, string | string[] | undefined>
-}
-
-interface ApiResponse {
-  status(code: number): ApiResponse
-  json(body: unknown): void
-}
-
-export default async function handler(req: ApiRequest, res: ApiResponse): Promise<void> {
-  if (req.method !== 'POST') {
-    res.status(405).json({ ok: false, reason: 'bad_request', detail: 'use POST' })
-    return
-  }
-  const payload = typeof req.body === 'string' ? JSON.parse(req.body) : req.body
-  const auth = req.headers?.['authorization']
-  const { status, body } = await handleExtract(payload, Array.isArray(auth) ? auth[0] : auth)
-  res.status(status).json(body)
-}
+export default vercelHandler(handleExtract)

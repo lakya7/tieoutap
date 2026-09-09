@@ -57,12 +57,16 @@ const AI_SPLIT = [
     body: 'A PDF or scanned statement is read into lines by a vision model — then every extracted line is checked against the statement’s own printed closing balance. If the lines don’t add up, TieOut refuses to reconcile rather than guess.',
   },
   {
-    label: 'Determinism does the maths',
-    body: 'Matching, arithmetic, classification and the bridge run in a deterministic six-pass cascade — no model anywhere in the numbers. The same two files always produce the same findings and the same bridge.',
+    label: 'AI maps messy exports',
+    body: 'ERP exports name columns however they like — “Doc Ref”, “Vch No”, “Betrag”. When headers don’t match, AI maps them onto TieOut’s schema from just the header row and three sample values; the file itself never leaves your browser.',
   },
   {
-    label: 'Nothing is decided for you',
-    body: 'Low-confidence matches are surfaced as needing human confirmation, never quietly applied, and the supplier email is a draft you send yourself.',
+    label: 'AI explains the outcome',
+    body: 'After the deterministic run, AI turns the findings into a plain-English summary and a better-worded supplier email — from the findings alone, never your files. Every figure it words comes straight from the engine.',
+  },
+  {
+    label: 'Determinism does the maths',
+    body: 'Matching, arithmetic, classification and the bridge run in a deterministic six-pass cascade — no model anywhere in the numbers. The same two files always produce the same findings and the same bridge.',
   },
 ]
 
@@ -246,12 +250,12 @@ export function Landing({ onOpenApp, onSampleRun }: LandingProps) {
             AI where it helps. Determinism where it counts.
           </h2>
           <p className="mx-auto mt-4 max-w-2xl text-center leading-relaxed text-slate-600">
-            AI is great at reading documents and terrible at being right every time — so
-            TieOut uses it to read PDF statements, verifies what it read against the
-            statement’s own closing balance, and keeps every number in a deterministic
-            engine that never guesses.
+            AI is great at reading documents and wording explanations — and terrible at
+            being right every time. So TieOut uses it to read PDF statements, map messy
+            column names, and explain the findings — while every number stays in a
+            deterministic engine that never guesses.
           </p>
-          <div className="mt-12 grid gap-6 md:grid-cols-3">
+          <div className="mt-12 grid gap-6 md:grid-cols-2">
             {AI_SPLIT.map((item) => (
               <div key={item.label} className="rounded-2xl border border-slate-200 bg-slate-50 p-7">
                 <h3 className="font-display text-lg font-bold text-slate-900">{item.label}</h3>
