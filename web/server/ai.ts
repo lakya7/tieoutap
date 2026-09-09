@@ -5,7 +5,7 @@ const API_URL = 'https://api.anthropic.com/v1/messages'
 const API_VERSION = '2023-06-01'
 const MODEL = 'claude-sonnet-4-5'
 
-export type ErrorReason = 'bad_request' | 'unauthorized' | 'server_error'
+export type ErrorReason = 'bad_request' | 'unauthorized' | 'payment_required' | 'server_error'
 
 export interface ApiResponse<T> {
   status: number
@@ -16,21 +16,41 @@ export function reject<T>(status: number, reason: ErrorReason, detail: string): 
   return { status, body: { ok: false, reason, detail } }
 }
 
-/** When the deployment has Supabase configured, AI endpoints require a valid
- * signed-in session so anonymous callers cannot spend the model quota. */
+export type AuthCheck =
+  | { kind: 'disabled' }
+  | { kind: 'denied'; detail: string }
+  | { kind: 'user'; id: string; email: string }
+
+/** When the deployment has Supabase configured, protected endpoints require a
+ * valid signed-in session; the resolved user identifies the Stripe customer. */
+export async function checkAuth(
+  authHeader: string | undefined,
+  what: string,
+): Promise<AuthCheck> {
+  const url = process.env.SUPABASE_URL ?? process.env.VITE_SUPABASE_URL
+  const anonKey = process.env.SUPABASE_ANON_KEY ?? process.env.VITE_SUPABASE_ANON_KEY
+  if (!url || !anonKey) return { kind: 'disabled' }
+  const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : ''
+  if (!token) return { kind: 'denied', detail: `sign in to ${what}` }
+  const response = await fetch(`${url}/auth/v1/user`, {
+    headers: { apikey: anonKey, authorization: `Bearer ${token}` },
+  })
+  if (!response.ok) return { kind: 'denied', detail: 'your session has expired — sign in again' }
+  const user = (await response.json()) as { id?: string; email?: string }
+  if (typeof user.id !== 'string' || typeof user.email !== 'string') {
+    return { kind: 'denied', detail: 'your session has expired — sign in again' }
+  }
+  return { kind: 'user', id: user.id, email: user.email }
+}
+
+/** AI endpoints require a valid signed-in session so anonymous callers cannot
+ * spend the model quota. */
 export async function authError(
   authHeader: string | undefined,
   what: string,
 ): Promise<string | null> {
-  const url = process.env.SUPABASE_URL ?? process.env.VITE_SUPABASE_URL
-  const anonKey = process.env.SUPABASE_ANON_KEY ?? process.env.VITE_SUPABASE_ANON_KEY
-  if (!url || !anonKey) return null
-  const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : ''
-  if (!token) return `sign in to ${what}`
-  const response = await fetch(`${url}/auth/v1/user`, {
-    headers: { apikey: anonKey, authorization: `Bearer ${token}` },
-  })
-  return response.ok ? null : 'your session has expired — sign in again'
+  const auth = await checkAuth(authHeader, what)
+  return auth.kind === 'denied' ? auth.detail : null
 }
 
 interface ContentBlock {

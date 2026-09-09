@@ -7,6 +7,7 @@ import { BridgeView } from './components/BridgeView'
 import { EmailDraft } from './components/EmailDraft'
 import { ExceptionQueue } from './components/ExceptionQueue'
 import { Landing } from './components/Landing'
+import { SubscriptionGate } from './components/SubscriptionGate'
 import { SummaryBar } from './components/SummaryBar'
 import { UploadPanel } from './components/UploadPanel'
 import { deriveAsAt, deriveSupplier, executeRun } from './lib/run'
@@ -178,7 +179,9 @@ export default function App() {
               <AuthPanel />
             )
           ) : (
-            <UploadPanel onRun={start} error={error} />
+            <SubscriptionGate>
+              <UploadPanel onRun={start} error={error} />
+            </SubscriptionGate>
           )
         ) : (
           <div className="space-y-6">

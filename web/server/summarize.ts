@@ -5,6 +5,7 @@
  * produced by the engine; the model only words them. */
 import { anthropicToolCall, authError, reject } from './ai.js'
 import type { ApiResponse } from './ai.js'
+import { billingError } from './billing.js'
 
 export interface SummarizeRequest {
   supplier: string
@@ -66,6 +67,8 @@ export async function handleSummarize(
 ): Promise<SummarizeResponse> {
   const denied = await authError(authHeader, 'generate AI summaries')
   if (denied) return reject(401, 'unauthorized', denied)
+  const unpaid = await billingError(authHeader)
+  if (unpaid) return reject(402, 'payment_required', unpaid)
 
   const request = parsePayload(payload)
   if (typeof request === 'string') return reject(400, 'bad_request', request)

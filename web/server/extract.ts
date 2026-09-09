@@ -6,6 +6,7 @@ import { anthropicVisionClient, buildExtractionResult, extractStatement } from '
 import type { ExtractionResult, RawExtraction, StatementDocument } from '../../ts/src/index.js'
 import { authError, reject } from './ai.js'
 import type { ApiResponse } from './ai.js'
+import { billingError } from './billing.js'
 
 const MEDIA_TYPES: StatementDocument['media_type'][] = [
   'application/pdf',
@@ -42,6 +43,8 @@ export async function handleExtract(
 ): Promise<ExtractResponse> {
   const denied = await authError(authHeader, 'read PDF or image statements')
   if (denied) return reject(401, 'unauthorized', denied)
+  const unpaid = await billingError(authHeader)
+  if (unpaid) return reject(402, 'payment_required', unpaid)
 
   const document = parseDocument(payload)
   if (typeof document === 'string') return reject(400, 'bad_request', document)

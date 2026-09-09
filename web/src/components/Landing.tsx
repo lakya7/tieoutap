@@ -329,6 +329,38 @@ export function Landing({ onOpenApp, onSampleRun }: LandingProps) {
         </p>
       </section>
 
+      {/* Pricing */}
+      <section className="border-t border-slate-200 bg-white">
+        <div className="mx-auto max-w-4xl px-6 py-20 text-center">
+          <h2 className="font-display text-3xl font-bold tracking-tight text-slate-900">
+            Simple pricing
+          </h2>
+          <div className="mx-auto mt-8 max-w-sm rounded-2xl border border-blue-200 bg-blue-50/50 p-8 text-left shadow-sm">
+            <p className="text-sm font-semibold uppercase tracking-wider text-blue-700">
+              Everything included
+            </p>
+            <p className="mt-3 font-display text-4xl font-bold text-slate-900">
+              $19<span className="text-lg font-medium text-slate-500">/month</span>
+            </p>
+            <p className="mt-1 text-sm font-medium text-emerald-700">30-day free trial</p>
+            <ul className="mt-5 space-y-2 text-sm text-slate-600">
+              <li>Unlimited reconciliations</li>
+              <li>PDF, scan, Excel, CSV and TSV statements</li>
+              <li>AI column mapping and AI summaries</li>
+              <li>Drafted supplier emails and shareable runs</li>
+              <li>Cancel anytime — no charge until the trial ends</li>
+            </ul>
+            <button
+              type="button"
+              onClick={onOpenApp}
+              className="mt-6 w-full rounded-md bg-blue-700 px-4 py-2.5 text-sm font-semibold text-white hover:bg-blue-800"
+            >
+              Start free trial
+            </button>
+          </div>
+        </div>
+      </section>
+
       {/* Contact */}
       <ContactSection />
 

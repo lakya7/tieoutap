@@ -5,6 +5,7 @@
  * deterministically back in the browser. */
 import { anthropicToolCall, authError, reject } from './ai.js'
 import type { ApiResponse } from './ai.js'
+import { billingError } from './billing.js'
 
 export const TARGET_COLUMNS = {
   statement: ['ref', 'date', 'type', 'amount', 'po', 'currency'],
@@ -102,6 +103,8 @@ function validateMapping(
 export async function handleMap(payload: unknown, authHeader?: string): Promise<MapResponse> {
   const denied = await authError(authHeader, 'map columns with AI')
   if (denied) return reject(401, 'unauthorized', denied)
+  const unpaid = await billingError(authHeader)
+  if (unpaid) return reject(402, 'payment_required', unpaid)
 
   const request = parsePayload(payload)
   if (typeof request === 'string') return reject(400, 'bad_request', request)
