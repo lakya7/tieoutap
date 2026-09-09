@@ -106,13 +106,30 @@ function excelToCsv(buffer: ArrayBuffer): string {
   return rowsToCsv(rows.map((r) => r.map(cellToString)))
 }
 
+/** The engine's loaders need at least these columns; a header row without them
+ * means the file is not a statement/ledger table (e.g. garbage bytes that
+ * SheetJS's text fallback still "parses"). */
+function checkHeader(csv: string, name: string): string {
+  const noBom = csv.startsWith('\uFEFF') ? csv.slice(1) : csv
+  const headerLine = noBom.slice(0, noBom.indexOf('\n') === -1 ? noBom.length : noBom.indexOf('\n'))
+  const columns = headerLine.split(',').map((h) => h.trim().replaceAll('"', '').toLowerCase())
+  if (!columns.includes('ref') || !columns.includes('date')) {
+    throw new Error(
+      `${name} does not look like a statement or ledger table (no "ref" and "date" columns in the first row)`,
+    )
+  }
+  return csv
+}
+
 /** Reads an uploaded statement/ledger file and returns engine-ready CSV text.
  * Accepts CSV, TSV, semicolon-delimited text, and Excel workbooks. */
 export async function fileToCsvText(file: File): Promise<string> {
   const ext = extension(file.name)
-  if (EXCEL_EXTENSIONS.includes(ext)) return excelToCsv(await file.arrayBuffer())
+  if (EXCEL_EXTENSIONS.includes(ext)) {
+    return checkHeader(excelToCsv(await file.arrayBuffer()), file.name)
+  }
   const text = await file.text()
   const delimiter = ext === '.tsv' ? '\t' : sniffDelimiter(text)
-  if (delimiter === ',') return text
-  return rowsToCsv(parseDelimited(text, delimiter))
+  if (delimiter === ',') return checkHeader(text, file.name)
+  return checkHeader(rowsToCsv(parseDelimited(text, delimiter)), file.name)
 }
