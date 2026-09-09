@@ -1,8 +1,8 @@
 /** CSV loading for Phase 1, browser-friendly: parses CSV text (no filesystem
  * access here). Statement CSV is pre-parsed (hand-typed from a PDF). */
-import type { LedgerLine, StatementLine } from "./models";
-import { parseAmount } from "./money";
-import { normaliseRef } from "./normalise";
+import type { LedgerLine, StatementLine } from "./models.js";
+import { parseAmount } from "./money.js";
+import { normaliseRef } from "./normalise.js";
 
 /** Minimal CSV parser: quoted fields with "" escapes, \r\n or \n line ends. */
 export function parseCsv(text: string): Record<string, string>[] {

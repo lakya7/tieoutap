@@ -8,15 +8,15 @@
  * Pass 0 must run before any matching: if matching ran first, one of a
  * duplicate pair would be consumed by a match and the duplicate would become
  * undetectable. */
-import { buildBridge } from "./bridge";
-import { BUCKET_ORDER } from "./models";
+import { buildBridge } from "./bridge.js";
+import { BUCKET_ORDER } from "./models.js";
 import type {
   Finding, LedgerLine, Match, ReconcileResult, StatementLine,
-} from "./models";
+} from "./models.js";
 import {
   pass0Duplicates, pass1ExactRef, pass2NormalisedRef, pass3RefAmountDiffer,
   pass4AmountDate, pass5SubsetSums, pass6Classify,
-} from "./passes";
+} from "./passes.js";
 
 export interface Config {
   duplicateWindowDays: number;

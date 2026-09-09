@@ -1,7 +1,7 @@
 /** The strict JSON schema the model is forced to fill via tool use, and a
  * validator for it. Validation is deliberately strict: any deviation refuses
  * extraction rather than guessing. */
-import type { RawExtractedLine, RawExtraction, SourceBox } from "./types";
+import type { RawExtractedLine, RawExtraction, SourceBox } from "./types.js";
 
 export const EXTRACTION_TOOL_NAME = "record_statement_extraction";
 

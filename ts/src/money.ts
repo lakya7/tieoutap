@@ -1,6 +1,6 @@
 /** Money parsing/formatting. Integer minor units only — no fractional
  * arithmetic ever touches money. */
-import type { Cents } from "./models";
+import type { Cents } from "./models.js";
 
 export function parseAmount(raw: string): Cents {
   let s = raw.trim().replace(/,/g, "");

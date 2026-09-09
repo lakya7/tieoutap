@@ -4,11 +4,11 @@
  * `json.dumps(to_dict(result), sort_keys=True, indent=2)`: recursively
  * sorted keys, two-space indent, ensure-ASCII string escaping, and money as
  * fixed-point strings. */
-import { BUCKET_ORDER } from "./models";
+import { BUCKET_ORDER } from "./models.js";
 import type {
   BridgeAdjustment, Finding, Match, ProposedRule, ReconcileResult,
-} from "./models";
-import { formatCents, formatCentsGrouped } from "./money";
+} from "./models.js";
+import { formatCents, formatCentsGrouped } from "./money.js";
 
 type Json = null | boolean | number | string | Json[] | { [k: string]: Json };
 

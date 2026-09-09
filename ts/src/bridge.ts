@@ -4,10 +4,10 @@
 import {
   AMOUNT_MISMATCH, DUPLICATE, PART_PAYMENT, PAYMENT_NOT_APPLIED,
   SUPPLIER_OMISSION, TIMING, UNCLAIMED_CREDIT, UNRECORDED_LIABILITY,
-} from "./models";
+} from "./models.js";
 import type {
   Bridge, BridgeAdjustment, Cents, Finding, LedgerLine, StatementLine,
-} from "./models";
+} from "./models.js";
 
 const LABELS: Record<string, string> = {
   [DUPLICATE]: "duplicate posting in ledger",

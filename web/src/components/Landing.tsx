@@ -32,7 +32,7 @@ const STEPS = [
   {
     n: '1',
     title: 'Match',
-    body: 'Drop in the supplier statement and your AP export — Excel, CSV, or TSV, straight from any ERP. The engine matches invoices, payments, and credits line by line, in your browser.',
+    body: 'Drop in the supplier statement — PDF, scan, Excel, or CSV — and your AP export. The engine matches invoices, payments, and credits line by line, in your browser.',
   },
   {
     n: '2',
@@ -51,14 +51,14 @@ const STEPS = [
   },
 ]
 
-const NO_AI = [
+const AI_SPLIT = [
   {
-    label: 'Nothing is guessed',
-    body: 'Matching, arithmetic, classification and the bridge run in a deterministic six-pass cascade. The same two files always produce the same findings and the same bridge — no model anywhere in the path.',
+    label: 'AI reads the paperwork',
+    body: 'A PDF or scanned statement is read into lines by a vision model — then every extracted line is checked against the statement’s own printed closing balance. If the lines don’t add up, TieOut refuses to reconcile rather than guess.',
   },
   {
-    label: 'Nothing is sent anywhere',
-    body: 'Both files are read and reconciled in your browser. There is no upload, no server, no account — so nothing to leak and nothing to trust us with.',
+    label: 'Determinism does the maths',
+    body: 'Matching, arithmetic, classification and the bridge run in a deterministic six-pass cascade — no model anywhere in the numbers. The same two files always produce the same findings and the same bridge.',
   },
   {
     label: 'Nothing is decided for you',
@@ -192,8 +192,8 @@ export function Landing({ onOpenApp, onSampleRun }: LandingProps) {
             <ul className="mt-6 flex flex-wrap gap-x-5 gap-y-2 text-sm text-slate-500">
               {[
                 'No ERP integration required',
-                'Files never leave your browser',
-                'Works with Excel & CSV',
+                'AI reads PDF statements',
+                'Your ledger never leaves your browser',
               ].map((item) => (
                 <li key={item} className="flex items-center gap-1.5">
                   <span aria-hidden="true" className="text-emerald-600">✓</span>
@@ -243,15 +243,16 @@ export function Landing({ onOpenApp, onSampleRun }: LandingProps) {
       <section className="border-t border-slate-200 bg-white">
         <div className="mx-auto max-w-6xl px-6 py-20">
           <h2 className="font-display text-center text-3xl font-bold tracking-tight text-slate-900">
-            No AI in your numbers — on purpose
+            AI where it helps. Determinism where it counts.
           </h2>
           <p className="mx-auto mt-4 max-w-2xl text-center leading-relaxed text-slate-600">
-            Reconciling a statement is an arithmetic problem, not a language problem. A model
-            that is right 98% of the time is wrong on one line in fifty, and you would have
-            to re-check every line to find it — which is the work you were trying to avoid.
+            AI is great at reading documents and terrible at being right every time — so
+            TieOut uses it to read PDF statements, verifies what it read against the
+            statement’s own closing balance, and keeps every number in a deterministic
+            engine that never guesses.
           </p>
           <div className="mt-12 grid gap-6 md:grid-cols-3">
-            {NO_AI.map((item) => (
+            {AI_SPLIT.map((item) => (
               <div key={item.label} className="rounded-2xl border border-slate-200 bg-slate-50 p-7">
                 <h3 className="font-display text-lg font-bold text-slate-900">{item.label}</h3>
                 <p className="mt-3 text-sm leading-relaxed text-slate-600">{item.body}</p>
@@ -290,21 +291,23 @@ export function Landing({ onOpenApp, onSampleRun }: LandingProps) {
               No ERP integration required
             </h3>
             <p className="mt-3 text-sm leading-relaxed text-slate-600">
-              Works with the files you already have: Excel (.xlsx, .xls), CSV, TSV, and
-              semicolon-delimited exports from any ERP or accounting system. No connectors,
-              no IT project, no credentials &mdash; export, upload, reconcile.
+              Works with the files you already have: PDF and scanned statements (read for
+              you by AI), plus Excel (.xlsx, .xls), CSV, TSV, and semicolon-delimited
+              exports from any ERP or accounting system. No connectors, no IT project, no
+              credentials &mdash; export, upload, reconcile.
             </p>
           </div>
           <div className="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
             <div className="h-1 w-10 rounded-full bg-blue-700" />
             <h3 className="font-display mt-4 text-xl font-bold text-slate-900">
-              Your files never leave your browser
+              Your ledger never leaves your browser
             </h3>
             <p className="mt-3 text-sm leading-relaxed text-slate-600">
-              Parsing, matching, and every calculation run locally on your machine. There
-              is no upload and no server-side copy &mdash; nothing to store, nothing to
-              delete, nothing to trust us with. Nothing is ever written to your ERP or
-              sent on your behalf.
+              Parsing, matching, and every calculation run locally on your machine. Your
+              AP ledger and any Excel or CSV statement are never uploaded. A PDF or image
+              statement makes one trip to the server to be read into lines, then is
+              discarded &mdash; never stored. Nothing is ever written to your ERP or sent
+              on your behalf.
             </p>
           </div>
         </div>
