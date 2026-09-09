@@ -15,7 +15,7 @@ export type MappingResult = { ok: true; mapping: Record<string, string> } | AiEr
 
 export type SummaryResult = { ok: true; narrative: string; email: string } | AiError
 
-async function postJson(path: string, payload: unknown): Promise<unknown | AiError> {
+export async function postJson(path: string, payload: unknown): Promise<unknown | AiError> {
   const headers: Record<string, string> = { 'content-type': 'application/json' }
   if (supabase) {
     const token = (await supabase.auth.getSession()).data.session?.access_token

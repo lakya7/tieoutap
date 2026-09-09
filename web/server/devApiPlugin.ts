@@ -14,6 +14,9 @@ const ROUTES: Record<string, [string, string]> = {
   '/api/extract': ['/server/extract.ts', 'handleExtract'],
   '/api/map': ['/server/map.ts', 'handleMap'],
   '/api/summarize': ['/server/summarize.ts', 'handleSummarize'],
+  '/api/checkout': ['/server/billing.ts', 'handleCheckout'],
+  '/api/subscription': ['/server/billing.ts', 'handleSubscription'],
+  '/api/portal': ['/server/billing.ts', 'handlePortal'],
 }
 
 function readBody(req: NodeJS.ReadableStream): Promise<string> {
