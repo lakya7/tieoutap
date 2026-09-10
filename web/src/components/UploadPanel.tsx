@@ -105,6 +105,52 @@ function FileDrop({
   )
 }
 
+const ERP_REPORTS: [string, string][] = [
+  ['Oracle Fusion Cloud', 'Payables Trial Balance report, filtered to the supplier, exported to Excel'],
+  ['Oracle EBS', 'Accounts Payable Trial Balance report, restricted to the supplier and as-of date'],
+  ['SAP', 'Vendor Line Items (FBL1N) with the Open Items view, exported to a spreadsheet'],
+  ['NetSuite', 'A/P Aging Detail report, or a saved search of open vendor bills'],
+  ['QuickBooks', 'Accounts Payable Aging Detail report for the supplier'],
+  ['Xero', 'Aged Payables Detail report for the supplier'],
+]
+
+/** Explains which ERP report produces the AP open-items file. */
+function ReportHelp() {
+  const [open, setOpen] = useState(false)
+  return (
+    <div className="mt-3">
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        aria-expanded={open}
+        className="text-xs text-stone-500 underline decoration-dotted underline-offset-4 hover:text-stone-700"
+      >
+        Not sure which report to export from your ERP? {open ? '▴' : '▾'}
+      </button>
+      {open && (
+        <div className="mt-2 rounded-md border border-stone-200 bg-stone-50 px-4 py-3 text-sm text-stone-600">
+          <p>
+            Any export works as long as each row is one <strong>open (unpaid or
+            partially paid) document</strong> for the supplier with its remaining
+            balance, as of the statement date. Common report names:
+          </p>
+          <ul className="mt-2 space-y-1">
+            {ERP_REPORTS.map(([system, report]) => (
+              <li key={system}>
+                <span className="font-semibold text-stone-700">{system}:</span> {report}
+              </li>
+            ))}
+          </ul>
+          <p className="mt-2 text-xs text-stone-500">
+            Column names don&rsquo;t have to match &mdash; AI column mapping renames
+            them for you from just the header row and three sample values.
+          </p>
+        </div>
+      )}
+    </div>
+  )
+}
+
 interface UploadPanelProps {
   onRun: (input: RunInput) => void
   error: string | null
@@ -261,6 +307,7 @@ export function UploadPanel({ onRun, error }: UploadPanelProps) {
             }}
           />
         </div>
+        <ReportHelp />
         <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
           <label className="block">
             <span className="text-xs font-medium uppercase tracking-wide text-stone-500">
