@@ -131,8 +131,9 @@ function ReportHelp() {
         <div className="mt-2 rounded-md border border-stone-200 bg-stone-50 px-4 py-3 text-sm text-stone-600">
           <p>
             Any export works as long as each row is one <strong>open (unpaid or
-            partially paid) document</strong> for the supplier with its remaining
-            balance, as of the statement date. Common report names:
+            partially paid) document</strong> as of the statement date, and includes
+            the supplier name, document reference, date, original amount, and
+            remaining open amount. Common report names:
           </p>
           <ul className="mt-2 space-y-1">
             {ERP_REPORTS.map(([system, report]) => (
