@@ -19,7 +19,7 @@ export function reject<T>(status: number, reason: ErrorReason, detail: string): 
 export type AuthCheck =
   | { kind: 'disabled' }
   | { kind: 'denied'; detail: string }
-  | { kind: 'user'; id: string; email: string }
+  | { kind: 'user'; id: string; email: string; createdAt: string | null }
 
 /** When the deployment has Supabase configured, protected endpoints require a
  * valid signed-in session; the resolved user identifies the Stripe customer. */
@@ -36,11 +36,16 @@ export async function checkAuth(
     headers: { apikey: anonKey, authorization: `Bearer ${token}` },
   })
   if (!response.ok) return { kind: 'denied', detail: 'your session has expired — sign in again' }
-  const user = (await response.json()) as { id?: string; email?: string }
+  const user = (await response.json()) as { id?: string; email?: string; created_at?: string }
   if (typeof user.id !== 'string' || typeof user.email !== 'string') {
     return { kind: 'denied', detail: 'your session has expired — sign in again' }
   }
-  return { kind: 'user', id: user.id, email: user.email }
+  return {
+    kind: 'user',
+    id: user.id,
+    email: user.email,
+    createdAt: typeof user.created_at === 'string' ? user.created_at : null,
+  }
 }
 
 /** AI endpoints require a valid signed-in session so anonymous callers cannot

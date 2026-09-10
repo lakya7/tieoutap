@@ -59,17 +59,32 @@ export function SubscriptionGate({ children }: { children: ReactNode }) {
   }
 
   const { info } = state
-  const managed = info.status !== 'disabled' && info.status !== 'complimentary'
+  const managed = info.status === 'active' || info.status === 'trialing'
+  const onFreeTrial = info.status === 'free_trial'
 
   if (info.active) {
     return (
       <div className="space-y-4">
         {justSubscribed && (
           <p className="rounded-md bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
-            You&rsquo;re in — your free trial has started.
+            You&rsquo;re in — your subscription is active.
           </p>
         )}
         {children}
+        {onFreeTrial && (
+          <p className="text-center text-xs text-stone-400">
+            {info.trial_end ? `Free trial until ${info.trial_end} · ` : ''}
+            <button
+              type="button"
+              onClick={() => void redirect('checkout')}
+              disabled={busy}
+              className="underline hover:text-stone-600 disabled:opacity-60"
+            >
+              Subscribe now
+            </button>
+            {actionError && <span className="ml-2 text-red-600">{actionError}</span>}
+          </p>
+        )}
         {managed && (
           <p className="text-center text-xs text-stone-400">
             {info.status === 'trialing' && info.trial_end
@@ -92,14 +107,13 @@ export function SubscriptionGate({ children }: { children: ReactNode }) {
 
   return (
     <div className="mx-auto max-w-md rounded-xl border border-stone-200 bg-white p-8 shadow-sm">
-      <h2 className="text-xl font-bold tracking-tight">Start your 14-day free trial</h2>
+      <h2 className="text-xl font-bold tracking-tight">Your free trial has ended</h2>
       <p className="mt-1 text-sm text-stone-500">
-        Full access to reconciliation, AI column mapping, AI summaries, and PDF
-        statement reading. $19/month after the trial — cancel anytime.
+        Keep full access to reconciliation, AI column mapping, AI summaries, and
+        PDF statement reading for $19/month — cancel anytime.
       </p>
       <ul className="mt-4 space-y-2 text-sm text-stone-600">
         <li>• Your files still never leave the browser</li>
-        <li>• Card required to start; nothing is charged until the trial ends</li>
         <li>• Cancel in one click from Manage billing</li>
       </ul>
       {info.status === 'canceled' && (
@@ -116,7 +130,7 @@ export function SubscriptionGate({ children }: { children: ReactNode }) {
         disabled={busy}
         className="mt-6 w-full rounded-md bg-blue-700 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-800 disabled:opacity-60"
       >
-        {busy ? 'Opening checkout…' : 'Start free trial'}
+        {busy ? 'Opening checkout…' : 'Subscribe — $19/month'}
       </button>
       <p className="mt-3 text-center text-xs text-stone-400">
         Secure payment by Stripe. TieOut AP never sees your card details.
