@@ -1,8 +1,10 @@
-/** Stripe subscription billing. Sign-up stays free; the reconcile screen and
- * the AI endpoints require an active subscription (or trial). The Stripe
- * secret key stays server-side; the browser only ever receives redirect URLs
- * and a boolean status. When Stripe or Supabase is not configured, billing is
- * disabled and everything stays open (matching the ungated auth build). */
+/** Stripe subscription billing. Sign-up stays free and starts a no-card
+ * 14-day trial measured from the Supabase account creation date; once it
+ * ends, the reconcile screen and the AI endpoints require an active Stripe
+ * subscription. The Stripe secret key stays server-side; the browser only
+ * ever receives redirect URLs and a boolean status. When Stripe or Supabase
+ * is not configured, billing is disabled and everything stays open (matching
+ * the ungated auth build). */
 import { checkAuth, reject } from './ai.js'
 import type { ApiResponse, AuthCheck } from './ai.js'
 
@@ -12,6 +14,9 @@ const STRIPE_API = 'https://api.stripe.com/v1'
 const ACTIVE_STATUSES = ['active', 'trialing']
 
 const DEFAULT_ORIGIN = 'https://tieoutap.com'
+
+/** Days of full access every new account gets before a card is needed. */
+const TRIAL_DAYS = 14
 
 export interface SubscriptionSuccess {
   ok: true
@@ -63,6 +68,16 @@ async function stripeRequest<T>(
   return body
 }
 
+/** End of the account's no-card trial, or null when it has already passed
+ * (or the account creation date is unavailable). */
+function accountTrialEnd(createdAt: string | null): Date | null {
+  if (!createdAt) return null
+  const created = Date.parse(createdAt)
+  if (Number.isNaN(created)) return null
+  const end = new Date(created + TRIAL_DAYS * 24 * 60 * 60 * 1000)
+  return end.getTime() > Date.now() ? end : null
+}
+
 /** Emails that bypass billing (owner and test accounts), comma-separated. */
 function isFreeEmail(email: string): boolean {
   return (process.env.TIEOUT_FREE_EMAILS ?? '')
@@ -103,9 +118,10 @@ export async function billingError(authHeader: string | undefined): Promise<stri
   if (auth.kind === 'disabled') return null
   if (auth.kind === 'denied') return auth.detail
   if (isFreeEmail(auth.email)) return null
+  if (accountTrialEnd(auth.createdAt)) return null
   const sub = await findSubscription(auth.email)
   if (sub && ACTIVE_STATUSES.includes(sub.status)) return null
-  return 'your free trial or subscription is not active — subscribe to continue'
+  return 'your free trial has ended — subscribe to continue'
 }
 
 function requireUser(auth: AuthCheck): { id: string; email: string } | string {
@@ -144,16 +160,39 @@ export async function handleSubscription(
   }
   try {
     const sub = await findSubscription(auth.email)
+    if (sub && ACTIVE_STATUSES.includes(sub.status)) {
+      return {
+        status: 200,
+        body: {
+          ok: true,
+          active: true,
+          status: sub.status,
+          trial_end:
+            sub.status === 'trialing' && sub.trial_end
+              ? new Date(sub.trial_end * 1000).toISOString().slice(0, 10)
+              : null,
+        },
+      }
+    }
+    const trialEnd = accountTrialEnd(auth.createdAt)
+    if (trialEnd) {
+      return {
+        status: 200,
+        body: {
+          ok: true,
+          active: true,
+          status: 'free_trial',
+          trial_end: trialEnd.toISOString().slice(0, 10),
+        },
+      }
+    }
     return {
       status: 200,
       body: {
         ok: true,
-        active: sub !== null && ACTIVE_STATUSES.includes(sub.status),
-        status: sub?.status ?? 'none',
-        trial_end:
-          sub?.status === 'trialing' && sub.trial_end
-            ? new Date(sub.trial_end * 1000).toISOString().slice(0, 10)
-            : null,
+        active: false,
+        status: sub?.status ?? 'trial_ended',
+        trial_end: null,
       },
     }
   } catch (e) {
@@ -179,14 +218,20 @@ export async function handleCheckout(
     if (existing && ACTIVE_STATUSES.includes(existing.status)) {
       return reject(409, 'bad_request', 'you already have an active subscription')
     }
-    const trialDays = process.env.STRIPE_TRIAL_DAYS ?? '14'
+    // Subscribing before the no-card trial ends keeps the remaining free days.
+    const trialEnd = auth.kind === 'user' ? accountTrialEnd(auth.createdAt) : null
+    const remainingDays = trialEnd
+      ? Math.ceil((trialEnd.getTime() - Date.now()) / (24 * 60 * 60 * 1000))
+      : 0
     const session = await stripeRequest<{ url: string }>('/checkout/sessions', {
       mode: 'subscription',
       customer_email: user.email,
       client_reference_id: user.id,
       'line_items[0][price]': priceId,
       'line_items[0][quantity]': '1',
-      'subscription_data[trial_period_days]': trialDays,
+      ...(remainingDays >= 1
+        ? { 'subscription_data[trial_period_days]': String(remainingDays) }
+        : {}),
       allow_promotion_codes: 'true',
       success_url: `${origin}/#app?checkout=success`,
       cancel_url: `${origin}/#app?checkout=cancelled`,

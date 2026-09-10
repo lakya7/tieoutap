@@ -288,13 +288,15 @@ export function Landing({ onOpenApp, onSampleRun }: LandingProps) {
             <p className="mt-3 font-display text-4xl font-bold text-slate-900">
               $19<span className="text-lg font-medium text-slate-500">/month</span>
             </p>
-            <p className="mt-1 text-sm font-medium text-emerald-700">14-day free trial</p>
+            <p className="mt-1 text-sm font-medium text-emerald-700">
+              14-day free trial — no card required
+            </p>
             <ul className="mt-5 space-y-2 text-sm text-slate-600">
               <li>Unlimited reconciliations</li>
               <li>PDF, scan, Excel, CSV and TSV statements</li>
               <li>AI column mapping and AI summaries</li>
               <li>Drafted supplier emails and shareable runs</li>
-              <li>Cancel anytime — no charge until the trial ends</li>
+              <li>Try everything free for 14 days — pay only if you keep it</li>
             </ul>
             <button
               type="button"
