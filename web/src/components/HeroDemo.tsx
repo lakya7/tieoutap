@@ -41,7 +41,7 @@ function FileChip({
 }) {
   return (
     <div
-      className={`flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 p-3 transition-all duration-500 ${
+      className={`flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 p-3 transition-all duration-500 motion-reduce:transition-none ${
         show ? 'translate-y-0 opacity-100' : 'translate-y-3 opacity-0'
       }`}
       style={{ transitionDelay: show ? delay : '0ms' }}
@@ -89,7 +89,8 @@ export function HeroDemo({ onSampleRun }: HeroDemoProps) {
               type="button"
               onClick={() => selectStage(i)}
               aria-label={`Show step ${i + 1}: ${name}`}
-              className={`flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold transition-colors duration-300 ${
+              aria-pressed={i === stage}
+              className={`flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold transition-colors duration-300 motion-reduce:transition-none ${
                 i === stage
                   ? 'bg-blue-700 text-white'
                   : 'bg-slate-100 text-slate-500 hover:bg-slate-200'
@@ -107,7 +108,9 @@ export function HeroDemo({ onSampleRun }: HeroDemoProps) {
         <div className="relative mt-4 h-[300px] overflow-hidden">
           {/* Stage 1: Upload */}
           <div
-            className={`absolute inset-0 transition-opacity duration-500 ${
+            aria-hidden={stage !== 0}
+            inert={stage !== 0}
+            className={`absolute inset-0 transition-opacity duration-500 motion-reduce:transition-none ${
               stage === 0 ? 'opacity-100' : 'pointer-events-none opacity-0'
             }`}
           >
@@ -133,7 +136,7 @@ export function HeroDemo({ onSampleRun }: HeroDemoProps) {
               />
             </div>
             <div
-              className={`mt-4 flex justify-between rounded-xl border border-amber-200 bg-amber-50 p-3 font-mono text-xs font-semibold text-amber-800 transition-all duration-500 ${
+              className={`mt-4 flex justify-between rounded-xl border border-amber-200 bg-amber-50 p-3 font-mono text-xs font-semibold text-amber-800 transition-all duration-500 motion-reduce:transition-none ${
                 stage === 0 ? 'translate-y-0 opacity-100' : 'translate-y-3 opacity-0'
               }`}
               style={{ transitionDelay: stage === 0 ? '900ms' : '0ms' }}
@@ -145,7 +148,9 @@ export function HeroDemo({ onSampleRun }: HeroDemoProps) {
 
           {/* Stage 2: Match */}
           <div
-            className={`absolute inset-0 transition-opacity duration-500 ${
+            aria-hidden={stage !== 1}
+            inert={stage !== 1}
+            className={`absolute inset-0 transition-opacity duration-500 motion-reduce:transition-none ${
               stage === 1 ? 'opacity-100' : 'pointer-events-none opacity-0'
             }`}
           >
@@ -156,7 +161,7 @@ export function HeroDemo({ onSampleRun }: HeroDemoProps) {
               {MATCH_ROWS.map(([ref, amount], i) => (
                 <div
                   key={ref}
-                  className={`flex items-center justify-between rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 font-mono text-xs transition-all duration-400 ${
+                  className={`flex items-center justify-between rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 font-mono text-xs transition-all duration-400 motion-reduce:transition-none ${
                     stage === 1 ? 'translate-x-0 opacity-100' : '-translate-x-3 opacity-0'
                   }`}
                   style={{ transitionDelay: stage === 1 ? `${150 + i * 350}ms` : '0ms' }}
@@ -164,7 +169,7 @@ export function HeroDemo({ onSampleRun }: HeroDemoProps) {
                   <span className="text-slate-700">{ref}</span>
                   <span className="text-slate-500">{amount}</span>
                   <span
-                    className={`flex items-center gap-1 font-sans font-semibold text-emerald-700 transition-opacity duration-300 ${
+                    className={`flex items-center gap-1 font-sans font-semibold text-emerald-700 transition-opacity duration-300 motion-reduce:transition-none ${
                       stage === 1 ? 'opacity-100' : 'opacity-0'
                     }`}
                     style={{ transitionDelay: stage === 1 ? `${450 + i * 350}ms` : '0ms' }}
@@ -178,7 +183,9 @@ export function HeroDemo({ onSampleRun }: HeroDemoProps) {
 
           {/* Stage 3: Explain */}
           <div
-            className={`absolute inset-0 transition-opacity duration-500 ${
+            aria-hidden={stage !== 2}
+            inert={stage !== 2}
+            className={`absolute inset-0 transition-opacity duration-500 motion-reduce:transition-none ${
               stage === 2 ? 'opacity-100' : 'pointer-events-none opacity-0'
             }`}
           >
@@ -189,7 +196,7 @@ export function HeroDemo({ onSampleRun }: HeroDemoProps) {
               {FINDINGS.map(([label, amount], i) => (
                 <div
                   key={label}
-                  className={`flex justify-between font-mono text-xs transition-all duration-400 sm:text-sm ${
+                  className={`flex justify-between font-mono text-xs transition-all duration-400 motion-reduce:transition-none sm:text-sm ${
                     stage === 2 ? 'translate-y-0 opacity-100' : 'translate-y-2 opacity-0'
                   }`}
                   style={{ transitionDelay: stage === 2 ? `${150 + i * 300}ms` : '0ms' }}
@@ -207,7 +214,9 @@ export function HeroDemo({ onSampleRun }: HeroDemoProps) {
 
           {/* Stage 4: Tie out */}
           <div
-            className={`absolute inset-0 transition-opacity duration-500 ${
+            aria-hidden={stage !== 3}
+            inert={stage !== 3}
+            className={`absolute inset-0 transition-opacity duration-500 motion-reduce:transition-none ${
               stage === 3 ? 'opacity-100' : 'pointer-events-none opacity-0'
             }`}
           >
@@ -233,7 +242,7 @@ export function HeroDemo({ onSampleRun }: HeroDemoProps) {
               </div>
             </dl>
             <div
-              className={`mt-5 flex items-center justify-between rounded-xl border border-emerald-200 bg-emerald-50 p-4 transition-all ${
+              className={`mt-5 flex items-center justify-between rounded-xl border border-emerald-200 bg-emerald-50 p-4 transition-all motion-reduce:transition-none ${
                 animate ? 'duration-500' : ''
               } ${stage === 3 ? 'scale-100 opacity-100' : 'scale-95 opacity-0'}`}
               style={{ transitionDelay: stage === 3 && animate ? '600ms' : '0ms' }}
@@ -242,7 +251,7 @@ export function HeroDemo({ onSampleRun }: HeroDemoProps) {
               <span className="font-mono text-lg font-bold text-emerald-700">0.00</span>
             </div>
             <p
-              className={`mt-3 text-[11px] text-slate-500 transition-opacity duration-500 ${
+              className={`mt-3 text-[11px] text-slate-500 transition-opacity duration-500 motion-reduce:transition-none ${
                 stage === 3 ? 'opacity-100' : 'opacity-0'
               }`}
               style={{ transitionDelay: stage === 3 && animate ? '1100ms' : '0ms' }}
