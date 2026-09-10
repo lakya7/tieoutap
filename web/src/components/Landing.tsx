@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import { ContactSection } from './ContactSection'
+import { HeroDemo } from './HeroDemo'
 
 interface LandingProps {
   onOpenApp: () => void
@@ -69,61 +70,6 @@ const AI_SPLIT = [
     body: 'Matching, arithmetic, classification and the bridge run in a deterministic six-pass cascade — no model anywhere in the numbers. The same two files always produce the same findings and the same bridge.',
   },
 ]
-
-function ResultCard() {
-  return (
-    <div className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-5 shadow-xl shadow-slate-900/5">
-      <div className="flex items-center justify-between">
-        <span className="text-xs font-semibold uppercase tracking-wider text-blue-700">
-          Reconciliation result
-        </span>
-        <span className="rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-semibold text-emerald-700 ring-1 ring-inset ring-emerald-200">
-          0.00 unexplained
-        </span>
-      </div>
-      <dl className="mt-4 space-y-1.5 font-mono text-xs sm:text-sm">
-        <div className="flex justify-between text-slate-700">
-          <dt className="min-w-0 truncate pr-4">Supplier statement balance</dt>
-          <dd className="shrink-0">59,165.00</dd>
-        </div>
-        <div className="flex justify-between text-slate-700">
-          <dt className="min-w-0 truncate pr-4">Your AP ledger balance</dt>
-          <dd className="shrink-0">34,696.00</dd>
-        </div>
-        <div className="flex justify-between border-t border-slate-200 pt-1.5 font-semibold text-slate-900">
-          <dt className="min-w-0 truncate pr-4">Difference</dt>
-          <dd className="shrink-0">24,469.00</dd>
-        </div>
-      </dl>
-      <p className="mt-4 text-xs font-semibold uppercase tracking-wider text-slate-400">
-        Explained by
-      </p>
-      <dl className="mt-2 space-y-1.5 font-mono text-xs sm:text-sm">
-        {[
-          ['Invoice missing from your ledger', '+15,780.00'],
-          ['Your payment not yet applied', '+10,000.00'],
-          ['Invoice in transit (timing)', '+9,120.00'],
-          ['Duplicate posting in your ledger', '\u22127,905.00'],
-          ['Credit you haven\u2019t claimed', '\u22122,760.00'],
-          ['Amount keyed differently', '+234.00'],
-        ].map(([label, amount]) => (
-          <div key={label} className="flex justify-between text-slate-500">
-            <dt className="min-w-0 truncate pr-4">{label}</dt>
-            <dd
-              className={`shrink-0 ${amount.startsWith('+') ? 'text-blue-700' : 'text-slate-400'}`}
-            >
-              {amount}
-            </dd>
-          </div>
-        ))}
-        <div className="flex justify-between border-t border-slate-200 pt-1.5 font-semibold text-emerald-700">
-          <dt className="min-w-0 truncate pr-4">Unexplained</dt>
-          <dd className="shrink-0">0.00</dd>
-        </div>
-      </dl>
-    </div>
-  )
-}
 
 export function Landing({ onOpenApp, onSampleRun }: LandingProps) {
   useEffect(() => {
@@ -207,7 +153,7 @@ export function Landing({ onOpenApp, onSampleRun }: LandingProps) {
             </ul>
           </div>
           <div className="flex min-w-0 justify-center lg:justify-end">
-            <ResultCard />
+            <HeroDemo onSampleRun={onSampleRun} />
           </div>
         </div>
       </div>
