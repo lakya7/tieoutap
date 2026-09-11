@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { ContactSection } from './ContactSection'
 import { HeroDemo } from './HeroDemo'
+import { LandingNav } from './LandingNav'
 
 interface LandingProps {
   onOpenApp: () => void
@@ -82,32 +83,8 @@ export function Landing({ onOpenApp, onSampleRun }: LandingProps) {
     <div className="bg-white">
       {/* Hero */}
       <div className="border-b border-slate-200 bg-gradient-to-b from-blue-50/70 via-white to-white">
-        <header className="mx-auto flex max-w-6xl items-center justify-between px-6 py-5">
-          <span className="font-display text-xl font-bold tracking-tight text-slate-900">
-            TieOut <span className="text-blue-700">AP</span>
-          </span>
-          <div className="flex items-center gap-3">
-            <a
-              href="#contact"
-              className="px-2 py-2 text-sm font-medium text-slate-700 hover:text-blue-700"
-            >
-              Contact
-            </a>
-            <button
-              type="button"
-              onClick={onSampleRun}
-              className="hidden rounded-md border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 sm:block"
-            >
-              See a sample run
-            </button>
-            <button
-              type="button"
-              onClick={onOpenApp}
-              className="rounded-md bg-blue-700 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-800"
-            >
-              Open the app
-            </button>
-          </div>
+        <header>
+          <LandingNav onOpenApp={onOpenApp} onSampleRun={onSampleRun} />
         </header>
 
         <div className="mx-auto grid max-w-6xl items-center gap-12 px-6 pb-20 pt-12 lg:grid-cols-2">
@@ -171,7 +148,7 @@ export function Landing({ onOpenApp, onSampleRun }: LandingProps) {
       </div>
 
       {/* Features */}
-      <section className="mx-auto max-w-6xl px-6 py-20">
+      <section id="features" className="mx-auto max-w-6xl scroll-mt-6 px-6 py-20">
         <h2 className="font-display text-center text-3xl font-bold tracking-tight text-slate-900">
           Everything you need to clear a statement
         </h2>
@@ -190,7 +167,7 @@ export function Landing({ onOpenApp, onSampleRun }: LandingProps) {
       </section>
 
       {/* No AI in the numbers */}
-      <section className="border-t border-slate-200 bg-white">
+      <section id="ai" className="scroll-mt-6 border-t border-slate-200 bg-white">
         <div className="mx-auto max-w-6xl px-6 py-20">
           <h2 className="font-display text-center text-3xl font-bold tracking-tight text-slate-900">
             AI where it helps. Determinism where it counts.
@@ -213,7 +190,7 @@ export function Landing({ onOpenApp, onSampleRun }: LandingProps) {
       </section>
 
       {/* How it works */}
-      <section className="border-y border-slate-200 bg-slate-50">
+      <section id="how" className="scroll-mt-6 border-y border-slate-200 bg-slate-50">
         <div className="mx-auto max-w-6xl px-6 py-20">
           <h2 className="font-display text-center text-3xl font-bold tracking-tight text-slate-900">
             From statement to signed-off in minutes
@@ -233,7 +210,7 @@ export function Landing({ onOpenApp, onSampleRun }: LandingProps) {
       </section>
 
       {/* Formats & privacy */}
-      <section className="mx-auto max-w-6xl px-6 py-20">
+      <section id="privacy" className="mx-auto max-w-6xl scroll-mt-6 px-6 py-20">
         <div className="grid gap-6 md:grid-cols-2">
           <div className="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
             <div className="h-1 w-10 rounded-full bg-blue-700" />
@@ -276,7 +253,7 @@ export function Landing({ onOpenApp, onSampleRun }: LandingProps) {
       </section>
 
       {/* Pricing */}
-      <section className="border-t border-slate-200 bg-white">
+      <section id="pricing" className="scroll-mt-6 border-t border-slate-200 bg-white">
         <div className="mx-auto max-w-4xl px-6 py-20 text-center">
           <h2 className="font-display text-3xl font-bold tracking-tight text-slate-900">
             Simple pricing
