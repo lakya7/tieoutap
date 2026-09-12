@@ -26,6 +26,24 @@ function isTrustPage(hash: string): hash is TrustPageId {
   return (TRUST_PAGES as string[]).includes(hash)
 }
 
+const GUEST_RUN_KEY = 'tieout-guest-run-used'
+
+function readGuestRunUsed(): boolean {
+  try {
+    return localStorage.getItem(GUEST_RUN_KEY) === '1'
+  } catch {
+    return false
+  }
+}
+
+function persistGuestRunUsed(): void {
+  try {
+    localStorage.setItem(GUEST_RUN_KEY, '1')
+  } catch {
+    // Storage unavailable — the in-memory flag still gates this tab.
+  }
+}
+
 const runKeys = new WeakMap<Run, number>()
 let nextRunKey = 1
 
@@ -54,19 +72,46 @@ export default function App() {
     if (isTrustPage(hash)) return hash
     return hash === '' || hash === 'contact' ? 'landing' : 'app'
   })
+  const [guestRunUsed, setGuestRunUsed] = useState(readGuestRunUsed)
+  const [showAuth, setShowAuth] = useState(false)
   const { session, loading: authLoading, enabled: authEnabled, signOut } = useAuth()
 
-  const start = (input: RunInput) => {
+  const start = (input: RunInput): boolean => {
     try {
       setRun(executeRun(input))
       setError(null)
       setTab('queue')
       history.replaceState(null, '', `#run=${shareUrl(input).split('#run=')[1]}`)
+      return true
     } catch (e) {
       const detail = e instanceof Error ? e.message : String(e)
       setError(`Could not read the CSV files (${detail}). Check the column layout against the hints on each upload box.`)
+      return false
     }
   }
+
+  const startGuest = (input: RunInput, opts?: { sample?: boolean }) => {
+    if (opts?.sample) {
+      start(input)
+      return
+    }
+    if (readGuestRunUsed()) {
+      setGuestRunUsed(true)
+      return
+    }
+    if (start(input)) {
+      persistGuestRunUsed()
+      setGuestRunUsed(true)
+    }
+  }
+
+  useEffect(() => {
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === GUEST_RUN_KEY) setGuestRunUsed(readGuestRunUsed())
+    }
+    window.addEventListener('storage', onStorage)
+    return () => window.removeEventListener('storage', onStorage)
+  }, [])
 
   useEffect(() => {
     const onHashChange = () => {
@@ -202,8 +247,31 @@ export default function App() {
           authEnabled && !session ? (
             authLoading ? (
               <p className="py-16 text-center text-sm text-stone-500">Loading…</p>
+            ) : guestRunUsed || showAuth ? (
+              <div className="space-y-4">
+                {guestRunUsed && (
+                  <p className="mx-auto max-w-md rounded-md bg-emerald-50 px-4 py-3 text-center text-sm text-emerald-800">
+                    You&rsquo;ve used your free run. Create a free account to keep
+                    reconciling &mdash; 14-day trial, no card needed.
+                  </p>
+                )}
+                <AuthPanel onSampleRun={sampleRun} />
+              </div>
             ) : (
-              <AuthPanel onSampleRun={sampleRun} />
+              <div className="space-y-4">
+                <p className="rounded-md bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
+                  Trying without an account &mdash; you get one free reconciliation
+                  with your own files. Nothing you upload leaves your browser.{' '}
+                  <button
+                    type="button"
+                    onClick={() => setShowAuth(true)}
+                    className="font-semibold underline hover:text-emerald-900"
+                  >
+                    Sign in instead
+                  </button>
+                </p>
+                <UploadPanel onRun={startGuest} error={error} />
+              </div>
             )
           ) : (
             <SubscriptionGate>
