@@ -50,19 +50,24 @@ export function ContactSection() {
   }
 
   return (
-    <section id="contact" className="border-t border-slate-200 bg-slate-50">
-      <div className="mx-auto max-w-2xl px-6 py-20">
-        <h2 className="font-display text-center text-3xl font-bold tracking-tight text-slate-900">
+    <section id="contact" className="border-t border-line bg-paper">
+      <div className="mx-auto max-w-2xl px-6 py-24">
+        <p className="flex items-center justify-center gap-3 text-xs font-semibold uppercase tracking-[0.2em] text-pine">
+          <span className="font-mono">06</span>
+          <span aria-hidden="true" className="h-px w-8 bg-pine/40" />
+          Contact
+        </p>
+        <h2 className="mt-4 text-center font-serif text-3xl font-medium tracking-tight text-ink sm:text-4xl">
           Get in touch
         </h2>
-        <p className="mx-auto mt-4 max-w-xl text-center leading-relaxed text-slate-600">
+        <p className="mx-auto mt-4 max-w-xl text-center leading-relaxed text-ink-soft">
           Questions, a statement format we should support, or a walkthrough for your team —
           send a message and we&rsquo;ll reply by email.
         </p>
         {status === 'sent' ? (
-          <div className="mt-10 rounded-2xl border border-emerald-200 bg-emerald-50 p-8 text-center">
-            <p className="font-display text-lg font-bold text-emerald-800">Message sent</p>
-            <p className="mt-2 text-sm text-emerald-700">
+          <div className="mt-10 border border-pine/30 bg-moss p-8 text-center">
+            <p className="font-serif text-lg font-medium text-pine-deep">Message sent</p>
+            <p className="mt-2 text-sm text-pine">
               Thanks for reaching out — we&rsquo;ll get back to you shortly.
             </p>
           </div>
@@ -70,7 +75,7 @@ export function ContactSection() {
           <form onSubmit={handleSubmit} className="mt-10 space-y-5">
             <div className="grid gap-5 sm:grid-cols-2">
               <div>
-                <label htmlFor="contact-name" className="block text-sm font-medium text-slate-700">
+                <label htmlFor="contact-name" className="block text-sm font-medium text-ink">
                   Name
                 </label>
                 <input
@@ -79,12 +84,12 @@ export function ContactSection() {
                   type="text"
                   required
                   autoComplete="name"
-                  className="mt-1.5 w-full rounded-md border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 shadow-sm placeholder:text-slate-400 focus:border-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                  className="mt-1.5 w-full rounded-sm border border-line bg-cream px-3.5 py-2.5 text-sm text-ink shadow-sm placeholder:text-ink-faint focus:border-pine focus:outline-none focus:ring-1 focus:ring-pine"
                   placeholder="Jane Doe"
                 />
               </div>
               <div>
-                <label htmlFor="contact-email" className="block text-sm font-medium text-slate-700">
+                <label htmlFor="contact-email" className="block text-sm font-medium text-ink">
                   Email
                 </label>
                 <input
@@ -93,13 +98,13 @@ export function ContactSection() {
                   type="email"
                   required
                   autoComplete="email"
-                  className="mt-1.5 w-full rounded-md border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 shadow-sm placeholder:text-slate-400 focus:border-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                  className="mt-1.5 w-full rounded-sm border border-line bg-cream px-3.5 py-2.5 text-sm text-ink shadow-sm placeholder:text-ink-faint focus:border-pine focus:outline-none focus:ring-1 focus:ring-pine"
                   placeholder="jane@company.com"
                 />
               </div>
             </div>
             <div>
-              <label htmlFor="contact-message" className="block text-sm font-medium text-slate-700">
+              <label htmlFor="contact-message" className="block text-sm font-medium text-ink">
                 Message
               </label>
               <textarea
@@ -107,7 +112,7 @@ export function ContactSection() {
                 name="message"
                 required
                 rows={5}
-                className="mt-1.5 w-full rounded-md border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 shadow-sm placeholder:text-slate-400 focus:border-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                className="mt-1.5 w-full rounded-sm border border-line bg-cream px-3.5 py-2.5 text-sm text-ink shadow-sm placeholder:text-ink-faint focus:border-pine focus:outline-none focus:ring-1 focus:ring-pine"
                 placeholder="How can we help?"
               />
             </div>
@@ -117,13 +122,13 @@ export function ContactSection() {
               </p>
             )}
             <div className="flex items-center justify-between gap-4">
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-ink-faint">
                 Only what you type here is sent — your reconciliation files stay in your browser.
               </p>
               <button
                 type="submit"
                 disabled={status === 'sending'}
-                className="shrink-0 rounded-md bg-blue-700 px-6 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-800 disabled:cursor-not-allowed disabled:opacity-60"
+                className="shrink-0 rounded-sm bg-ink px-6 py-2.5 text-sm font-semibold text-paper shadow-sm transition-colors hover:bg-pine-deep disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {status === 'sending' ? 'Sending…' : 'Send message'}
               </button>

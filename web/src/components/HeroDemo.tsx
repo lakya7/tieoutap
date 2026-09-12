@@ -41,19 +41,19 @@ function FileChip({
 }) {
   return (
     <div
-      className={`flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 p-3 transition-all duration-500 motion-reduce:transition-none ${
+      className={`flex items-center gap-3 rounded-sm border border-line bg-paper p-3 transition-all duration-500 motion-reduce:transition-none ${
         show ? 'translate-y-0 opacity-100' : 'translate-y-3 opacity-0'
       }`}
       style={{ transitionDelay: show ? delay : '0ms' }}
     >
-      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-blue-700 text-[10px] font-bold text-white">
+      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-sm bg-ink text-[10px] font-bold text-paper">
         {kind}
       </div>
       <div className="min-w-0 flex-1">
-        <p className="truncate text-xs font-semibold text-slate-800">{name}</p>
-        <p className="text-[11px] text-slate-500">{label}</p>
+        <p className="truncate text-xs font-semibold text-ink">{name}</p>
+        <p className="text-[11px] text-ink-faint">{label}</p>
       </div>
-      <p className="shrink-0 font-mono text-xs font-semibold text-slate-700">{amount}</p>
+      <p className="shrink-0 font-mono text-xs font-semibold text-ink-soft">{amount}</p>
     </div>
   )
 }
@@ -80,7 +80,7 @@ export function HeroDemo({ onSampleRun }: HeroDemoProps) {
 
   return (
     <div className="w-full max-w-md">
-      <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-xl shadow-slate-900/5">
+      <div className="rounded-sm border border-line bg-cream p-5 shadow-xl shadow-ink/10">
         {/* Stage indicator */}
         <div className="flex items-center gap-1.5">
           {STAGES.map((name, i) => (
@@ -92,15 +92,15 @@ export function HeroDemo({ onSampleRun }: HeroDemoProps) {
               aria-pressed={i === stage}
               className={`flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold transition-colors duration-300 motion-reduce:transition-none ${
                 i === stage
-                  ? 'bg-blue-700 text-white'
-                  : 'bg-slate-100 text-slate-500 hover:bg-slate-200'
+                  ? 'bg-ink text-paper'
+                  : 'bg-ink/5 text-ink-soft hover:bg-ink/10'
               }`}
             >
               <span className="font-mono">{i + 1}</span>
               <span className="hidden sm:inline">{name}</span>
             </button>
           ))}
-          <span className="ml-auto rounded-full bg-emerald-50 px-2.5 py-0.5 text-[11px] font-semibold text-emerald-700 ring-1 ring-inset ring-emerald-200">
+          <span className="ml-auto rounded-full bg-moss px-2.5 py-0.5 text-[11px] font-semibold text-pine ring-1 ring-inset ring-pine/25">
             Live demo
           </span>
         </div>
@@ -114,7 +114,7 @@ export function HeroDemo({ onSampleRun }: HeroDemoProps) {
               stage === 0 ? 'opacity-100' : 'pointer-events-none opacity-0'
             }`}
           >
-            <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">
+            <p className="font-mono text-[11px] font-medium uppercase tracking-[0.15em] text-ink-faint">
               Two files in
             </p>
             <div className="mt-3 space-y-3">
@@ -136,7 +136,7 @@ export function HeroDemo({ onSampleRun }: HeroDemoProps) {
               />
             </div>
             <div
-              className={`mt-4 flex justify-between rounded-xl border border-amber-200 bg-amber-50 p-3 font-mono text-xs font-semibold text-amber-800 transition-all duration-500 motion-reduce:transition-none ${
+              className={`mt-4 flex justify-between rounded-sm border border-amber-300/60 bg-amber-50 p-3 font-mono text-xs font-semibold text-amber-900 transition-all duration-500 motion-reduce:transition-none ${
                 stage === 0 ? 'translate-y-0 opacity-100' : 'translate-y-3 opacity-0'
               }`}
               style={{ transitionDelay: stage === 0 ? '900ms' : '0ms' }}
@@ -154,22 +154,22 @@ export function HeroDemo({ onSampleRun }: HeroDemoProps) {
               stage === 1 ? 'opacity-100' : 'pointer-events-none opacity-0'
             }`}
           >
-            <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">
+            <p className="font-mono text-[11px] font-medium uppercase tracking-[0.15em] text-ink-faint">
               Deterministic matching — no AI in the numbers
             </p>
             <div className="mt-3 space-y-2">
               {MATCH_ROWS.map(([ref, amount], i) => (
                 <div
                   key={ref}
-                  className={`flex items-center justify-between rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 font-mono text-xs transition-all duration-400 motion-reduce:transition-none ${
+                  className={`flex items-center justify-between rounded-sm border border-line bg-paper px-3 py-2 font-mono text-xs transition-all duration-400 motion-reduce:transition-none ${
                     stage === 1 ? 'translate-x-0 opacity-100' : '-translate-x-3 opacity-0'
                   }`}
                   style={{ transitionDelay: stage === 1 ? `${150 + i * 350}ms` : '0ms' }}
                 >
-                  <span className="text-slate-700">{ref}</span>
-                  <span className="text-slate-500">{amount}</span>
+                  <span className="text-ink-soft">{ref}</span>
+                  <span className="text-ink-faint">{amount}</span>
                   <span
-                    className={`flex items-center gap-1 font-sans font-semibold text-emerald-700 transition-opacity duration-300 motion-reduce:transition-none ${
+                    className={`flex items-center gap-1 font-sans font-semibold text-pine transition-opacity duration-300 motion-reduce:transition-none ${
                       stage === 1 ? 'opacity-100' : 'opacity-0'
                     }`}
                     style={{ transitionDelay: stage === 1 ? `${450 + i * 350}ms` : '0ms' }}
@@ -189,7 +189,7 @@ export function HeroDemo({ onSampleRun }: HeroDemoProps) {
               stage === 2 ? 'opacity-100' : 'pointer-events-none opacity-0'
             }`}
           >
-            <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">
+            <p className="font-mono text-[11px] font-medium uppercase tracking-[0.15em] text-ink-faint">
               Every difference, named in AP language
             </p>
             <div className="mt-3 space-y-1.5">
@@ -201,9 +201,9 @@ export function HeroDemo({ onSampleRun }: HeroDemoProps) {
                   }`}
                   style={{ transitionDelay: stage === 2 ? `${150 + i * 300}ms` : '0ms' }}
                 >
-                  <span className="min-w-0 truncate pr-4 text-slate-600">{label}</span>
+                  <span className="min-w-0 truncate pr-4 text-ink-soft">{label}</span>
                   <span
-                    className={`shrink-0 ${amount.startsWith('+') ? 'text-blue-700' : 'text-slate-400'}`}
+                    className={`shrink-0 ${amount.startsWith('+') ? 'text-pine' : 'text-ink-faint'}`}
                   >
                     {amount}
                   </span>
@@ -220,38 +220,41 @@ export function HeroDemo({ onSampleRun }: HeroDemoProps) {
               stage === 3 ? 'opacity-100' : 'pointer-events-none opacity-0'
             }`}
           >
-            <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">
+            <p className="font-mono text-[11px] font-medium uppercase tracking-[0.15em] text-ink-faint">
               The bridge ties exactly
             </p>
             <dl className="mt-3 space-y-1.5 font-mono text-xs sm:text-sm">
-              <div className="flex justify-between text-slate-700">
+              <div className="flex justify-between text-ink-soft">
                 <dt>Supplier statement balance</dt>
                 <dd>59,165.00</dd>
               </div>
-              <div className="flex justify-between text-slate-700">
+              <div className="flex justify-between text-ink-soft">
                 <dt>Your AP ledger balance</dt>
                 <dd>34,696.00</dd>
               </div>
-              <div className="flex justify-between border-t border-slate-200 pt-1.5 font-semibold text-slate-900">
+              <div className="flex justify-between border-t border-line pt-1.5 font-semibold text-ink">
                 <dt>Difference</dt>
                 <dd>24,469.00</dd>
               </div>
-              <div className="flex justify-between text-slate-500">
+              <div className="flex justify-between text-ink-faint">
                 <dt>Explained by 6 findings</dt>
                 <dd>24,469.00</dd>
               </div>
             </dl>
             <div
-              className={`mt-5 flex items-center justify-between rounded-xl border border-emerald-200 bg-emerald-50 p-4 transition-all motion-reduce:transition-none ${
+              className={`mt-5 rounded-sm border border-pine/30 bg-moss p-4 transition-all motion-reduce:transition-none ${
                 animate ? 'duration-500' : ''
               } ${stage === 3 ? 'scale-100 opacity-100' : 'scale-95 opacity-0'}`}
               style={{ transitionDelay: stage === 3 && animate ? '600ms' : '0ms' }}
             >
-              <span className="text-sm font-bold text-emerald-800">Unexplained</span>
-              <span className="font-mono text-lg font-bold text-emerald-700">0.00</span>
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-bold text-pine-deep">Unexplained</span>
+                <span className="font-mono text-lg font-bold text-pine">0.00</span>
+              </div>
+              <div aria-hidden="true" className="double-rule mt-1 text-pine/60" />
             </div>
             <p
-              className={`mt-3 text-[11px] text-slate-500 transition-opacity duration-500 motion-reduce:transition-none ${
+              className={`mt-3 text-[11px] text-ink-faint transition-opacity duration-500 motion-reduce:transition-none ${
                 stage === 3 ? 'opacity-100' : 'opacity-0'
               }`}
               style={{ transitionDelay: stage === 3 && animate ? '1100ms' : '0ms' }}
@@ -265,7 +268,7 @@ export function HeroDemo({ onSampleRun }: HeroDemoProps) {
         <button
           type="button"
           onClick={onSampleRun}
-          className="text-sm font-semibold text-blue-700 hover:text-blue-800"
+          className="text-sm font-semibold text-pine hover:text-pine-deep"
         >
           Explore this run live — real numbers, one click →
         </button>

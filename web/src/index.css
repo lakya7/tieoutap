@@ -5,10 +5,30 @@
     Roboto, "Helvetica Neue", Arial, sans-serif;
   --font-display: "Space Grotesk", "Inter", ui-sans-serif, system-ui,
     sans-serif;
-  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas,
+  --font-serif: "Fraunces", "Iowan Old Style", Georgia, "Times New Roman",
+    serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Consolas,
     "Liberation Mono", monospace;
+
+  /* Landing-page palette: ledger paper + ink + pine green */
+  --color-paper: #f6f3ea;
+  --color-cream: #fdfbf5;
+  --color-ink: #1c2721;
+  --color-ink-soft: #4d5a52;
+  --color-ink-faint: #7d887f;
+  --color-line: #ddd5c4;
+  --color-pine: #16604a;
+  --color-pine-deep: #0e4634;
+  --color-moss: #e5efe8;
 }
 
 body {
   @apply bg-stone-100 text-stone-900 antialiased;
+}
+
+/* Accountant's double rule: drawn under a total once it ties out. */
+.double-rule {
+  height: 7px;
+  border-top: 1px solid currentColor;
+  border-bottom: 2px solid currentColor;
 }
