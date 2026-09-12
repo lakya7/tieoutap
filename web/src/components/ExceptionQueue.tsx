@@ -1,10 +1,24 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { formatCentsGrouped } from '../../../ts/src'
-import type { Finding, Match } from '../../../ts/src'
+import type { Finding, LedgerLine, Match, StatementLine } from '../../../ts/src'
 import { findingRefs } from '../lib/email'
+import {
+  findingLedgerLines,
+  findingNarrative,
+  findingStatementLines,
+} from '../lib/evidence'
 import { downloadExceptionsXlsx } from '../lib/export'
-import { exceptionId, findingLabel, orderedFindings } from '../lib/labels'
+import { exceptionId, findingLabel, orderedFindings, runId } from '../lib/labels'
 import type { Run } from '../lib/run'
+import {
+  DEFAULT_STATUS,
+  EXCEPTION_STATUSES,
+  STATUS_LABELS,
+  STATUSES_STORAGE_KEY,
+  loadStatuses,
+  saveStatus,
+} from '../lib/statuses'
+import type { ExceptionStatus, RunStatuses } from '../lib/statuses'
 
 const BUCKET_STYLES: Record<string, string> = {
   cash_at_risk: 'bg-red-100 text-red-800',
@@ -25,26 +39,138 @@ const METHOD_LABELS: Record<string, string> = {
   subset_sum: 'Sum of lines',
 }
 
-function EvidenceRow({ finding }: { finding: Finding }) {
+const STATUS_STYLES: Record<ExceptionStatus, string> = {
+  open: 'border-line bg-cream text-ink',
+  investigating: 'border-sky-300 bg-sky-50 text-sky-900',
+  awaiting_supplier: 'border-amber-300 bg-amber-50 text-amber-900',
+  resolved: 'border-pine/40 bg-moss text-pine-deep',
+  accepted: 'border-pine/40 bg-moss text-pine-deep',
+}
+
+function LinesTable({
+  title,
+  head,
+  rows,
+}: {
+  title: string
+  head: string[]
+  rows: (string | number)[][]
+}) {
+  return (
+    <div className="min-w-0 border border-line bg-cream">
+      <p className="border-b border-line px-3 py-1.5 font-mono text-xs uppercase tracking-[0.15em] text-ink-faint">
+        {title}
+      </p>
+      <div className="overflow-x-auto">
+        <table className="w-full text-left">
+          <thead>
+            <tr className="border-b border-line/60 font-mono text-xs text-ink-faint">
+              {head.map((h) => (
+                <th
+                  key={h}
+                  className={`px-3 py-1.5 font-medium ${h === 'Amount' || h === 'Original' || h === 'Open' ? 'text-right' : ''}`}
+                >
+                  {h}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((cells, i) => (
+              <tr key={i} className="border-b border-line/40 last:border-b-0">
+                {cells.map((cell, j) => (
+                  <td
+                    key={j}
+                    className={`whitespace-nowrap px-3 py-1.5 font-mono text-xs ${
+                      typeof cell === 'number' ? 'text-right tabular-nums' : ''
+                    }`}
+                  >
+                    {typeof cell === 'number' ? formatCentsGrouped(cell) : cell}
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  )
+}
+
+function statementRows(lines: StatementLine[]): (string | number)[][] {
+  return lines.map((l) => [l.raw_ref, l.doc_date, l.doc_type, l.amount])
+}
+
+function ledgerRows(lines: LedgerLine[]): (string | number)[][] {
+  return lines.map((l) => [l.raw_ref, l.doc_date, l.doc_type, l.original_amount, l.open_amount])
+}
+
+function EvidenceRow({ run, finding }: { run: Run; finding: Finding }) {
+  const narrative = findingNarrative(run, finding)
+  const sLines = findingStatementLines(run, finding)
+  const lLines = findingLedgerLines(run, finding)
   return (
     <tr>
-      <td colSpan={6} className="bg-paper px-4 py-3">
-        <dl className="grid grid-cols-2 gap-x-8 gap-y-1 sm:grid-cols-3">
-          <div>
-            <dt className="font-mono text-xs uppercase tracking-[0.15em] text-ink-faint">Rule</dt>
-            <dd className="font-mono text-xs">{finding.rule_id}</dd>
-          </div>
-          {Object.entries(finding.evidence).map(([k, v]) => (
-            <div key={k}>
-              <dt className="font-mono text-xs uppercase tracking-[0.15em] text-ink-faint">
-                {k.replace(/_/g, ' ')}
-              </dt>
-              <dd className="font-mono text-xs">
-                {Array.isArray(v) ? v.join(', ') : String(v)}
-              </dd>
+      <td colSpan={7} className="bg-paper px-4 py-4">
+        <div className="space-y-4">
+          <div className="grid gap-4 md:grid-cols-2">
+            <div>
+              <p className="font-mono text-xs uppercase tracking-[0.15em] text-ink-faint">
+                What was found
+              </p>
+              <p className="mt-1 text-sm leading-relaxed text-ink">{narrative.what}</p>
             </div>
-          ))}
-        </dl>
+            <div>
+              <p className="font-mono text-xs uppercase tracking-[0.15em] text-ink-faint">
+                Why this category
+              </p>
+              <p className="mt-1 text-sm leading-relaxed text-ink-soft">{narrative.why}</p>
+            </div>
+          </div>
+
+          {(sLines.length > 0 || lLines.length > 0) && (
+            <div className="grid gap-4 md:grid-cols-2">
+              {sLines.length > 0 && (
+                <LinesTable
+                  title="Statement lines"
+                  head={['Reference', 'Date', 'Type', 'Amount']}
+                  rows={statementRows(sLines)}
+                />
+              )}
+              {lLines.length > 0 && (
+                <LinesTable
+                  title="Ledger lines"
+                  head={['Reference', 'Date', 'Type', 'Original', 'Open']}
+                  rows={ledgerRows(lLines)}
+                />
+              )}
+            </div>
+          )}
+
+          <div className="border border-pine/30 bg-moss px-3 py-2">
+            <p className="font-mono text-xs uppercase tracking-[0.15em] text-pine">
+              Suggested next action
+            </p>
+            <p className="mt-1 text-sm leading-relaxed text-pine-deep">{narrative.nextAction}</p>
+          </div>
+
+          <dl className="grid grid-cols-2 gap-x-8 gap-y-1 border-t border-line pt-3 sm:grid-cols-3">
+            <div>
+              <dt className="font-mono text-xs uppercase tracking-[0.15em] text-ink-faint">Rule</dt>
+              <dd className="font-mono text-xs">{finding.rule_id}</dd>
+            </div>
+            {Object.entries(finding.evidence).map(([k, v]) => (
+              <div key={k}>
+                <dt className="font-mono text-xs uppercase tracking-[0.15em] text-ink-faint">
+                  {k.replace(/_/g, ' ')}
+                </dt>
+                <dd className="font-mono text-xs">
+                  {Array.isArray(v) ? v.join(', ') : String(v)}
+                </dd>
+              </div>
+            ))}
+          </dl>
+        </div>
       </td>
     </tr>
   )
@@ -64,6 +190,20 @@ function matchAmount(run: Run, m: Match): number {
 
 export function ExceptionQueue({ run }: { run: Run }) {
   const [open, setOpen] = useState<string | null>(null)
+  const id = runId(run)
+  const [statuses, setStatuses] = useState<RunStatuses>(() => loadStatuses(id))
+  useEffect(() => {
+    setStatuses(loadStatuses(id))
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === STATUSES_STORAGE_KEY || e.key === null) setStatuses(loadStatuses(id))
+    }
+    window.addEventListener('storage', onStorage)
+    return () => window.removeEventListener('storage', onStorage)
+  }, [id])
+  const setStatus = (exceptionId: string, status: ExceptionStatus) => {
+    saveStatus(id, exceptionId, status)
+    setStatuses(loadStatuses(id))
+  }
   const { diagnostic } = run.result
   const findings = orderedFindings(run)
   const tentative = run.result.matches
@@ -111,6 +251,7 @@ export function ExceptionQueue({ run }: { run: Run }) {
                   <th className="px-4 py-3 font-medium">Bucket</th>
                   <th className="px-4 py-3 font-medium">References</th>
                   <th className="px-4 py-3 text-right font-medium">Amount</th>
+                  <th className="px-4 py-3 font-medium">Status</th>
                   <th className="px-4 py-3" />
                 </tr>
               </thead>
@@ -121,6 +262,8 @@ export function ExceptionQueue({ run }: { run: Run }) {
                     run={run}
                     finding={f}
                     id={exceptionId(i)}
+                    status={statuses[exceptionId(i)] ?? DEFAULT_STATUS}
+                    onStatus={(s) => setStatus(exceptionId(i), s)}
                     open={open === `f-${i}`}
                     onToggle={() => setOpen(open === `f-${i}` ? null : `f-${i}`)}
                   />
@@ -181,12 +324,16 @@ function FindingRows({
   run,
   finding,
   id,
+  status,
+  onStatus,
   open,
   onToggle,
 }: {
   run: Run
   finding: Finding
   id: string
+  status: ExceptionStatus
+  onStatus: (status: ExceptionStatus) => void
   open: boolean
   onToggle: () => void
 }) {
@@ -216,11 +363,26 @@ function FindingRows({
         <td className="px-4 py-3 text-right font-mono tabular-nums">
           {formatCentsGrouped(finding.amount)}
         </td>
+        <td className="px-4 py-3">
+          <select
+            value={status}
+            onClick={(e) => e.stopPropagation()}
+            onChange={(e) => onStatus(e.target.value as ExceptionStatus)}
+            className={`border px-2 py-1 text-xs font-medium ${STATUS_STYLES[status]}`}
+            aria-label={`Status of exception ${id}`}
+          >
+            {EXCEPTION_STATUSES.map((s) => (
+              <option key={s} value={s}>
+                {STATUS_LABELS[s]}
+              </option>
+            ))}
+          </select>
+        </td>
         <td className="px-4 py-3 text-right text-xs text-ink-faint">
           {open ? 'Hide' : 'Evidence'}
         </td>
       </tr>
-      {open && <EvidenceRow finding={finding} />}
+      {open && <EvidenceRow run={run} finding={finding} />}
     </>
   )
 }
