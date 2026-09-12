@@ -9,10 +9,10 @@ export function BridgeView({ bridge }: { bridge: Bridge }) {
   })
 
   return (
-    <div className="overflow-hidden rounded-xl border border-stone-200 bg-white shadow-sm">
+    <div className="overflow-hidden border border-line bg-cream">
       <table className="w-full text-left text-sm">
         <tbody>
-          <tr className="border-b border-stone-200 bg-stone-50 font-semibold">
+          <tr className="border-b border-line bg-paper font-semibold">
             <td className="px-4 py-3">Ledger open total</td>
             <td className="px-4 py-3 font-mono text-xs" />
             <td className="px-4 py-3 text-right font-mono tabular-nums" />
@@ -21,38 +21,41 @@ export function BridgeView({ bridge }: { bridge: Bridge }) {
             </td>
           </tr>
           {rows.map(({ adj, running }, i) => (
-            <tr key={i} className="border-b border-stone-100">
+            <tr key={i} className="border-b border-line/60">
               <td className="px-4 py-3">{adj.label}</td>
-              <td className="px-4 py-3 font-mono text-xs text-stone-500">{adj.ref}</td>
+              <td className="px-4 py-3 font-mono text-xs text-ink-faint">{adj.ref}</td>
               <td
                 className={`px-4 py-3 text-right font-mono tabular-nums ${
-                  adj.amount < 0 ? 'text-red-700' : 'text-emerald-700'
+                  adj.amount < 0 ? 'text-red-700' : 'text-pine'
                 }`}
               >
                 {adj.amount >= 0 ? '+' : ''}
                 {formatCentsGrouped(adj.amount)}
               </td>
-              <td className="px-4 py-3 text-right font-mono tabular-nums text-stone-400">
+              <td className="px-4 py-3 text-right font-mono tabular-nums text-ink-faint">
                 {formatCentsGrouped(running)}
               </td>
             </tr>
           ))}
-          <tr className="bg-stone-50 font-semibold">
+          <tr className="bg-paper font-semibold">
             <td className="px-4 py-3">Statement total</td>
             <td className="px-4 py-3" />
             <td className="px-4 py-3 text-right">
               {bridge.ties_out ? (
-                <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-semibold text-emerald-800">
+                <span className="bg-moss px-2 py-0.5 text-xs font-semibold text-pine-deep">
                   ties out
                 </span>
               ) : (
-                <span className="rounded-full bg-red-100 px-2 py-0.5 text-xs font-semibold text-red-800">
+                <span className="bg-red-100 px-2 py-0.5 text-xs font-semibold text-red-800">
                   does not tie
                 </span>
               )}
             </td>
-            <td className="px-4 py-3 text-right font-mono tabular-nums">
-              {formatCentsGrouped(bridge.statement_total)}
+            <td className="px-4 py-3 text-right">
+              <span className="inline-block font-mono tabular-nums">
+                {formatCentsGrouped(bridge.statement_total)}
+                {bridge.ties_out && <span className="double-rule mt-1 block text-pine" />}
+              </span>
             </td>
           </tr>
         </tbody>

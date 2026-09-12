@@ -8,7 +8,7 @@ const BUCKET_STYLES: Record<string, string> = {
   cash_at_risk: 'bg-red-100 text-red-800',
   unrecorded_liability: 'bg-amber-100 text-amber-800',
   investigate: 'bg-sky-100 text-sky-800',
-  explained: 'bg-stone-100 text-stone-600',
+  explained: 'bg-moss text-pine-deep',
 }
 
 const BUCKET_LABELS: Record<string, string> = {
@@ -26,15 +26,15 @@ const METHOD_LABELS: Record<string, string> = {
 function EvidenceRow({ finding }: { finding: Finding }) {
   return (
     <tr>
-      <td colSpan={5} className="bg-stone-50 px-4 py-3">
+      <td colSpan={5} className="bg-paper px-4 py-3">
         <dl className="grid grid-cols-2 gap-x-8 gap-y-1 sm:grid-cols-3">
           <div>
-            <dt className="text-xs uppercase tracking-wide text-stone-400">Rule</dt>
+            <dt className="font-mono text-[11px] uppercase tracking-[0.15em] text-ink-faint">Rule</dt>
             <dd className="font-mono text-xs">{finding.rule_id}</dd>
           </div>
           {Object.entries(finding.evidence).map(([k, v]) => (
             <div key={k}>
-              <dt className="text-xs uppercase tracking-wide text-stone-400">
+              <dt className="font-mono text-[11px] uppercase tracking-[0.15em] text-ink-faint">
                 {k.replace(/_/g, ' ')}
               </dt>
               <dd className="font-mono text-xs">
@@ -73,7 +73,7 @@ export function ExceptionQueue({ run }: { run: Run }) {
 
   if (diagnostic !== null) {
     return (
-      <p className="rounded-xl border border-red-200 bg-red-50 p-6 text-sm text-red-800 shadow-sm">
+      <p className="border border-red-200 bg-red-50 p-6 text-sm text-red-800">
         Reconciliation failed — the bridge does not tie out, so findings are
         suppressed. Diagnostic: <span className="font-mono">{diagnostic}</span>
       </p>
@@ -82,7 +82,7 @@ export function ExceptionQueue({ run }: { run: Run }) {
 
   if (findings.length === 0 && tentative.length === 0) {
     return (
-      <p className="rounded-xl border border-stone-200 bg-white p-6 text-sm text-stone-500 shadow-sm">
+      <p className="border border-line bg-cream p-6 text-sm text-ink-soft">
         No exceptions — every statement line matched the ledger.
       </p>
     )
@@ -91,11 +91,11 @@ export function ExceptionQueue({ run }: { run: Run }) {
   return (
     <div className="space-y-6">
       {findings.length > 0 && (
-        <div className="rounded-xl border border-stone-200 bg-white shadow-sm">
-          <div className="overflow-x-auto rounded-xl">
+        <div className="border border-line bg-cream">
+          <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
               <thead>
-                <tr className="border-b border-stone-200 text-xs uppercase tracking-wide text-stone-500">
+                <tr className="border-b border-line font-mono text-[11px] uppercase tracking-[0.15em] text-ink-faint">
                   <th className="px-4 py-3 font-medium">Type</th>
                   <th className="px-4 py-3 font-medium">Bucket</th>
                   <th className="px-4 py-3 font-medium">References</th>
@@ -120,17 +120,17 @@ export function ExceptionQueue({ run }: { run: Run }) {
       )}
 
       {tentative.length > 0 && (
-        <div className="rounded-xl border border-stone-200 bg-white shadow-sm">
-          <div className="border-b border-stone-200 px-4 py-3">
-            <h3 className="text-sm font-semibold">Matches needing confirmation</h3>
-            <p className="mt-0.5 text-xs text-stone-500">
+        <div className="border border-line bg-cream">
+          <div className="border-b border-line px-4 py-3">
+            <h3 className="font-serif text-base font-medium text-ink">Matches needing confirmation</h3>
+            <p className="mt-0.5 text-xs text-ink-faint">
               Matched without a reference — confirm each pairing before relying on it.
             </p>
           </div>
-          <div className="overflow-x-auto rounded-b-xl">
+          <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
               <thead>
-                <tr className="border-b border-stone-200 text-xs uppercase tracking-wide text-stone-500">
+                <tr className="border-b border-line font-mono text-[11px] uppercase tracking-[0.15em] text-ink-faint">
                   <th className="px-4 py-3 font-medium">Method</th>
                   <th className="px-4 py-3 font-medium">Confidence</th>
                   <th className="px-4 py-3 font-medium">Statement refs</th>
@@ -140,7 +140,7 @@ export function ExceptionQueue({ run }: { run: Run }) {
               </thead>
               <tbody>
                 {tentative.map((m, i) => (
-                  <tr key={`m-${i}`} className="border-b border-stone-100 last:border-b-0">
+                  <tr key={`m-${i}`} className="border-b border-line/60 last:border-b-0">
                     <td className="px-4 py-3 text-xs">
                       {METHOD_LABELS[m.method] ?? m.method}
                     </td>
@@ -179,14 +179,14 @@ function FindingRows({
   return (
     <>
       <tr
-        className="cursor-pointer border-b border-stone-100 last:border-b-0 hover:bg-stone-50"
+        className="cursor-pointer border-b border-line/60 last:border-b-0 hover:bg-paper"
         onClick={onToggle}
       >
         <td className="px-4 py-3 font-mono text-xs font-semibold">{finding.type}</td>
         <td className="px-4 py-3">
           <span
-            className={`whitespace-nowrap rounded-full px-2 py-0.5 text-xs font-medium ${
-              BUCKET_STYLES[finding.bucket] ?? 'bg-stone-100 text-stone-600'
+            className={`whitespace-nowrap px-2 py-0.5 text-xs font-medium ${
+              BUCKET_STYLES[finding.bucket] ?? 'bg-paper text-ink-soft'
             }`}
           >
             {BUCKET_LABELS[finding.bucket] ?? finding.bucket}
@@ -196,7 +196,7 @@ function FindingRows({
         <td className="px-4 py-3 text-right font-mono tabular-nums">
           {formatCentsGrouped(finding.amount)}
         </td>
-        <td className="px-4 py-3 text-right text-xs text-stone-400">
+        <td className="px-4 py-3 text-right text-xs text-ink-faint">
           {open ? 'Hide' : 'Evidence'}
         </td>
       </tr>

@@ -41,17 +41,17 @@ export function AuthPanel({ onSampleRun }: AuthPanelProps) {
   }
 
   return (
-    <div className="mx-auto max-w-md rounded-xl border border-stone-200 bg-white p-8 shadow-sm">
-      <h2 className="text-xl font-bold tracking-tight">
+    <div className="mx-auto max-w-md border border-line bg-cream p-8">
+      <h2 className="font-serif text-2xl font-medium tracking-tight text-ink">
         {mode === 'signin' ? 'Sign in to reconcile' : 'Create your account'}
       </h2>
-      <p className="mt-1 text-sm text-stone-500">
+      <p className="mt-1 text-sm text-ink-soft">
         Your files still never leave the browser — the account only unlocks the
         reconciliation screen.
       </p>
       <form onSubmit={handleSubmit} className="mt-6 space-y-4">
         <div>
-          <label htmlFor="auth-email" className="block text-sm font-medium text-stone-700">
+          <label htmlFor="auth-email" className="block font-mono text-[11px] uppercase tracking-[0.15em] text-ink-faint">
             Email
           </label>
           <input
@@ -60,11 +60,11 @@ export function AuthPanel({ onSampleRun }: AuthPanelProps) {
             type="email"
             required
             autoComplete="email"
-            className="mt-1 w-full rounded-md border border-stone-300 px-3 py-2 text-sm focus:border-blue-600 focus:outline-none"
+            className="mt-1 w-full border border-line bg-paper px-3 py-2 text-sm focus:border-pine focus:outline-none"
           />
         </div>
         <div>
-          <label htmlFor="auth-password" className="block text-sm font-medium text-stone-700">
+          <label htmlFor="auth-password" className="block font-mono text-[11px] uppercase tracking-[0.15em] text-ink-faint">
             Password
           </label>
           <input
@@ -74,31 +74,31 @@ export function AuthPanel({ onSampleRun }: AuthPanelProps) {
             required
             minLength={6}
             autoComplete={mode === 'signin' ? 'current-password' : 'new-password'}
-            className="mt-1 w-full rounded-md border border-stone-300 px-3 py-2 text-sm focus:border-blue-600 focus:outline-none"
+            className="mt-1 w-full border border-line bg-paper px-3 py-2 text-sm focus:border-pine focus:outline-none"
           />
         </div>
         {error && (
-          <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>
+          <p className="border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>
         )}
         {notice && (
-          <p className="rounded-md bg-blue-50 px-3 py-2 text-sm text-blue-700">{notice}</p>
+          <p className="border border-pine/30 bg-moss px-3 py-2 text-sm text-pine-deep">{notice}</p>
         )}
         <button
           type="submit"
           disabled={busy}
-          className="w-full rounded-md bg-blue-700 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-800 disabled:opacity-60"
+          className="w-full bg-ink px-4 py-2 text-sm font-semibold text-paper hover:bg-pine-deep disabled:opacity-60"
         >
           {busy ? 'Working…' : mode === 'signin' ? 'Sign in' : 'Sign up'}
         </button>
       </form>
-      <p className="mt-4 text-center text-sm text-stone-500">
+      <p className="mt-4 text-center text-sm text-ink-soft">
         {mode === 'signin' ? (
           <>
             New here?{' '}
             <button
               type="button"
               onClick={() => { setMode('signup'); setError(null); setNotice(null) }}
-              className="font-medium text-blue-700 hover:underline"
+              className="font-semibold text-pine hover:underline"
             >
               Create an account
             </button>
@@ -109,19 +109,19 @@ export function AuthPanel({ onSampleRun }: AuthPanelProps) {
             <button
               type="button"
               onClick={() => { setMode('signin'); setError(null); setNotice(null) }}
-              className="font-medium text-blue-700 hover:underline"
+              className="font-semibold text-pine hover:underline"
             >
               Sign in
             </button>
           </>
         )}
       </p>
-      <div className="mt-6 border-t border-stone-200 pt-4 text-center">
-        <p className="text-sm text-stone-500">Want to see it work first?</p>
+      <div className="mt-6 border-t border-line pt-4 text-center">
+        <p className="text-sm text-ink-soft">Want to see it work first?</p>
         <button
           type="button"
           onClick={onSampleRun}
-          className="mt-1 text-sm font-semibold text-blue-700 hover:underline"
+          className="mt-1 text-sm font-semibold text-pine hover:underline"
         >
           Explore the sample reconciliation — no account needed
         </button>
