@@ -8,7 +8,13 @@ import {
   findingStatementLines,
 } from '../lib/evidence'
 import { downloadExceptionsXlsx } from '../lib/export'
-import { FINDING_TYPES, exceptionId, findingLabel, orderedFindings, runId } from '../lib/labels'
+import {
+  FINDING_TYPES,
+  exceptionId,
+  findingLabel,
+  orderedFindings,
+  runStorageKey,
+} from '../lib/labels'
 import {
   ASSESSMENT_LABELS,
   clearReview,
@@ -319,7 +325,7 @@ function matchAmount(run: Run, m: Match): number {
 
 export function ExceptionQueue({ run }: { run: Run }) {
   const [open, setOpen] = useState<string | null>(null)
-  const id = runId(run)
+  const id = runStorageKey(run)
   const [statuses, setStatuses] = useState<RunStatuses>(() => loadStatuses(id))
   const [reviews, setReviews] = useState<RunReviews>(() => loadReviews(id))
   useEffect(() => {

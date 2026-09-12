@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { formatCentsGrouped } from '../../../ts/src'
-import { exceptionId, orderedFindings, runId } from '../lib/labels'
+import { exceptionId, orderedFindings, runId, runStorageKey } from '../lib/labels'
 import type { Run } from '../lib/run'
 import { DEFAULT_STATUS, loadStatuses, subscribeStatuses } from '../lib/statuses'
 import type { RunStatuses } from '../lib/statuses'
@@ -17,12 +17,12 @@ function Stat({ label, value }: { label: string; value: string }) {
 export function SummaryBar({ run }: { run: Run }) {
   const { result } = run
   const { bridge } = result
-  const id = runId(run)
-  const [statuses, setStatuses] = useState<RunStatuses>(() => loadStatuses(id))
+  const storageId = runStorageKey(run)
+  const [statuses, setStatuses] = useState<RunStatuses>(() => loadStatuses(storageId))
   useEffect(() => {
-    setStatuses(loadStatuses(id))
-    return subscribeStatuses(() => setStatuses(loadStatuses(id)))
-  }, [id])
+    setStatuses(loadStatuses(storageId))
+    return subscribeStatuses(() => setStatuses(loadStatuses(storageId)))
+  }, [storageId])
   const initialVariance = bridge.statement_total - bridge.ledger_open_total
   const explained = bridge.adjustments.reduce((sum, adj) => sum + adj.amount, 0)
   const unexplained = initialVariance - explained
@@ -33,8 +33,14 @@ export function SummaryBar({ run }: { run: Run }) {
     const s = statuses[exceptionId(i)] ?? DEFAULT_STATUS
     return s !== 'resolved' && s !== 'accepted'
   }).length
-  const currencies = [...new Set(run.statement.map((l) => l.currency).filter((c) => c !== ''))]
-  const currency = currencies.length === 1 ? currencies[0] : null
+  const singleCurrency = (values: string[]): string | null => {
+    const set = [...new Set(values.filter((c) => c !== ''))]
+    return set.length === 1 ? set[0] : null
+  }
+  const stmtCurrency = singleCurrency(run.statement.map((l) => l.currency))
+  const ledgerCurrency = singleCurrency(
+    run.ledger.filter((l) => l.supplier === result.supplier).map((l) => l.currency),
+  )
   return (
     <div className="border border-line bg-cream p-5">
       <div className="flex flex-wrap items-center justify-between gap-4">
@@ -46,11 +52,11 @@ export function SummaryBar({ run }: { run: Run }) {
         </div>
         <div className="flex flex-wrap items-center gap-8">
           <Stat
-            label={currency ? `Statement balance (${currency})` : 'Statement balance'}
+            label={stmtCurrency ? `Statement balance (${stmtCurrency})` : 'Statement balance'}
             value={formatCentsGrouped(bridge.statement_total)}
           />
           <Stat
-            label={currency ? `Ledger open balance (${currency})` : 'Ledger open balance'}
+            label={ledgerCurrency ? `Ledger open balance (${ledgerCurrency})` : 'Ledger open balance'}
             value={formatCentsGrouped(bridge.ledger_open_total)}
           />
           <Stat label="Initial variance" value={formatCentsGrouped(initialVariance)} />

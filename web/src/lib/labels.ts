@@ -40,6 +40,26 @@ export function runId(run: Run): string {
   return `TA-${date}-${supplier}`
 }
 
+function fnv1a(text: string): string {
+  let hash = 0x811c9dc5
+  for (let i = 0; i < text.length; i++) {
+    hash ^= text.charCodeAt(i)
+    hash = Math.imul(hash, 0x01000193)
+  }
+  return (hash >>> 0).toString(16).padStart(8, '0')
+}
+
+/** Storage key for browser-local working notes (statuses, reviewer
+ * assessments): the display run ID plus a digest of the full reconciliation
+ * identity, so two different reconciliations that happen to share a supplier
+ * and as-at date never read or overwrite each other's notes. */
+export function runStorageKey(run: Run): string {
+  const digest = fnv1a(
+    `${run.input.statementCsv}\u0000${run.input.ledgerCsv}\u0000${run.input.supplier}\u0000${run.input.asAt}`,
+  )
+  return `${runId(run)}-${digest}`
+}
+
 /** Stable exception identifier (E-001, E-002, ...) for a finding's position
  * in the deterministically sorted queue. */
 export function exceptionId(index: number): string {
