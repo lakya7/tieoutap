@@ -125,24 +125,25 @@ export function Landing({ onOpenApp, onSampleRun }: LandingProps) {
               Know exactly why your supplier balance doesn&rsquo;t match.
             </h1>
             <p className="mt-6 max-w-xl text-lg leading-relaxed text-ink-soft">
-              Upload a supplier statement and your AP ledger export. TieOut matches
-              invoices, payments, and credits, classifies every difference, and
-              bridges the two balances exactly &mdash; down to 0.00 unexplained.
+              Turn a supplier-statement mismatch into an auditable explanation in
+              minutes. Upload the statement and your AP export &mdash; TieOut matches
+              every line, classifies every difference, and bridges the two balances
+              exactly, down to 0.00 unexplained.
             </p>
             <div className="mt-9 flex flex-wrap items-center gap-5">
               <button
                 type="button"
-                onClick={onOpenApp}
+                onClick={onSampleRun}
                 className="rounded-sm bg-ink px-7 py-3.5 text-sm font-semibold text-paper transition-colors hover:bg-pine-deep"
               >
-                Reconcile a statement
+                Try the sample reconciliation &mdash; no signup
               </button>
               <button
                 type="button"
-                onClick={onSampleRun}
+                onClick={onOpenApp}
                 className="group text-sm font-semibold text-pine"
               >
-                See a sample run{' '}
+                Reconcile your own statement{' '}
                 <span
                   aria-hidden="true"
                   className="inline-block transition-transform group-hover:translate-x-0.5"
@@ -284,10 +285,42 @@ export function Landing({ onOpenApp, onSampleRun }: LandingProps) {
         </div>
       </section>
 
+      {/* Who it's for */}
+      <section className="border-b border-line">
+        <div className="mx-auto max-w-6xl px-6 py-24">
+          <SectionHead
+            n="04"
+            eyebrow="Who it's for"
+            title="For the teams still reconciling statements in spreadsheets"
+          />
+          <div className="mt-14 grid gap-12 md:grid-cols-3 md:gap-0 md:divide-x md:divide-line">
+            {[
+              {
+                title: 'Controllers',
+                body: 'Who need to trust — and evidence — the number before signing a statement off, without waiting on an IT project.',
+              },
+              {
+                title: 'AP teams',
+                body: 'At 20–500-person businesses running QuickBooks, Xero, NetSuite, Sage, SAP or Oracle — anything that can export a spreadsheet works.',
+              },
+              {
+                title: 'Accounting firms & fractional finance',
+                body: 'Clearing supplier statements across many clients — each run is self-contained and shareable with a link.',
+              },
+            ].map((p) => (
+              <div key={p.title} className="md:px-8 md:first:pl-0 md:last:pr-0">
+                <h3 className="font-serif text-xl font-medium text-ink">{p.title}</h3>
+                <p className="mt-3 text-[15px] leading-relaxed text-ink-soft">{p.body}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* Formats & privacy */}
       <section id="privacy" className="scroll-mt-6 border-b border-line bg-cream">
         <div className="mx-auto max-w-6xl px-6 py-24">
-          <SectionHead n="04" eyebrow="No IT project" title="Your files, your browser" />
+          <SectionHead n="05" eyebrow="No IT project" title="Your files, your browser" />
           <div className="mt-14 grid gap-12 md:grid-cols-2 md:gap-0 md:divide-x md:divide-line">
             <div className="md:pr-12">
               <h3 className="font-serif text-xl font-medium text-ink">
@@ -312,6 +345,9 @@ export function Landing({ onOpenApp, onSampleRun }: LandingProps) {
                 then is discarded &mdash; never stored. Nothing is ever written to your
                 ERP or sent on your behalf.
               </p>
+              <a href="#security" className="mt-4 inline-block text-sm font-semibold text-pine hover:text-pine-deep">
+                Read the full security &amp; data-handling page &rarr;
+              </a>
             </div>
           </div>
         </div>
@@ -332,7 +368,7 @@ export function Landing({ onOpenApp, onSampleRun }: LandingProps) {
       {/* Pricing */}
       <section id="pricing" className="scroll-mt-6 border-t border-line bg-cream">
         <div className="mx-auto max-w-4xl px-6 py-24">
-          <SectionHead n="05" eyebrow="Pricing" title="One plan, everything included" center />
+          <SectionHead n="06" eyebrow="Pricing" title="One plan, everything included" center />
           <div className="mx-auto mt-12 max-w-md border border-line bg-paper p-8 text-left">
             <div className="flex items-baseline justify-between font-mono text-xs uppercase tracking-[0.2em] text-ink-faint">
               <span>TieOut AP</span>
@@ -403,7 +439,16 @@ export function Landing({ onOpenApp, onSampleRun }: LandingProps) {
             <span className="font-serif text-sm text-paper/80">
               TieOut <span className="text-moss">AP</span> — tieoutap.com
             </span>
-            <span className="flex items-center gap-4">
+            <span className="flex flex-wrap items-center justify-center gap-4">
+              <a href="#privacy-policy" className="text-paper/70 hover:text-paper">
+                Privacy Policy
+              </a>
+              <a href="#terms" className="text-paper/70 hover:text-paper">
+                Terms
+              </a>
+              <a href="#security" className="text-paper/70 hover:text-paper">
+                Security
+              </a>
               <a href="#contact" className="text-paper/70 hover:text-paper">
                 Contact
               </a>
