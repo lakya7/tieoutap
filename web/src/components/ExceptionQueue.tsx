@@ -239,8 +239,10 @@ function EvidenceRow({
   const lLines = findingLedgerLines(run, finding)
   return (
     <tr>
-      <td colSpan={7} className="bg-paper px-4 py-4">
-        <div className="space-y-4">
+      <td colSpan={7} className="bg-paper">
+        {/* Sticky + viewport-capped so the drawer stays fully on screen even
+            when the queue table itself needs horizontal scrolling. */}
+        <div className="sticky left-0 max-w-[calc(100vw-3.5rem)] space-y-4 px-4 py-4">
           <div className="grid gap-4 md:grid-cols-2">
             <div>
               <p className="font-mono text-xs uppercase tracking-[0.15em] text-ink-faint">
