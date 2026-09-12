@@ -12,6 +12,7 @@ import { SummaryBar } from './components/SummaryBar'
 import { TrustPage } from './components/TrustPages'
 import type { TrustPageId } from './components/TrustPages'
 import { UploadPanel } from './components/UploadPanel'
+import { downloadAuditPackXlsx } from './lib/export'
 import { deriveAsAt, deriveSupplier, executeRun } from './lib/run'
 import type { Run, RunInput } from './lib/run'
 import { runFromLocation, shareUrl } from './lib/share'
@@ -223,6 +224,14 @@ export default function App() {
             )}
             {run && (
               <>
+              <button
+                type="button"
+                onClick={() => downloadAuditPackXlsx(run)}
+                className="border border-line bg-cream px-3 py-1.5 text-sm font-medium text-ink hover:border-ink-faint"
+                title="Download the full run as a spreadsheet: summary, exceptions, matches, bridge, and both inputs"
+              >
+                Audit pack
+              </button>
               <button
                 type="button"
                 onClick={copyLink}

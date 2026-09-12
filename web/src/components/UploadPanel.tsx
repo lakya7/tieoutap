@@ -5,6 +5,7 @@ import { deriveAsAt, deriveSupplier } from '../lib/run'
 import type { RunInput } from '../lib/run'
 import { fileToRawCsv, hasEngineColumns } from '../lib/tabular'
 import { applyMapping, describeMapping, requestMapping } from '../lib/ai'
+import { forgetMapping, loadSavedMapping, saveMapping } from '../lib/mappings'
 import {
   documentMediaType,
   extractDocument,
@@ -164,6 +165,7 @@ interface MapOffer {
   csv: string
   status: 'offer' | 'busy' | 'error'
   detail?: string
+  saved?: Record<string, string>
 }
 
 export function UploadPanel({ onRun, error }: UploadPanelProps) {
@@ -184,12 +186,32 @@ export function UploadPanel({ onRun, error }: UploadPanelProps) {
 
   const offerMapping = (kind: MapKind) => (name: string, csv: string) => {
     mapSeq.current++
-    setMapOffers((prev) => ({ ...prev, [kind]: { name, csv, status: 'offer' } }))
+    const saved = loadSavedMapping(kind, csv) ?? undefined
+    setMapOffers((prev) => ({ ...prev, [kind]: { name, csv, status: 'offer', saved } }))
   }
 
   const clearMapOffer = (kind: MapKind) => {
     mapSeq.current++
     setMapOffers((prev) => ({ ...prev, [kind]: undefined }))
+  }
+
+  const acceptMapping = (
+    kind: MapKind,
+    offer: MapOffer,
+    mapping: Record<string, string>,
+    note: string,
+  ) => {
+    const mapped = applyMapping(offer.csv, mapping)
+    setMapOffers((prev) => ({ ...prev, [kind]: undefined }))
+    setIsSample(false)
+    if (kind === 'statement') {
+      setStatement({ name: offer.name, text: mapped })
+      if (asAtAuto.current || !asAt) setAsAt(deriveAsAt(mapped))
+    } else {
+      setLedger({ name: offer.name, text: mapped })
+      if (supplierAuto.current || !supplier) setSupplier(deriveSupplier(mapped))
+    }
+    setExtractionNote({ kind: 'ok', text: note })
   }
 
   const runMapping = (kind: MapKind) => {
@@ -206,21 +228,33 @@ export function UploadPanel({ onRun, error }: UploadPanelProps) {
         }))
         return
       }
-      const mapped = applyMapping(offer.csv, res.mapping)
-      setMapOffers((prev) => ({ ...prev, [kind]: undefined }))
-      setIsSample(false)
-      if (kind === 'statement') {
-        setStatement({ name: offer.name, text: mapped })
-        if (asAtAuto.current || !asAt) setAsAt(deriveAsAt(mapped))
-      } else {
-        setLedger({ name: offer.name, text: mapped })
-        if (supplierAuto.current || !supplier) setSupplier(deriveSupplier(mapped))
-      }
-      setExtractionNote({
-        kind: 'ok',
-        text: `AI mapped the columns in ${offer.name}: ${describeMapping(res.mapping)}. Review before you rely on the run.`,
-      })
+      saveMapping(kind, offer.csv, res.mapping)
+      acceptMapping(
+        kind,
+        offer,
+        res.mapping,
+        `AI mapped the columns in ${offer.name}: ${describeMapping(res.mapping)}. Saved for files with this layout — review before you rely on the run.`,
+      )
     })
+  }
+
+  const applySavedMapping = (kind: MapKind) => {
+    const offer = mapOffers[kind]
+    if (!offer?.saved || offer.status === 'busy') return
+    mapSeq.current++
+    acceptMapping(
+      kind,
+      offer,
+      offer.saved,
+      `Applied your saved column mapping to ${offer.name}: ${describeMapping(offer.saved)}. Review before you rely on the run.`,
+    )
+  }
+
+  const forgetSavedMapping = (kind: MapKind) => {
+    const offer = mapOffers[kind]
+    if (!offer?.saved) return
+    forgetMapping(kind, offer.csv)
+    setMapOffers((prev) => ({ ...prev, [kind]: { ...offer, saved: undefined } }))
   }
 
   const runExtraction = (file: File, mediaType: string) => {
@@ -359,25 +393,55 @@ export function UploadPanel({ onRun, error }: UploadPanelProps) {
             >
               <p>
                 <span className="font-mono">{offer.name}</span> doesn&rsquo;t use the standard
-                column names. AI can map them — only the header row and 3 sample values are
-                sent, never the file.
+                column names.{' '}
+                {offer.saved
+                  ? 'It matches a column mapping you saved earlier: '
+                  : 'AI can map them — only the header row and 3 sample values are sent, never the file.'}
+                {offer.saved && (
+                  <span className="font-mono text-xs">{describeMapping(offer.saved)}</span>
+                )}
               </p>
               {offer.status === 'error' && (
                 <p className="mt-1 text-red-700">Mapping failed: {offer.detail}</p>
               )}
-              <div className="mt-2 flex gap-3">
+              <div className="mt-2 flex flex-wrap items-center gap-3">
+                {offer.saved && (
+                  <button
+                    type="button"
+                    disabled={offer.status === 'busy'}
+                    onClick={() => applySavedMapping(kind)}
+                    className="bg-ink px-3 py-1 text-xs font-semibold text-paper hover:bg-pine-deep disabled:cursor-not-allowed disabled:bg-ink-faint"
+                  >
+                    Apply saved mapping
+                  </button>
+                )}
                 <button
                   type="button"
                   disabled={offer.status === 'busy'}
                   onClick={() => runMapping(kind)}
-                  className="bg-ink px-3 py-1 text-xs font-semibold text-paper hover:bg-pine-deep disabled:cursor-not-allowed disabled:bg-ink-faint"
+                  className={
+                    offer.saved
+                      ? 'text-xs text-ink-faint underline decoration-dotted underline-offset-4 hover:text-pine'
+                      : 'bg-ink px-3 py-1 text-xs font-semibold text-paper hover:bg-pine-deep disabled:cursor-not-allowed disabled:bg-ink-faint'
+                  }
                 >
                   {offer.status === 'busy'
                     ? 'Mapping…'
                     : offer.status === 'error'
                       ? 'Try again'
-                      : 'Map columns with AI'}
+                      : offer.saved
+                        ? 'Remap with AI'
+                        : 'Map columns with AI'}
                 </button>
+                {offer.saved && (
+                  <button
+                    type="button"
+                    onClick={() => forgetSavedMapping(kind)}
+                    className="text-xs text-ink-faint underline decoration-dotted underline-offset-4 hover:text-pine"
+                  >
+                    Forget saved mapping
+                  </button>
+                )}
                 <button
                   type="button"
                   onClick={() => clearMapOffer(kind)}

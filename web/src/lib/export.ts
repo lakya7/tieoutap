@@ -1,0 +1,196 @@
+/** Excel exports built entirely in the browser: the exception queue on its
+ * own, and a full audit pack (summary, exceptions, matches, bridge, inputs).
+ * Nothing leaves the browser — the workbook is assembled and downloaded
+ * client-side. */
+import * as XLSX from 'xlsx'
+import type { Finding, Match } from '../../../ts/src'
+import { findingRefs } from './email'
+import type { Run } from './run'
+
+const MONEY_FORMAT = '#,##0.00;[Red]-#,##0.00'
+
+type Cell = string | number | boolean
+
+function money(cents: number): number {
+  return cents / 100
+}
+
+/** Applies the money number format to the given zero-based columns of a
+ * sheet, skipping the header row. */
+function formatMoneyColumns(ws: XLSX.WorkSheet, columns: number[], headerRows = 1): void {
+  const range = XLSX.utils.decode_range(ws['!ref'] ?? 'A1')
+  for (let r = range.s.r + headerRows; r <= range.e.r; r++) {
+    for (const c of columns) {
+      const cell = ws[XLSX.utils.encode_cell({ r, c })] as XLSX.CellObject | undefined
+      if (cell && cell.t === 'n') cell.z = MONEY_FORMAT
+    }
+  }
+}
+
+function sheet(rows: Cell[][], moneyColumns: number[] = [], headerRows = 1): XLSX.WorkSheet {
+  const ws = XLSX.utils.aoa_to_sheet(rows)
+  formatMoneyColumns(ws, moneyColumns, headerRows)
+  ws['!cols'] = rows[0]?.map((_, c) => ({
+    wch: Math.min(50, Math.max(...rows.map((r) => String(r[c] ?? '').length), 8) + 2),
+  }))
+  return ws
+}
+
+function evidenceText(f: Finding): string {
+  return Object.entries(f.evidence)
+    .map(([k, v]) => `${k}=${Array.isArray(v) ? v.join('|') : String(v)}`)
+    .join('; ')
+}
+
+function refsFor(run: Run, ids: string[]): string {
+  const byId = new Map<string, string>()
+  for (const l of run.statement) byId.set(l.id, l.raw_ref)
+  for (const l of run.ledger) byId.set(l.id, l.raw_ref)
+  return [...new Set(ids.map((id) => byId.get(id) ?? id))].join(', ')
+}
+
+function matchAmount(run: Run, m: Match): number {
+  const byId = new Map(run.statement.map((l) => [l.id, l.amount]))
+  return m.statement_line_ids.reduce((sum, id) => sum + (byId.get(id) ?? 0), 0)
+}
+
+function sortedFindings(run: Run): Finding[] {
+  return run.result.findings
+    .slice()
+    .sort((a, b) => b.amount - a.amount || a.rule_id.localeCompare(b.rule_id))
+}
+
+function exceptionsSheet(run: Run): XLSX.WorkSheet {
+  const rows: Cell[][] = [['Type', 'Bucket', 'References', 'Amount', 'Rule', 'Evidence']]
+  for (const f of sortedFindings(run)) {
+    rows.push([f.type, f.bucket, findingRefs(run, f), money(f.amount), f.rule_id, evidenceText(f)])
+  }
+  return sheet(rows, [3])
+}
+
+function matchesSheet(run: Run): XLSX.WorkSheet {
+  const rows: Cell[][] = [
+    ['Method', 'Confidence', 'Statement refs', 'Ledger refs', 'Amount', 'Needs confirmation'],
+  ]
+  for (const m of run.result.matches) {
+    rows.push([
+      m.method,
+      m.confidence,
+      refsFor(run, m.statement_line_ids),
+      refsFor(run, m.ledger_line_ids),
+      money(matchAmount(run, m)),
+      m.requires_human_confirmation ? 'yes' : 'no',
+    ])
+  }
+  return sheet(rows, [4])
+}
+
+function bridgeSheet(run: Run): XLSX.WorkSheet {
+  const { bridge } = run.result
+  const rows: Cell[][] = [['Step', 'Reference', 'Adjustment', 'Running balance']]
+  rows.push(['Ledger open total', '', '', money(bridge.ledger_open_total)])
+  let running = bridge.ledger_open_total
+  for (const adj of bridge.adjustments) {
+    running += adj.amount
+    rows.push([adj.label, adj.ref, money(adj.amount), money(running)])
+  }
+  rows.push([
+    `Statement total (${bridge.ties_out ? 'ties out' : 'does not tie'})`,
+    '',
+    '',
+    money(bridge.statement_total),
+  ])
+  return sheet(rows, [2, 3])
+}
+
+function statementSheet(run: Run): XLSX.WorkSheet {
+  const rows: Cell[][] = [['Reference', 'Date', 'Type', 'Amount', 'Currency', 'PO number']]
+  for (const l of run.statement) {
+    rows.push([l.raw_ref, l.doc_date, l.doc_type, money(l.amount), l.currency, l.po_number])
+  }
+  return sheet(rows, [3])
+}
+
+function ledgerSheet(run: Run): XLSX.WorkSheet {
+  const rows: Cell[][] = [
+    ['Supplier', 'Reference', 'Date', 'Type', 'Original amount', 'Open amount', 'Currency', 'PO number'],
+  ]
+  for (const l of run.ledger) {
+    rows.push([
+      l.supplier,
+      l.raw_ref,
+      l.doc_date,
+      l.doc_type,
+      money(l.original_amount),
+      money(l.open_amount),
+      l.currency,
+      l.po_number,
+    ])
+  }
+  return sheet(rows, [4, 5])
+}
+
+function summarySheet(run: Run, generatedAt: Date): XLSX.WorkSheet {
+  const { result } = run
+  const { bridge } = result
+  const rows: Cell[][] = [
+    ['Supplier', result.supplier],
+    ['Statement as at', result.as_at],
+    ['Statement total', money(bridge.statement_total)],
+    ['Ledger open total', money(bridge.ledger_open_total)],
+    ['Gap', money(bridge.statement_total - bridge.ledger_open_total)],
+    ['Ties out', bridge.ties_out ? 'yes' : 'no'],
+    ['Findings', result.findings.length],
+    ['Matches', result.matches.length],
+    ['Generated', generatedAt.toISOString()],
+    ['Generated by', 'TieOut AP — deterministic reconciliation, run in the browser'],
+  ]
+  for (const w of result.warnings) rows.push(['Warning', w])
+  if (result.diagnostic) rows.push(['Diagnostic', result.diagnostic])
+  const ws = sheet(rows, [], 0)
+  for (const r of [2, 3, 4]) {
+    const cell = ws[XLSX.utils.encode_cell({ r, c: 1 })] as XLSX.CellObject | undefined
+    if (cell && cell.t === 'n') cell.z = MONEY_FORMAT
+  }
+  return ws
+}
+
+function fileSlug(run: Run): string {
+  const supplier = run.result.supplier.replace(/[^A-Za-z0-9]+/g, '-').replace(/^-|-$/g, '')
+  return `${supplier || 'run'}-${run.result.as_at || 'undated'}`
+}
+
+/** Downloads the exception queue (and any matches needing confirmation) as a
+ * spreadsheet. */
+export function downloadExceptionsXlsx(run: Run): void {
+  const wb = XLSX.utils.book_new()
+  XLSX.utils.book_append_sheet(wb, exceptionsSheet(run), 'Exceptions')
+  const tentative = run.result.matches.filter((m) => m.requires_human_confirmation)
+  if (tentative.length > 0) {
+    const rows: Cell[][] = [
+      ['Method', 'Confidence', 'Statement refs', 'Ledger refs', 'Amount'],
+      ...tentative.map((m): Cell[] => [
+        m.method,
+        m.confidence,
+        refsFor(run, m.statement_line_ids),
+        refsFor(run, m.ledger_line_ids),
+        money(matchAmount(run, m)),
+      ]),
+    ]
+    XLSX.utils.book_append_sheet(wb, sheet(rows, [4]), 'Matches to confirm')
+  }
+  XLSX.writeFile(wb, `tieout-exceptions-${fileSlug(run)}.xlsx`)
+}
+
+/** Downloads the full audit pack: summary, exceptions, every match, the
+ * balance bridge, and both input files, with a generation timestamp. */
+export function downloadAuditPackXlsx(run: Run): void {
+  const wb = XLSX.utils.book_new()
+  XLSX.utils.book_append_sheet(wb, summarySheet(run, new Date()), 'Summary')
+  XLSX.utils.book_append_sheet(wb, exceptionsSheet(run), 'Exceptions')
+  XLSX.utils.book_append_sheet(wb, matchesSheet(run), 'Matches')
+  XLSX.utils.book_append_sheet(wb, bridgeSheet(run), 'Bridge')
+  XLSX.utils.book_append_sheet(wb, statementSheet(run), 'Statement input')
+  XLSX.utils.book_append_sheet(wb, ledgerSheet(run), 'Ledger input')
+  XLSX.writeFile(wb, `tieout-audit-pack-${fileSlug(run)}.xlsx`)
+}
