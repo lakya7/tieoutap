@@ -30,11 +30,11 @@ export function AiSummary({ run }: { run: Run }) {
   }
 
   return (
-    <div className="rounded-xl border border-blue-200 bg-blue-50/50 p-5 shadow-sm">
+    <div className="border border-pine/30 bg-moss/40 p-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h3 className="text-sm font-semibold text-blue-900">AI summary</h3>
-          <p className="text-xs text-stone-500">
+          <h3 className="font-mono text-xs font-semibold uppercase tracking-[0.15em] text-pine-deep">AI summary</h3>
+          <p className="text-xs text-ink-soft">
             A plain-English read of the findings and a reworded supplier email. Only the
             findings (refs and amounts) are sent — never your files. The numbers above stay
             the deterministic engine&rsquo;s.
@@ -44,7 +44,7 @@ export function AiSummary({ run }: { run: Run }) {
           type="button"
           disabled={state === 'busy'}
           onClick={generate}
-          className="rounded-md bg-blue-700 px-4 py-1.5 text-sm font-semibold text-white hover:bg-blue-800 disabled:cursor-not-allowed disabled:bg-stone-300"
+          className="bg-ink px-4 py-1.5 text-sm font-semibold text-paper hover:bg-pine-deep disabled:cursor-not-allowed disabled:bg-ink-faint"
         >
           {state === 'busy'
             ? 'Summarising…'
@@ -54,29 +54,29 @@ export function AiSummary({ run }: { run: Run }) {
         </button>
       </div>
       {result && !result.ok && (
-        <p className="mt-3 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800">
+        <p className="mt-3 border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800">
           Could not generate the summary: {result.detail}
         </p>
       )}
       {result?.ok && (
         <div className="mt-4 space-y-4">
-          <div className="whitespace-pre-wrap rounded-lg border border-blue-200 bg-white p-4 text-sm leading-relaxed">
+          <div className="whitespace-pre-wrap border border-line bg-cream p-4 text-sm leading-relaxed">
             {result.narrative}
           </div>
           <div>
             <div className="flex items-center justify-between">
-              <h4 className="text-xs font-semibold uppercase tracking-wide text-stone-500">
+              <h4 className="font-mono text-[11px] font-semibold uppercase tracking-[0.15em] text-ink-faint">
                 AI-reworded supplier email
               </h4>
               <button
                 type="button"
                 onClick={() => void copyEmail(result.email)}
-                className="rounded-md border border-stone-300 px-3 py-1 text-xs font-medium hover:bg-stone-50"
+                className="border border-line bg-cream px-3 py-1 text-xs font-medium text-ink hover:border-ink-faint"
               >
                 {copied ? 'Copied' : 'Copy'}
               </button>
             </div>
-            <pre className="mt-2 whitespace-pre-wrap rounded-lg border border-stone-200 bg-white p-4 font-mono text-xs leading-relaxed">
+            <pre className="mt-2 whitespace-pre-wrap border border-line bg-cream p-4 font-mono text-xs leading-relaxed">
               {result.email}
             </pre>
           </div>

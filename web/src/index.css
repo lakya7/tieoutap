@@ -23,7 +23,7 @@
 }
 
 body {
-  @apply bg-stone-100 text-stone-900 antialiased;
+  @apply bg-paper text-ink antialiased;
 }
 
 /* Accountant's double rule: drawn under a total once it ties out. */

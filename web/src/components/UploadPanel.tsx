@@ -74,12 +74,12 @@ function FileDrop({
         setDragging(false)
         readFile(e.dataTransfer.files[0])
       }}
-      className={`flex h-40 w-full flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed p-4 text-center transition-colors ${
+      className={`flex h-40 w-full flex-col items-center justify-center gap-2 border-2 border-dashed p-4 text-center transition-colors ${
         dragging
-          ? 'border-emerald-500 bg-emerald-50'
+          ? 'border-pine bg-moss'
           : fileName
-            ? 'border-emerald-400 bg-emerald-50/50'
-            : 'border-stone-300 bg-white hover:border-stone-400'
+            ? 'border-pine/60 bg-moss/50'
+            : 'border-line bg-paper hover:border-ink-faint'
       }`}
     >
       <input
@@ -89,17 +89,17 @@ function FileDrop({
         className="hidden"
         onChange={(e) => readFile(e.target.files?.[0])}
       />
-      <span className="text-sm font-semibold text-stone-700">{label}</span>
+      <span className="text-sm font-semibold text-ink">{label}</span>
       {busy ? (
-        <span className="text-xs text-stone-500">Reading the statement…</span>
+        <span className="text-xs text-ink-faint">Reading the statement…</span>
       ) : readError ? (
         <span className="px-2 text-xs text-red-600">{readError}</span>
       ) : fileName ? (
-        <span className="rounded bg-emerald-100 px-2 py-0.5 font-mono text-xs text-emerald-800">
+        <span className="bg-moss px-2 py-0.5 font-mono text-xs text-pine-deep">
           {fileName}
         </span>
       ) : (
-        <span className="text-xs text-stone-500">{hint}</span>
+        <span className="text-xs text-ink-faint">{hint}</span>
       )}
     </button>
   )
@@ -123,12 +123,12 @@ function ReportHelp() {
         type="button"
         onClick={() => setOpen((o) => !o)}
         aria-expanded={open}
-        className="text-xs text-stone-500 underline decoration-dotted underline-offset-4 hover:text-stone-700"
+        className="text-xs text-ink-faint underline decoration-dotted underline-offset-4 hover:text-pine"
       >
         Not sure which report to export from your ERP? {open ? '▴' : '▾'}
       </button>
       {open && (
-        <div className="mt-2 rounded-md border border-stone-200 bg-stone-50 px-4 py-3 text-sm text-stone-600">
+        <div className="mt-2 border border-line bg-paper px-4 py-3 text-sm text-ink-soft">
           <p>
             Any export works as long as each row is one <strong>open (unpaid or
             partially paid) document</strong> as of the statement date, and includes
@@ -138,11 +138,11 @@ function ReportHelp() {
           <ul className="mt-2 space-y-1">
             {ERP_REPORTS.map(([system, report]) => (
               <li key={system}>
-                <span className="font-semibold text-stone-700">{system}:</span> {report}
+                <span className="font-semibold text-ink">{system}:</span> {report}
               </li>
             ))}
           </ul>
-          <p className="mt-2 text-xs text-stone-500">
+          <p className="mt-2 text-xs text-ink-faint">
             Column names don&rsquo;t have to match &mdash; AI column mapping renames
             them for you from just the header row and three sample values.
           </p>
@@ -275,9 +275,12 @@ export function UploadPanel({ onRun, error }: UploadPanelProps) {
 
   return (
     <div className="mx-auto max-w-3xl">
-      <div className="rounded-xl border border-stone-200 bg-white p-6 shadow-sm">
-        <h2 className="text-lg font-semibold">Start a reconciliation run</h2>
-        <p className="mt-1 text-sm text-stone-500">
+      <div className="border border-line bg-cream p-6">
+        <p className="font-mono text-xs uppercase tracking-[0.2em] text-ink-faint">New run</p>
+        <h2 className="mt-2 font-serif text-2xl font-medium tracking-tight text-ink">
+          Start a reconciliation run
+        </h2>
+        <p className="mt-2 text-sm text-ink-soft">
           Upload the supplier statement and your AP open-items export. Reconciliation runs
           in your browser. Server trips are opt-in and minimal: a PDF or image statement is
           read into lines then discarded, and AI column mapping sends only the header row
@@ -317,7 +320,7 @@ export function UploadPanel({ onRun, error }: UploadPanelProps) {
         <ReportHelp />
         <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
           <label className="block">
-            <span className="text-xs font-medium uppercase tracking-wide text-stone-500">
+            <span className="font-mono text-[11px] uppercase tracking-[0.15em] text-ink-faint">
               Supplier
             </span>
             <input
@@ -328,11 +331,11 @@ export function UploadPanel({ onRun, error }: UploadPanelProps) {
                 setSupplier(e.target.value)
               }}
               placeholder="MERIDIAN IND SUPPLIES"
-              className="mt-1 w-full rounded-md border border-stone-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none"
+              className="mt-1 w-full border border-line bg-paper px-3 py-2 text-sm focus:border-pine focus:outline-none"
             />
           </label>
           <label className="block">
-            <span className="text-xs font-medium uppercase tracking-wide text-stone-500">
+            <span className="font-mono text-[11px] uppercase tracking-[0.15em] text-ink-faint">
               Statement as-at date
             </span>
             <input
@@ -342,7 +345,7 @@ export function UploadPanel({ onRun, error }: UploadPanelProps) {
                 asAtAuto.current = false
                 setAsAt(e.target.value)
               }}
-              className="mt-1 w-full rounded-md border border-stone-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none"
+              className="mt-1 w-full border border-line bg-paper px-3 py-2 text-sm focus:border-pine focus:outline-none"
             />
           </label>
         </div>
@@ -352,7 +355,7 @@ export function UploadPanel({ onRun, error }: UploadPanelProps) {
           return (
             <div
               key={kind}
-              className="mt-4 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800"
+              className="mt-4 border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800"
             >
               <p>
                 <span className="font-mono">{offer.name}</span> doesn&rsquo;t use the standard
@@ -367,7 +370,7 @@ export function UploadPanel({ onRun, error }: UploadPanelProps) {
                   type="button"
                   disabled={offer.status === 'busy'}
                   onClick={() => runMapping(kind)}
-                  className="rounded-md bg-blue-700 px-3 py-1 text-xs font-semibold text-white hover:bg-blue-800 disabled:cursor-not-allowed disabled:bg-stone-300"
+                  className="bg-ink px-3 py-1 text-xs font-semibold text-paper hover:bg-pine-deep disabled:cursor-not-allowed disabled:bg-ink-faint"
                 >
                   {offer.status === 'busy'
                     ? 'Mapping…'
@@ -378,7 +381,7 @@ export function UploadPanel({ onRun, error }: UploadPanelProps) {
                 <button
                   type="button"
                   onClick={() => clearMapOffer(kind)}
-                  className="text-xs text-stone-500 underline decoration-dotted underline-offset-4 hover:text-stone-700"
+                  className="text-xs text-ink-faint underline decoration-dotted underline-offset-4 hover:text-pine"
                 >
                   Dismiss
                 </button>
@@ -388,9 +391,9 @@ export function UploadPanel({ onRun, error }: UploadPanelProps) {
         })}
         {extractionNote && (
           <p
-            className={`mt-4 rounded-md border px-3 py-2 text-sm ${
+            className={`mt-4 border px-3 py-2 text-sm ${
               extractionNote.kind === 'ok'
-                ? 'border-blue-200 bg-blue-50 text-blue-800'
+                ? 'border-pine/30 bg-moss text-pine-deep'
                 : 'border-amber-200 bg-amber-50 text-amber-800'
             }`}
           >
@@ -398,7 +401,7 @@ export function UploadPanel({ onRun, error }: UploadPanelProps) {
           </p>
         )}
         {error && (
-          <p className="mt-4 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+          <p className="mt-4 border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
             {error}
           </p>
         )}
@@ -406,7 +409,7 @@ export function UploadPanel({ onRun, error }: UploadPanelProps) {
           <button
             type="button"
             onClick={loadSample}
-            className="text-sm text-stone-500 underline decoration-dotted underline-offset-4 hover:text-stone-700"
+            className="text-sm text-ink-faint underline decoration-dotted underline-offset-4 hover:text-pine"
           >
             Load sample data
           </button>
@@ -425,7 +428,7 @@ export function UploadPanel({ onRun, error }: UploadPanelProps) {
                 { sample: isSample },
               )
             }
-            className="rounded-md bg-emerald-600 px-5 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-emerald-700 disabled:cursor-not-allowed disabled:bg-stone-300"
+            className="bg-ink px-6 py-2.5 text-sm font-semibold text-paper transition-colors hover:bg-pine-deep disabled:cursor-not-allowed disabled:bg-ink-faint"
           >
             Reconcile
           </button>

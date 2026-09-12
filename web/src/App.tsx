@@ -182,39 +182,39 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen">
-      <header className="border-b border-stone-200 bg-white">
+    <div className="min-h-screen bg-paper text-ink">
+      <header className="border-b border-line">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
           <div className="flex items-baseline gap-3">
             <button
               type="button"
               onClick={goHome}
-              className="text-xl font-bold tracking-tight hover:text-blue-700"
+              className="font-serif text-2xl font-medium tracking-tight text-ink hover:text-pine"
               title="Back to home page"
             >
-              TieOut <span className="text-blue-700">AP</span>
+              TieOut <span className="text-pine">AP</span>
             </button>
-            <span className="hidden text-sm text-stone-500 sm:inline">
-              supplier statement reconciliation
+            <span className="hidden font-mono text-xs uppercase tracking-[0.2em] text-ink-faint md:inline">
+              Statement reconciliation
             </span>
           </div>
           <div className="flex items-center gap-3">
             <button
               type="button"
               onClick={goHome}
-              className="text-sm font-medium text-stone-600 hover:text-blue-700"
+              className="text-sm font-semibold text-ink-soft hover:text-pine"
             >
               &larr; Home
             </button>
             {authEnabled && session && (
               <>
-                <span className="hidden text-sm text-stone-500 sm:inline">
+                <span className="hidden text-sm text-ink-faint sm:inline">
                   {session.user.email}
                 </span>
                 <button
                   type="button"
                   onClick={signOut}
-                  className="rounded-md border border-stone-300 px-3 py-1.5 text-sm font-medium hover:bg-stone-50"
+                  className="border border-line bg-cream px-3 py-1.5 text-sm font-medium text-ink hover:border-ink-faint"
                 >
                   Sign out
                 </button>
@@ -225,14 +225,14 @@ export default function App() {
               <button
                 type="button"
                 onClick={copyLink}
-                className="rounded-md border border-stone-300 px-3 py-1.5 text-sm font-medium hover:bg-stone-50"
+                className="border border-line bg-cream px-3 py-1.5 text-sm font-medium text-ink hover:border-ink-faint"
               >
                 {linkCopied ? 'Link copied' : 'Copy run link'}
               </button>
               <button
                 type="button"
                 onClick={reset}
-                className="rounded-md bg-emerald-600 px-3 py-1.5 text-sm font-semibold text-white hover:bg-emerald-700"
+                className="bg-ink px-3 py-1.5 text-sm font-semibold text-paper hover:bg-pine-deep"
               >
                 New run
               </button>
@@ -246,11 +246,11 @@ export default function App() {
         {!run ? (
           authEnabled && !session ? (
             authLoading ? (
-              <p className="py-16 text-center text-sm text-stone-500">Loading…</p>
+              <p className="py-16 text-center text-sm text-ink-faint">Loading…</p>
             ) : guestRunUsed || showAuth ? (
               <div className="space-y-4">
                 {guestRunUsed && (
-                  <p className="mx-auto max-w-md rounded-md bg-emerald-50 px-4 py-3 text-center text-sm text-emerald-800">
+                  <p className="mx-auto max-w-md border border-pine/30 bg-moss px-4 py-3 text-center text-sm text-pine-deep">
                     You&rsquo;ve used your free run. Create a free account to keep
                     reconciling &mdash; 14-day trial, no card needed.
                   </p>
@@ -259,13 +259,13 @@ export default function App() {
               </div>
             ) : (
               <div className="space-y-4">
-                <p className="rounded-md bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
+                <p className="border border-pine/30 bg-moss px-4 py-3 text-sm text-pine-deep">
                   Trying without an account &mdash; you get one free reconciliation
                   with your own files. Nothing you upload leaves your browser.{' '}
                   <button
                     type="button"
                     onClick={() => setShowAuth(true)}
-                    className="font-semibold underline hover:text-emerald-900"
+                    className="font-semibold underline hover:text-ink"
                   >
                     Sign in instead
                   </button>
@@ -282,16 +282,16 @@ export default function App() {
           <div className="space-y-6">
             <SummaryBar result={run.result} />
             {(!authEnabled || session) && <AiSummary key={runKey(run)} run={run} />}
-            <nav className="flex gap-1 rounded-lg border border-stone-200 bg-white p-1 shadow-sm">
+            <nav className="flex gap-1 border border-line bg-cream p-1">
               {TABS.map((t) => (
                 <button
                   key={t.id}
                   type="button"
                   onClick={() => setTab(t.id)}
-                  className={`flex-1 rounded-md px-4 py-2 text-sm font-medium transition-colors ${
+                  className={`flex-1 px-4 py-2 text-sm font-medium transition-colors ${
                     tab === t.id
-                      ? 'bg-emerald-600 text-white'
-                      : 'text-stone-600 hover:bg-stone-100'
+                      ? 'bg-ink text-paper'
+                      : 'text-ink-soft hover:bg-paper'
                   }`}
                 >
                   {t.label}
@@ -305,7 +305,7 @@ export default function App() {
         )}
       </main>
 
-      <footer className="mx-auto max-w-5xl px-6 pb-8 text-xs text-stone-400">
+      <footer className="mx-auto max-w-5xl px-6 pb-8 text-xs text-ink-faint">
         TieOut AP never writes to your ERP, holds no credentials, and sends nothing on
         your behalf. Reconciliation runs entirely in your browser.
       </footer>

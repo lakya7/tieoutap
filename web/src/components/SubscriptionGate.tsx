@@ -40,17 +40,17 @@ export function SubscriptionGate({ children }: { children: ReactNode }) {
   }
 
   if (state.kind === 'loading') {
-    return <p className="py-16 text-center text-sm text-stone-500">Checking your subscription…</p>
+    return <p className="py-16 text-center text-sm text-ink-faint">Checking your subscription…</p>
   }
 
   if (state.kind === 'error') {
     return (
-      <div className="mx-auto max-w-md rounded-xl border border-stone-200 bg-white p-8 text-center shadow-sm">
+      <div className="mx-auto max-w-md border border-line bg-cream p-8 text-center">
         <p className="text-sm text-red-700">Could not check your subscription: {state.detail}</p>
         <button
           type="button"
           onClick={() => location.reload()}
-          className="mt-4 rounded-md border border-stone-300 px-4 py-2 text-sm font-medium hover:bg-stone-50"
+          className="mt-4 border border-line bg-paper px-4 py-2 text-sm font-medium text-ink hover:border-ink-faint"
         >
           Try again
         </button>
@@ -66,19 +66,19 @@ export function SubscriptionGate({ children }: { children: ReactNode }) {
     return (
       <div className="space-y-4">
         {justSubscribed && (
-          <p className="rounded-md bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
+          <p className="border border-pine/30 bg-moss px-4 py-3 text-sm text-pine-deep">
             You&rsquo;re in — your subscription is active.
           </p>
         )}
         {children}
         {onFreeTrial && (
-          <p className="text-center text-xs text-stone-400">
+          <p className="text-center text-xs text-ink-faint">
             {info.trial_end ? `Free trial until ${info.trial_end} · ` : ''}
             <button
               type="button"
               onClick={() => void redirect('checkout')}
               disabled={busy}
-              className="underline hover:text-stone-600 disabled:opacity-60"
+              className="underline hover:text-pine disabled:opacity-60"
             >
               Subscribe now
             </button>
@@ -86,7 +86,7 @@ export function SubscriptionGate({ children }: { children: ReactNode }) {
           </p>
         )}
         {managed && (
-          <p className="text-center text-xs text-stone-400">
+          <p className="text-center text-xs text-ink-faint">
             {info.status === 'trialing' && info.trial_end
               ? `Free trial until ${info.trial_end} · `
               : ''}
@@ -94,7 +94,7 @@ export function SubscriptionGate({ children }: { children: ReactNode }) {
               type="button"
               onClick={() => void redirect('portal')}
               disabled={busy}
-              className="underline hover:text-stone-600 disabled:opacity-60"
+              className="underline hover:text-pine disabled:opacity-60"
             >
               Manage billing
             </button>
@@ -106,33 +106,33 @@ export function SubscriptionGate({ children }: { children: ReactNode }) {
   }
 
   return (
-    <div className="mx-auto max-w-md rounded-xl border border-stone-200 bg-white p-8 shadow-sm">
-      <h2 className="text-xl font-bold tracking-tight">Your free trial has ended</h2>
-      <p className="mt-1 text-sm text-stone-500">
+    <div className="mx-auto max-w-md border border-line bg-cream p-8">
+      <h2 className="font-serif text-2xl font-medium tracking-tight text-ink">Your free trial has ended</h2>
+      <p className="mt-1 text-sm text-ink-soft">
         Keep full access to reconciliation, AI column mapping, AI summaries, and
         PDF statement reading for $19/month — cancel anytime.
       </p>
-      <ul className="mt-4 space-y-2 text-sm text-stone-600">
-        <li>• Your files still never leave the browser</li>
-        <li>• Cancel in one click from Manage billing</li>
+      <ul className="mt-4 space-y-2 text-sm text-ink-soft">
+        <li>— Your files still never leave the browser</li>
+        <li>— Cancel in one click from Manage billing</li>
       </ul>
       {info.status === 'canceled' && (
-        <p className="mt-4 rounded-md bg-amber-50 px-3 py-2 text-sm text-amber-800">
+        <p className="mt-4 border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800">
           Your previous subscription has ended — subscribe again to continue.
         </p>
       )}
       {actionError && (
-        <p className="mt-4 rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">{actionError}</p>
+        <p className="mt-4 border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{actionError}</p>
       )}
       <button
         type="button"
         onClick={() => void redirect('checkout')}
         disabled={busy}
-        className="mt-6 w-full rounded-md bg-blue-700 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-800 disabled:opacity-60"
+        className="mt-6 w-full bg-ink px-4 py-2 text-sm font-semibold text-paper hover:bg-pine-deep disabled:opacity-60"
       >
         {busy ? 'Opening checkout…' : 'Subscribe — $19/month'}
       </button>
-      <p className="mt-3 text-center text-xs text-stone-400">
+      <p className="mt-3 text-center text-xs text-ink-faint">
         Secure payment by Stripe. TieOut AP never sees your card details.
       </p>
     </div>
