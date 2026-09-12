@@ -141,6 +141,7 @@ export default function App() {
   const reset = () => {
     setRun(null)
     setError(null)
+    setShowAuth(false)
     history.replaceState(null, '', `${location.pathname}#app`)
   }
 
