@@ -46,12 +46,12 @@ function FileChip({
       }`}
       style={{ transitionDelay: show ? delay : '0ms' }}
     >
-      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-sm bg-ink text-[10px] font-bold text-paper">
+      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-sm bg-ink text-[11px] font-bold text-paper">
         {kind}
       </div>
       <div className="min-w-0 flex-1">
         <p className="truncate text-xs font-semibold text-ink">{name}</p>
-        <p className="text-[11px] text-ink-faint">{label}</p>
+        <p className="text-xs text-ink-faint">{label}</p>
       </div>
       <p className="shrink-0 font-mono text-xs font-semibold text-ink-soft">{amount}</p>
     </div>
@@ -90,7 +90,7 @@ export function HeroDemo({ onSampleRun }: HeroDemoProps) {
               onClick={() => selectStage(i)}
               aria-label={`Show step ${i + 1}: ${name}`}
               aria-pressed={i === stage}
-              className={`flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold transition-colors duration-300 motion-reduce:transition-none ${
+              className={`flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold transition-colors duration-300 motion-reduce:transition-none ${
                 i === stage
                   ? 'bg-ink text-paper'
                   : 'bg-ink/5 text-ink-soft hover:bg-ink/10'
@@ -100,7 +100,7 @@ export function HeroDemo({ onSampleRun }: HeroDemoProps) {
               <span className="hidden sm:inline">{name}</span>
             </button>
           ))}
-          <span className="ml-auto rounded-full bg-moss px-2.5 py-0.5 text-[11px] font-semibold text-pine ring-1 ring-inset ring-pine/25">
+          <span className="ml-auto rounded-full bg-moss px-2.5 py-0.5 text-xs font-semibold text-pine ring-1 ring-inset ring-pine/25">
             Live demo
           </span>
         </div>
@@ -114,7 +114,7 @@ export function HeroDemo({ onSampleRun }: HeroDemoProps) {
               stage === 0 ? 'opacity-100' : 'pointer-events-none opacity-0'
             }`}
           >
-            <p className="font-mono text-[11px] font-medium uppercase tracking-[0.15em] text-ink-faint">
+            <p className="font-mono text-xs font-medium uppercase tracking-[0.15em] text-ink-faint">
               Two files in
             </p>
             <div className="mt-3 space-y-3">
@@ -154,7 +154,7 @@ export function HeroDemo({ onSampleRun }: HeroDemoProps) {
               stage === 1 ? 'opacity-100' : 'pointer-events-none opacity-0'
             }`}
           >
-            <p className="font-mono text-[11px] font-medium uppercase tracking-[0.15em] text-ink-faint">
+            <p className="font-mono text-xs font-medium uppercase tracking-[0.15em] text-ink-faint">
               Deterministic matching — no AI in the numbers
             </p>
             <div className="mt-3 space-y-2">
@@ -189,7 +189,7 @@ export function HeroDemo({ onSampleRun }: HeroDemoProps) {
               stage === 2 ? 'opacity-100' : 'pointer-events-none opacity-0'
             }`}
           >
-            <p className="font-mono text-[11px] font-medium uppercase tracking-[0.15em] text-ink-faint">
+            <p className="font-mono text-xs font-medium uppercase tracking-[0.15em] text-ink-faint">
               Every difference, named in AP language
             </p>
             <div className="mt-3 space-y-1.5">
@@ -220,7 +220,7 @@ export function HeroDemo({ onSampleRun }: HeroDemoProps) {
               stage === 3 ? 'opacity-100' : 'pointer-events-none opacity-0'
             }`}
           >
-            <p className="font-mono text-[11px] font-medium uppercase tracking-[0.15em] text-ink-faint">
+            <p className="font-mono text-xs font-medium uppercase tracking-[0.15em] text-ink-faint">
               The bridge ties exactly
             </p>
             <dl className="mt-3 space-y-1.5 font-mono text-xs sm:text-sm">
@@ -254,7 +254,7 @@ export function HeroDemo({ onSampleRun }: HeroDemoProps) {
               <div aria-hidden="true" className="double-rule mt-1 text-pine/60" />
             </div>
             <p
-              className={`mt-3 text-[11px] text-ink-faint transition-opacity duration-500 motion-reduce:transition-none ${
+              className={`mt-3 text-xs text-ink-faint transition-opacity duration-500 motion-reduce:transition-none ${
                 stage === 3 ? 'opacity-100' : 'opacity-0'
               }`}
               style={{ transitionDelay: stage === 3 && animate ? '1100ms' : '0ms' }}

@@ -51,7 +51,7 @@ export function AuthPanel({ onSampleRun }: AuthPanelProps) {
       </p>
       <form onSubmit={handleSubmit} className="mt-6 space-y-4">
         <div>
-          <label htmlFor="auth-email" className="block font-mono text-[11px] uppercase tracking-[0.15em] text-ink-faint">
+          <label htmlFor="auth-email" className="block font-mono text-xs uppercase tracking-[0.15em] text-ink-faint">
             Email
           </label>
           <input
@@ -64,7 +64,7 @@ export function AuthPanel({ onSampleRun }: AuthPanelProps) {
           />
         </div>
         <div>
-          <label htmlFor="auth-password" className="block font-mono text-[11px] uppercase tracking-[0.15em] text-ink-faint">
+          <label htmlFor="auth-password" className="block font-mono text-xs uppercase tracking-[0.15em] text-ink-faint">
             Password
           </label>
           <input

@@ -65,7 +65,7 @@ export function AiSummary({ run }: { run: Run }) {
           </div>
           <div>
             <div className="flex items-center justify-between">
-              <h4 className="font-mono text-[11px] font-semibold uppercase tracking-[0.15em] text-ink-faint">
+              <h4 className="font-mono text-xs font-semibold uppercase tracking-[0.15em] text-ink-faint">
                 AI-reworded supplier email
               </h4>
               <button

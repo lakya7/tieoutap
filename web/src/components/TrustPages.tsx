@@ -136,16 +136,16 @@ const PAGES: Record<TrustPageId, PageContent> = {
   security: {
     title: 'Security & Data Handling',
     intro:
-      'The clearest security statement we can make: for the default workflow, your files never reach us. Here is precisely what runs where.',
+      'The clearest security statement we can make: for the default workflow, your files never reach us. Here are the questions finance teams ask, answered precisely.',
     blocks: [
       {
-        heading: 'Local by architecture, not by policy',
+        heading: 'Do my files stay in my browser?',
         paras: [
-          'Ledger parsing, statement parsing (Excel/CSV/TSV), matching, classification, and the balance bridge run entirely in your browser as compiled JavaScript. There is no upload step for these files: the code that would send them does not exist. This is stronger than a policy promise of encryption or deletion — the data is simply never transmitted.',
+          'Yes — by architecture, not by policy. Ledger parsing, statement parsing (Excel/CSV/TSV), matching, classification, and the balance bridge run entirely in your browser as compiled JavaScript. There is no upload step for these files: the code that would send them does not exist. This is stronger than a policy promise of encryption or deletion — the data is simply never transmitted.',
         ],
       },
       {
-        heading: 'What is transmitted, exactly',
+        heading: 'What is sent over the network, exactly?',
         paras: ['Three optional features make network requests, each sending only:'],
         list: [
           'PDF/image statement reading: the document itself, one round trip, processed in memory, never stored.',
@@ -154,7 +154,13 @@ const PAGES: Record<TrustPageId, PageContent> = {
         ],
       },
       {
-        heading: 'Transport and access',
+        heading: 'Can you see my data?',
+        paras: [
+          'For the default spreadsheet workflow, no — nothing reaches a server, so there is nothing for us to see, store, or lose. A PDF or image statement you explicitly choose to have read makes one round trip, is processed in memory, and is never written to storage. Exports (Excel, audit pack) are generated in your browser and download straight to your machine. Share links carry the run data in the link itself, in the part of the URL that browsers do not send to servers.',
+        ],
+      },
+      {
+        heading: 'How are traffic and access secured?',
         paras: [],
         list: [
           'All traffic is encrypted in transit (TLS).',
@@ -164,21 +170,21 @@ const PAGES: Record<TrustPageId, PageContent> = {
         ],
       },
       {
-        heading: 'Saved column mappings',
+        heading: 'What do saved column mappings store — and how do I delete them?',
         paras: [
           'When you accept an AI column mapping, TieOut AP can remember it for files with the same layout. Saved mappings hold only field configuration — which of your columns contains the reference, amount, and date. They never contain statement or ledger data, they are stored only in your own browser (localStorage), and applying one makes no network request. “Forget saved mapping” on the mapping prompt, or clearing your browser’s site data, deletes them.',
         ],
       },
       {
-        heading: 'Determinism as a control',
+        heading: 'How is the maths controlled?',
         paras: [
           'The reconciliation engine is deterministic: the same two files always produce the same findings and the same bridge, with integer-cent arithmetic throughout. Uncertain matches are flagged for human confirmation rather than silently applied, and the bridge either explains the variance in full — down to 0.00 unexplained — or the tool refuses and says why. AI never produces, adjusts, or approves a number.',
         ],
       },
       {
-        heading: 'Reporting a concern',
+        heading: 'How do I report a security concern?',
         paras: [
-          'If you believe you have found a security issue, contact us through the contact form on the home page and we will respond promptly by email.',
+          'Contact us through the contact form on the home page and we will respond promptly by email.',
         ],
       },
     ],

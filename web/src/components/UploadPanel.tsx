@@ -354,7 +354,7 @@ export function UploadPanel({ onRun, error }: UploadPanelProps) {
         <ReportHelp />
         <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
           <label className="block">
-            <span className="font-mono text-[11px] uppercase tracking-[0.15em] text-ink-faint">
+            <span className="font-mono text-xs uppercase tracking-[0.15em] text-ink-faint">
               Supplier
             </span>
             <input
@@ -369,7 +369,7 @@ export function UploadPanel({ onRun, error }: UploadPanelProps) {
             />
           </label>
           <label className="block">
-            <span className="font-mono text-[11px] uppercase tracking-[0.15em] text-ink-faint">
+            <span className="font-mono text-xs uppercase tracking-[0.15em] text-ink-faint">
               Statement as-at date
             </span>
             <input

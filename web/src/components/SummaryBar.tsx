@@ -5,7 +5,7 @@ import type { Run } from '../lib/run'
 function Stat({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <div className="font-mono text-[11px] uppercase tracking-[0.15em] text-ink-faint">{label}</div>
+      <div className="font-mono text-xs uppercase tracking-[0.15em] text-ink-faint">{label}</div>
       <div className="mt-0.5 font-mono text-lg tabular-nums text-ink">{value}</div>
     </div>
   )
