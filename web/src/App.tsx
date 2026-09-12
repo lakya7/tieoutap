@@ -28,6 +28,22 @@ function isTrustPage(hash: string): hash is TrustPageId {
 
 const GUEST_RUN_KEY = 'tieout-guest-run-used'
 
+function readGuestRunUsed(): boolean {
+  try {
+    return localStorage.getItem(GUEST_RUN_KEY) === '1'
+  } catch {
+    return false
+  }
+}
+
+function persistGuestRunUsed(): void {
+  try {
+    localStorage.setItem(GUEST_RUN_KEY, '1')
+  } catch {
+    // Storage unavailable — the in-memory flag still gates this tab.
+  }
+}
+
 const runKeys = new WeakMap<Run, number>()
 let nextRunKey = 1
 
@@ -56,9 +72,7 @@ export default function App() {
     if (isTrustPage(hash)) return hash
     return hash === '' || hash === 'contact' ? 'landing' : 'app'
   })
-  const [guestRunUsed, setGuestRunUsed] = useState(
-    () => localStorage.getItem(GUEST_RUN_KEY) === '1',
-  )
+  const [guestRunUsed, setGuestRunUsed] = useState(readGuestRunUsed)
   const [showAuth, setShowAuth] = useState(false)
   const { session, loading: authLoading, enabled: authEnabled, signOut } = useAuth()
 
@@ -76,12 +90,28 @@ export default function App() {
     }
   }
 
-  const startGuest = (input: RunInput) => {
+  const startGuest = (input: RunInput, opts?: { sample?: boolean }) => {
+    if (opts?.sample) {
+      start(input)
+      return
+    }
+    if (readGuestRunUsed()) {
+      setGuestRunUsed(true)
+      return
+    }
     if (start(input)) {
-      localStorage.setItem(GUEST_RUN_KEY, '1')
+      persistGuestRunUsed()
       setGuestRunUsed(true)
     }
   }
+
+  useEffect(() => {
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === GUEST_RUN_KEY) setGuestRunUsed(readGuestRunUsed())
+    }
+    window.addEventListener('storage', onStorage)
+    return () => window.removeEventListener('storage', onStorage)
+  }, [])
 
   useEffect(() => {
     const onHashChange = () => {

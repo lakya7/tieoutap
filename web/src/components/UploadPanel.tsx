@@ -153,7 +153,7 @@ function ReportHelp() {
 }
 
 interface UploadPanelProps {
-  onRun: (input: RunInput) => void
+  onRun: (input: RunInput, opts?: { sample?: boolean }) => void
   error: string | null
 }
 
@@ -176,6 +176,7 @@ export function UploadPanel({ onRun, error }: UploadPanelProps) {
     { kind: 'ok' | 'error'; text: string } | null
   >(null)
   const [mapOffers, setMapOffers] = useState<Partial<Record<MapKind, MapOffer>>>({})
+  const [isSample, setIsSample] = useState(false)
   const supplierAuto = useRef(true)
   const asAtAuto = useRef(true)
   const extractSeq = useRef(0)
@@ -207,6 +208,7 @@ export function UploadPanel({ onRun, error }: UploadPanelProps) {
       }
       const mapped = applyMapping(offer.csv, res.mapping)
       setMapOffers((prev) => ({ ...prev, [kind]: undefined }))
+      setIsSample(false)
       if (kind === 'statement') {
         setStatement({ name: offer.name, text: mapped })
         if (asAtAuto.current || !asAt) setAsAt(deriveAsAt(mapped))
@@ -233,6 +235,7 @@ export function UploadPanel({ onRun, error }: UploadPanelProps) {
           setExtractionNote({ kind: 'error', text: refusalMessage(result) })
           return
         }
+        setIsSample(false)
         setStatement({ name: file.name, text: linesToStatementCsv(result.lines) })
         if (supplierAuto.current || !supplier) setSupplier(result.supplier)
         if (asAtAuto.current || !asAt) setAsAt(result.as_at)
@@ -256,6 +259,7 @@ export function UploadPanel({ onRun, error }: UploadPanelProps) {
   const ready = statement !== null && ledger !== null && supplier !== '' && asAt !== ''
 
   const loadSample = () => {
+    setIsSample(true)
     setStatement({ name: 'meridian_stmt.csv', text: statementSample })
     setLedger({ name: 'acme_ledger.csv', text: ledgerSample })
     setSupplier(deriveSupplier(ledgerSample))
@@ -292,6 +296,7 @@ export function UploadPanel({ onRun, error }: UploadPanelProps) {
               extractSeq.current++
               setExtracting(false)
               setExtractionNote(null)
+              setIsSample(false)
               setStatement({ name, text })
               if (asAtAuto.current || !asAt) setAsAt(deriveAsAt(text))
             }}
@@ -303,6 +308,7 @@ export function UploadPanel({ onRun, error }: UploadPanelProps) {
             fileName={ledger?.name ?? null}
             onUnmapped={offerMapping('ledger')}
             onText={(name, text) => {
+              setIsSample(false)
               setLedger({ name, text })
               if (supplierAuto.current || !supplier) setSupplier(deriveSupplier(text))
             }}
@@ -409,12 +415,15 @@ export function UploadPanel({ onRun, error }: UploadPanelProps) {
             disabled={!ready || extracting}
             onClick={() =>
               ready &&
-              onRun({
-                statementCsv: statement.text,
-                ledgerCsv: ledger.text,
-                supplier,
-                asAt,
-              })
+              onRun(
+                {
+                  statementCsv: statement.text,
+                  ledgerCsv: ledger.text,
+                  supplier,
+                  asAt,
+                },
+                { sample: isSample },
+              )
             }
             className="rounded-md bg-emerald-600 px-5 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-emerald-700 disabled:cursor-not-allowed disabled:bg-stone-300"
           >
