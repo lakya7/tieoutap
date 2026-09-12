@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { formatCentsGrouped } from '../../../ts/src'
 import type { Finding, Match } from '../../../ts/src'
 import { findingRefs } from '../lib/email'
+import { downloadExceptionsXlsx } from '../lib/export'
 import type { Run } from '../lib/run'
 
 const BUCKET_STYLES: Record<string, string> = {
@@ -90,6 +91,16 @@ export function ExceptionQueue({ run }: { run: Run }) {
 
   return (
     <div className="space-y-6">
+      <div className="flex justify-end">
+        <button
+          type="button"
+          onClick={() => downloadExceptionsXlsx(run)}
+          className="border border-line bg-cream px-3 py-1.5 text-sm font-medium text-ink hover:border-ink-faint"
+          title="Download the exception queue as a spreadsheet"
+        >
+          Export to Excel
+        </button>
+      </div>
       {findings.length > 0 && (
         <div className="border border-line bg-cream">
           <div className="overflow-x-auto">
