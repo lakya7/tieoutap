@@ -1,7 +1,10 @@
 import { useEffect } from 'react'
+import statementSample from '../../../fixtures/meridian_stmt.csv?raw'
+import ledgerSample from '../../../fixtures/acme_ledger.csv?raw'
 import { ContactSection } from './ContactSection'
 import { HeroDemo } from './HeroDemo'
 import { LandingNav } from './LandingNav'
+import { ResultsShowcase } from './ResultsShowcase'
 
 interface LandingProps {
   onOpenApp: () => void
@@ -9,7 +12,7 @@ interface LandingProps {
 }
 
 const STATS = [
-  { value: '0.00', label: 'unexplained — the bridge ties exactly or the tool refuses' },
+  { value: '0.00', label: 'unexplained — the variance is explained in full or the tool refuses' },
   { value: '6 kinds', label: 'of difference, named in AP language' },
   { value: '100%', label: 'deterministic — same files, same answer' },
   { value: 'None', label: 'ERP integration, credentials, or auto-emails' },
@@ -70,6 +73,15 @@ const AI_ITEMS = [
     body: 'After the deterministic run, AI turns the findings into a plain-English summary and a better-worded supplier email — from the findings alone, never your files. Every figure it words comes straight from the engine.',
   },
 ]
+
+function downloadSample(name: string, text: string) {
+  const url = URL.createObjectURL(new Blob([text], { type: 'text/csv' }))
+  const a = document.createElement('a')
+  a.href = url
+  a.download = name
+  a.click()
+  URL.revokeObjectURL(url)
+}
 
 function SectionHead({
   n,
@@ -285,11 +297,30 @@ export function Landing({ onOpenApp, onSampleRun }: LandingProps) {
         </div>
       </section>
 
+      {/* The actual results screen */}
+      <section id="results" className="scroll-mt-6 border-b border-line bg-cream">
+        <div className="mx-auto max-w-6xl px-6 py-24">
+          <SectionHead
+            n="04"
+            eyebrow="The actual screen"
+            title="This is the real output — not a mock-up"
+          />
+          <p className="mt-5 max-w-3xl leading-relaxed text-ink-soft">
+            Rendered below by the same engine and the same components the app uses, from
+            the sample supplier statement and AP export. Every figure is computed live on
+            this page.
+          </p>
+          <div className="mt-10">
+            <ResultsShowcase onSampleRun={onSampleRun} />
+          </div>
+        </div>
+      </section>
+
       {/* Who it's for */}
       <section className="border-b border-line">
         <div className="mx-auto max-w-6xl px-6 py-24">
           <SectionHead
-            n="04"
+            n="05"
             eyebrow="Who it's for"
             title="For the teams still reconciling statements in spreadsheets"
           />
@@ -314,13 +345,33 @@ export function Landing({ onOpenApp, onSampleRun }: LandingProps) {
               </div>
             ))}
           </div>
+          <div className="mt-14 border-t border-line pt-8">
+            <p className="font-mono text-xs uppercase tracking-[0.2em] text-ink-faint">
+              When it earns its keep
+            </p>
+            <ul className="mt-4 grid gap-x-8 gap-y-2 text-[15px] text-ink-soft sm:grid-cols-2">
+              {[
+                'Month-end close — clearing supplier statements before sign-off',
+                'Duplicate prevention — catching double-entered or double-paid invoices',
+                'Credit recovery — finding supplier credits never applied to your account',
+                'ERP migration — proving supplier balances match before and after cutover',
+                'Audit preparation — an evidence-backed pack for every reconciled statement',
+                'Supplier disputes — a drafted query email built from the findings',
+              ].map((item) => (
+                <li key={item} className="flex items-baseline gap-2">
+                  <span aria-hidden="true" className="text-pine">—</span>
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
       </section>
 
       {/* Formats & privacy */}
       <section id="privacy" className="scroll-mt-6 border-b border-line bg-cream">
         <div className="mx-auto max-w-6xl px-6 py-24">
-          <SectionHead n="05" eyebrow="No IT project" title="Your files, your browser" />
+          <SectionHead n="06" eyebrow="No IT project" title="Your files, your browser" />
           <div className="mt-14 grid gap-12 md:grid-cols-2 md:gap-0 md:divide-x md:divide-line">
             <div className="md:pr-12">
               <h3 className="font-serif text-xl font-medium text-ink">
@@ -332,6 +383,31 @@ export function Landing({ onOpenApp, onSampleRun }: LandingProps) {
                 semicolon-delimited exports from any ERP or accounting system. No
                 connectors, no IT project, no credentials &mdash; export, upload,
                 reconcile.
+              </p>
+              <p className="mt-4 text-[15px] leading-relaxed text-ink-soft">
+                Each statement line needs a reference, date, type, and amount; each ledger
+                line needs the supplier, reference, date, type, original amount, and open
+                (remaining) amount. Column names don&rsquo;t have to match &mdash; AI maps
+                them for you.
+              </p>
+              <p className="mt-4 text-sm text-ink-soft">
+                Want to see the expected shape?{' '}
+                <button
+                  type="button"
+                  onClick={() => downloadSample('sample_supplier_statement.csv', statementSample)}
+                  className="font-semibold text-pine underline decoration-pine/40 underline-offset-2 hover:text-pine-deep"
+                >
+                  Download the sample statement
+                </button>{' '}
+                and{' '}
+                <button
+                  type="button"
+                  onClick={() => downloadSample('sample_ap_ledger_export.csv', ledgerSample)}
+                  className="font-semibold text-pine underline decoration-pine/40 underline-offset-2 hover:text-pine-deep"
+                >
+                  the sample AP export
+                </button>
+                &nbsp;&mdash; the same files behind the sample run.
               </p>
             </div>
             <div className="md:pl-12">
@@ -368,7 +444,7 @@ export function Landing({ onOpenApp, onSampleRun }: LandingProps) {
       {/* Pricing */}
       <section id="pricing" className="scroll-mt-6 border-t border-line bg-cream">
         <div className="mx-auto max-w-4xl px-6 py-24">
-          <SectionHead n="06" eyebrow="Pricing" title="One plan, everything included" center />
+          <SectionHead n="07" eyebrow="Pricing" title="One plan, everything included" center />
           <div className="mx-auto mt-12 max-w-md border border-line bg-paper p-8 text-left">
             <div className="flex items-baseline justify-between font-mono text-xs uppercase tracking-[0.2em] text-ink-faint">
               <span>TieOut AP</span>

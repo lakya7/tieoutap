@@ -31,12 +31,12 @@ function EvidenceRow({ finding }: { finding: Finding }) {
       <td colSpan={6} className="bg-paper px-4 py-3">
         <dl className="grid grid-cols-2 gap-x-8 gap-y-1 sm:grid-cols-3">
           <div>
-            <dt className="font-mono text-[11px] uppercase tracking-[0.15em] text-ink-faint">Rule</dt>
+            <dt className="font-mono text-xs uppercase tracking-[0.15em] text-ink-faint">Rule</dt>
             <dd className="font-mono text-xs">{finding.rule_id}</dd>
           </div>
           {Object.entries(finding.evidence).map(([k, v]) => (
             <div key={k}>
-              <dt className="font-mono text-[11px] uppercase tracking-[0.15em] text-ink-faint">
+              <dt className="font-mono text-xs uppercase tracking-[0.15em] text-ink-faint">
                 {k.replace(/_/g, ' ')}
               </dt>
               <dd className="font-mono text-xs">
@@ -105,7 +105,7 @@ export function ExceptionQueue({ run }: { run: Run }) {
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
               <thead>
-                <tr className="border-b border-line font-mono text-[11px] uppercase tracking-[0.15em] text-ink-faint">
+                <tr className="border-b border-line font-mono text-xs uppercase tracking-[0.15em] text-ink-faint">
                   <th className="px-4 py-3 font-medium">ID</th>
                   <th className="px-4 py-3 font-medium">Exception</th>
                   <th className="px-4 py-3 font-medium">Bucket</th>
@@ -142,7 +142,7 @@ export function ExceptionQueue({ run }: { run: Run }) {
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
               <thead>
-                <tr className="border-b border-line font-mono text-[11px] uppercase tracking-[0.15em] text-ink-faint">
+                <tr className="border-b border-line font-mono text-xs uppercase tracking-[0.15em] text-ink-faint">
                   <th className="px-4 py-3 font-medium">Method</th>
                   <th className="px-4 py-3 font-medium">Confidence</th>
                   <th className="px-4 py-3 font-medium">Statement refs</th>
@@ -199,7 +199,7 @@ function FindingRows({
         <td className="px-4 py-3 font-mono text-xs text-ink-faint">{id}</td>
         <td className="px-4 py-3">
           <span className="text-sm font-medium text-ink">{findingLabel(finding.type)}</span>
-          <span className="mt-0.5 block font-mono text-[11px] uppercase tracking-wide text-ink-faint">
+          <span className="mt-0.5 block font-mono text-xs uppercase tracking-wide text-ink-faint">
             {finding.type}
           </span>
         </td>
