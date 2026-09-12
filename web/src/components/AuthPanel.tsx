@@ -3,7 +3,11 @@ import { supabase } from '../lib/supabase'
 
 type Mode = 'signin' | 'signup'
 
-export function AuthPanel() {
+interface AuthPanelProps {
+  onSampleRun: () => void
+}
+
+export function AuthPanel({ onSampleRun }: AuthPanelProps) {
   const [mode, setMode] = useState<Mode>('signin')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -112,6 +116,16 @@ export function AuthPanel() {
           </>
         )}
       </p>
+      <div className="mt-6 border-t border-stone-200 pt-4 text-center">
+        <p className="text-sm text-stone-500">Want to see it work first?</p>
+        <button
+          type="button"
+          onClick={onSampleRun}
+          className="mt-1 text-sm font-semibold text-blue-700 hover:underline"
+        >
+          Explore the sample reconciliation — no account needed
+        </button>
+      </div>
     </div>
   )
 }

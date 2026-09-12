@@ -203,7 +203,7 @@ export default function App() {
             authLoading ? (
               <p className="py-16 text-center text-sm text-stone-500">Loading…</p>
             ) : (
-              <AuthPanel />
+              <AuthPanel onSampleRun={sampleRun} />
             )
           ) : (
             <SubscriptionGate>
