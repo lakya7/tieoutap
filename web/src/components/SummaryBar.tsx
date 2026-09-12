@@ -1,6 +1,9 @@
+import { useEffect, useState } from 'react'
 import { formatCentsGrouped } from '../../../ts/src'
-import { runId } from '../lib/labels'
+import { exceptionId, orderedFindings, runId } from '../lib/labels'
 import type { Run } from '../lib/run'
+import { DEFAULT_STATUS, loadStatuses, subscribeStatuses } from '../lib/statuses'
+import type { RunStatuses } from '../lib/statuses'
 
 function Stat({ label, value }: { label: string; value: string }) {
   return (
@@ -14,12 +17,24 @@ function Stat({ label, value }: { label: string; value: string }) {
 export function SummaryBar({ run }: { run: Run }) {
   const { result } = run
   const { bridge } = result
+  const id = runId(run)
+  const [statuses, setStatuses] = useState<RunStatuses>(() => loadStatuses(id))
+  useEffect(() => {
+    setStatuses(loadStatuses(id))
+    return subscribeStatuses(() => setStatuses(loadStatuses(id)))
+  }, [id])
   const initialVariance = bridge.statement_total - bridge.ledger_open_total
   const explained = bridge.adjustments.reduce((sum, adj) => sum + adj.amount, 0)
   const unexplained = initialVariance - explained
   const cashAtRisk = result.findings
     .filter((f) => f.bucket === 'cash_at_risk')
     .reduce((sum, f) => sum + f.amount, 0)
+  const openActions = orderedFindings(run).filter((_, i) => {
+    const s = statuses[exceptionId(i)] ?? DEFAULT_STATUS
+    return s !== 'resolved' && s !== 'accepted'
+  }).length
+  const currencies = [...new Set(run.statement.map((l) => l.currency).filter((c) => c !== ''))]
+  const currency = currencies.length === 1 ? currencies[0] : null
   return (
     <div className="border border-line bg-cream p-5">
       <div className="flex flex-wrap items-center justify-between gap-4">
@@ -30,8 +45,14 @@ export function SummaryBar({ run }: { run: Run }) {
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-8">
-          <Stat label="Statement balance" value={formatCentsGrouped(bridge.statement_total)} />
-          <Stat label="Ledger open balance" value={formatCentsGrouped(bridge.ledger_open_total)} />
+          <Stat
+            label={currency ? `Statement balance (${currency})` : 'Statement balance'}
+            value={formatCentsGrouped(bridge.statement_total)}
+          />
+          <Stat
+            label={currency ? `Ledger open balance (${currency})` : 'Ledger open balance'}
+            value={formatCentsGrouped(bridge.ledger_open_total)}
+          />
           <Stat label="Initial variance" value={formatCentsGrouped(initialVariance)} />
           <Stat label="Explained" value={formatCentsGrouped(explained)} />
           <Stat label="Unexplained" value={formatCentsGrouped(unexplained)} />
@@ -48,7 +69,17 @@ export function SummaryBar({ run }: { run: Run }) {
       </div>
       {(result.findings.length > 0 || cashAtRisk > 0) && (
         <p className="mt-3 text-sm text-ink-soft">
-          {result.findings.length} exception{result.findings.length === 1 ? '' : 's'} to review
+          {result.findings.length} exception{result.findings.length === 1 ? '' : 's'}
+          {' · '}
+          <span className={openActions > 0 ? 'font-semibold text-ink' : ''}>
+            {openActions} open action{openActions === 1 ? '' : 's'}
+          </span>
+          {' · review '}
+          {openActions === 0 ? (
+            <span className="font-semibold text-pine-deep">complete</span>
+          ) : (
+            'in progress'
+          )}
           {cashAtRisk > 0 && (
             <>
               {' · '}
@@ -59,9 +90,9 @@ export function SummaryBar({ run }: { run: Run }) {
           )}
         </p>
       )}
-      {result.warnings.length > 0 && (
+      {(result.warnings.length > 0 || run.inputWarnings.length > 0) && (
         <ul className="mt-3 space-y-1">
-          {result.warnings.map((w) => (
+          {[...result.warnings, ...run.inputWarnings].map((w) => (
             <li
               key={w}
               className="border border-amber-200 bg-amber-50 px-3 py-1.5 text-sm text-amber-800"

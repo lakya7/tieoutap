@@ -52,6 +52,22 @@ function writeStore(store: Store): void {
   }
 }
 
+const listeners = new Set<() => void>()
+
+/** Notifies on any status change in this tab, and on changes from other
+ * tabs via the storage event. Returns an unsubscribe function. */
+export function subscribeStatuses(listener: () => void): () => void {
+  listeners.add(listener)
+  const onStorage = (e: StorageEvent) => {
+    if (e.key === STORAGE_KEY || e.key === null) listener()
+  }
+  window.addEventListener('storage', onStorage)
+  return () => {
+    listeners.delete(listener)
+    window.removeEventListener('storage', onStorage)
+  }
+}
+
 /** Statuses recorded for a run, keyed by exception ID (E-001, ...). */
 export function loadStatuses(runId: string): RunStatuses {
   const entries = readStore()[runId]
@@ -76,6 +92,7 @@ export function saveStatus(
   entries[exceptionId] = { status, updatedAt: new Date().toISOString() }
   store[runId] = entries
   writeStore(store)
+  for (const listener of listeners) listener()
 }
 
 export const STATUSES_STORAGE_KEY = STORAGE_KEY

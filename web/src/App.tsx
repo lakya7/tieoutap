@@ -59,7 +59,7 @@ function runKey(run: Run): number {
 
 const TABS: { id: Tab; label: string }[] = [
   { id: 'queue', label: 'Exception queue' },
-  { id: 'bridge', label: 'Bridge' },
+  { id: 'bridge', label: 'Reconciliation bridge' },
   { id: 'email', label: 'Email draft' },
 ]
 
@@ -68,6 +68,7 @@ export default function App() {
   const [error, setError] = useState<string | null>(null)
   const [tab, setTab] = useState<Tab>('queue')
   const [linkCopied, setLinkCopied] = useState(false)
+  const [shareNotice, setShareNotice] = useState(false)
   const [view, setView] = useState<View>(() => {
     const hash = location.hash.slice(1)
     if (isTrustPage(hash)) return hash
@@ -81,6 +82,7 @@ export default function App() {
     try {
       setRun(executeRun(input))
       setError(null)
+      setShareNotice(false)
       setTab('queue')
       history.replaceState(null, '', `#run=${shareUrl(input).split('#run=')[1]}`)
       return true
@@ -142,6 +144,7 @@ export default function App() {
   const reset = () => {
     setRun(null)
     setError(null)
+    setShareNotice(false)
     setShowAuth(false)
     history.replaceState(null, '', `${location.pathname}#app`)
   }
@@ -172,6 +175,7 @@ export default function App() {
     if (!run) return
     await navigator.clipboard.writeText(shareUrl(run.input))
     setLinkCopied(true)
+    setShareNotice(true)
     setTimeout(() => setLinkCopied(false), 2000)
   }
 
@@ -290,6 +294,22 @@ export default function App() {
           )
         ) : (
           <div className="space-y-6">
+            {shareNotice && (
+              <p className="flex items-baseline justify-between gap-4 border border-amber-200 bg-amber-50 px-4 py-2.5 text-sm text-amber-800">
+                <span>
+                  Link copied. The link itself carries this run&rsquo;s data &mdash;
+                  encoded, not encrypted &mdash; so anyone who has the link can open
+                  the run. Share it only with people who should see these figures.
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setShareNotice(false)}
+                  className="shrink-0 font-semibold underline hover:text-ink"
+                >
+                  Dismiss
+                </button>
+              </p>
+            )}
             <SummaryBar run={run} />
             {(!authEnabled || session) && <AiSummary key={runKey(run)} run={run} />}
             <nav className="flex gap-1 border border-line bg-cream p-1">

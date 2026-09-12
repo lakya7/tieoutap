@@ -14,7 +14,7 @@ interface LandingProps {
 const STATS = [
   { value: '0.00', label: 'unexplained — the variance is explained in full or the tool refuses' },
   { value: '6 kinds', label: 'of difference, named in AP language' },
-  { value: '100%', label: 'deterministic — same files, same answer' },
+  { value: '100%', label: 'repeatable — the same two files always produce the same answer' },
   { value: 'None', label: 'ERP integration, credentials, or auto-emails' },
 ]
 
@@ -139,8 +139,9 @@ export function Landing({ onOpenApp, onSampleRun }: LandingProps) {
             <p className="mt-6 max-w-xl text-lg leading-relaxed text-ink-soft">
               Turn a supplier-statement mismatch into an auditable explanation in
               minutes. Upload the statement and your AP export &mdash; TieOut matches
-              every line, classifies every difference, and bridges the two balances
-              exactly, down to 0.00 unexplained.
+              the lines, classifies the differences with supporting evidence, and
+              shows whether the remaining variance is fully explained &mdash; or
+              tells you plainly that it is not.
             </p>
             <div className="mt-9 flex flex-wrap items-center gap-5">
               <button
@@ -452,7 +453,7 @@ export function Landing({ onOpenApp, onSampleRun }: LandingProps) {
             </div>
             <ul className="mt-6 divide-y divide-line text-sm text-ink-soft">
               {[
-                'Unlimited reconciliations',
+                'Unlimited reconciliations (fair use)',
                 'PDF, scan, Excel, CSV and TSV statements',
                 'AI column mapping and AI summaries',
                 'Drafted supplier emails and shareable runs',
@@ -472,6 +473,12 @@ export function Landing({ onOpenApp, onSampleRun }: LandingProps) {
             <div aria-hidden="true" className="double-rule mt-1.5 text-ink/50" />
             <p className="mt-4 text-sm font-medium text-pine">
               14-day free trial — no card required
+            </p>
+            <p className="mt-2 text-xs leading-relaxed text-ink-faint">
+              USD, per user, billed monthly by Stripe. AI statement reading and
+              summaries are included, subject to fair use. When the trial ends
+              you choose whether to subscribe — nothing is charged
+              automatically, and you can cancel any time.
             </p>
             <button
               type="button"

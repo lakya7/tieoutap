@@ -22,6 +22,9 @@ export function findingLabel(type: string): string {
   return TYPE_LABELS[type] ?? type
 }
 
+/** Every classification code with a business-language label, for pickers. */
+export const FINDING_TYPES: string[] = Object.keys(TYPE_LABELS)
+
 /** Deterministic run identifier, e.g. TA-20260729-MERIDIAN-IND-SUPP: derived
  * from the as-at date and supplier, so re-running the same statement produces
  * the same identifier. */

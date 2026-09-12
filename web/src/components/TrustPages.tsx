@@ -176,6 +176,12 @@ const PAGES: Record<TrustPageId, PageContent> = {
         ],
       },
       {
+        heading: 'Where do exception statuses and reviewer assessments live?',
+        paras: [
+          'Workflow statuses (Open, Investigating, Resolved, …) and reviewer assessments (confirm, reclassify, not an issue, with the recorded reason) are working notes stored only in your own browser (localStorage), keyed by run. They never reach a server, they never alter the deterministic result, and they are stamped into the Excel and audit-pack exports so the human judgement travels with the file. Clearing your browser’s site data deletes them.',
+        ],
+      },
+      {
         heading: 'How is the maths controlled?',
         paras: [
           'The reconciliation engine is deterministic: the same two files always produce the same findings and the same bridge, with integer-cent arithmetic throughout. Uncertain matches are flagged for human confirmation rather than silently applied, and the bridge either explains the variance in full — down to 0.00 unexplained — or the tool refuses and says why. AI never produces, adjusts, or approves a number.',
