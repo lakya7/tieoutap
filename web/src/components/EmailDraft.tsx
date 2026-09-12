@@ -8,7 +8,7 @@ export function EmailDraft({ run }: { run: Run }) {
   if (run.result.diagnostic !== null) {
     return (
       <p className="border border-red-200 bg-red-50 p-6 text-sm text-red-800">
-        No email drafted — reconciliation failed (the bridge does not tie out),
+        No email drafted — reconciliation failed (the variance cannot be fully explained),
         so there is nothing safe to send the supplier. Diagnostic:{' '}
         <span className="font-mono">{run.result.diagnostic}</span>
       </p>

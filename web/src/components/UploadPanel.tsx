@@ -488,6 +488,8 @@ export function UploadPanel({ onRun, error }: UploadPanelProps) {
                   ledgerCsv: ledger.text,
                   supplier,
                   asAt,
+                  statementName: statement.name,
+                  ledgerName: ledger.name,
                 },
                 { sample: isSample },
               )

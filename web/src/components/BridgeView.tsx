@@ -37,17 +37,17 @@ export function BridgeView({ bridge }: { bridge: Bridge }) {
               </td>
             </tr>
           ))}
-          <tr className="bg-paper font-semibold">
+          <tr className="border-b border-line bg-paper font-semibold">
             <td className="px-4 py-3">Statement total</td>
             <td className="px-4 py-3" />
             <td className="px-4 py-3 text-right">
               {bridge.ties_out ? (
                 <span className="bg-moss px-2 py-0.5 text-xs font-semibold text-pine-deep">
-                  ties out
+                  fully explained
                 </span>
               ) : (
                 <span className="bg-red-100 px-2 py-0.5 text-xs font-semibold text-red-800">
-                  does not tie
+                  does not reconcile
                 </span>
               )}
             </td>
@@ -56,6 +56,18 @@ export function BridgeView({ bridge }: { bridge: Bridge }) {
                 {formatCentsGrouped(bridge.statement_total)}
                 {bridge.ties_out && <span className="double-rule mt-1 block text-pine" />}
               </span>
+            </td>
+          </tr>
+          <tr className="bg-paper">
+            <td className="px-4 py-3 text-sm text-ink-soft">Unexplained variance</td>
+            <td className="px-4 py-3" />
+            <td className="px-4 py-3" />
+            <td
+              className={`px-4 py-3 text-right font-mono tabular-nums ${
+                bridge.ties_out ? 'text-pine-deep' : 'text-red-800'
+              }`}
+            >
+              {formatCentsGrouped(bridge.statement_total - running)}
             </td>
           </tr>
         </tbody>

@@ -30,6 +30,7 @@ const PAGES: Record<TrustPageId, PageContent> = {
         paras: [
           'Your AP ledger export never leaves your browser, in any circumstance. Supplier statements uploaded as Excel, CSV, TSV or semicolon-delimited files never leave your browser either. Parsing, matching, classification, and every calculation run locally on your machine. We have no server that receives, stores, or could store these files.',
           'Shareable run links encode the run data into the link itself (in the URL fragment, which browsers do not send to servers). Anyone you give a link to can see that run, so share links only with people who should see the data.',
+          'Saved column mappings also stay in your browser: they record only which column holds the reference, amount, and date — never the file contents — and can be deleted at any time from the mapping prompt or by clearing your browser’s site data.',
         ],
       },
       {
@@ -163,9 +164,15 @@ const PAGES: Record<TrustPageId, PageContent> = {
         ],
       },
       {
+        heading: 'Saved column mappings',
+        paras: [
+          'When you accept an AI column mapping, TieOut AP can remember it for files with the same layout. Saved mappings hold only field configuration — which of your columns contains the reference, amount, and date. They never contain statement or ledger data, they are stored only in your own browser (localStorage), and applying one makes no network request. “Forget saved mapping” on the mapping prompt, or clearing your browser’s site data, deletes them.',
+        ],
+      },
+      {
         heading: 'Determinism as a control',
         paras: [
-          'The reconciliation engine is deterministic: the same two files always produce the same findings and the same bridge, with integer-cent arithmetic throughout. Uncertain matches are flagged for human confirmation rather than silently applied, and the bridge either ties out exactly or the tool refuses and says why. AI never produces, adjusts, or approves a number.',
+          'The reconciliation engine is deterministic: the same two files always produce the same findings and the same bridge, with integer-cent arithmetic throughout. Uncertain matches are flagged for human confirmation rather than silently applied, and the bridge either explains the variance in full — down to 0.00 unexplained — or the tool refuses and says why. AI never produces, adjusts, or approves a number.',
         ],
       },
       {
