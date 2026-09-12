@@ -53,7 +53,7 @@ export function ContactSection() {
     <section id="contact" className="border-t border-line bg-paper">
       <div className="mx-auto max-w-2xl px-6 py-24">
         <p className="flex items-center justify-center gap-3 text-xs font-semibold uppercase tracking-[0.2em] text-pine">
-          <span className="font-mono">06</span>
+          <span className="font-mono">07</span>
           <span aria-hidden="true" className="h-px w-8 bg-pine/40" />
           Contact
         </p>

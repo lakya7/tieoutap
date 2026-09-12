@@ -9,6 +9,8 @@ import { ExceptionQueue } from './components/ExceptionQueue'
 import { Landing } from './components/Landing'
 import { SubscriptionGate } from './components/SubscriptionGate'
 import { SummaryBar } from './components/SummaryBar'
+import { TrustPage } from './components/TrustPages'
+import type { TrustPageId } from './components/TrustPages'
 import { UploadPanel } from './components/UploadPanel'
 import { deriveAsAt, deriveSupplier, executeRun } from './lib/run'
 import type { Run, RunInput } from './lib/run'
@@ -16,6 +18,13 @@ import { runFromLocation, shareUrl } from './lib/share'
 import { useAuth } from './lib/auth'
 
 type Tab = 'queue' | 'bridge' | 'email'
+type View = 'landing' | 'app' | TrustPageId
+
+const TRUST_PAGES: TrustPageId[] = ['privacy-policy', 'terms', 'security']
+
+function isTrustPage(hash: string): hash is TrustPageId {
+  return (TRUST_PAGES as string[]).includes(hash)
+}
 
 const runKeys = new WeakMap<Run, number>()
 let nextRunKey = 1
@@ -40,9 +49,11 @@ export default function App() {
   const [error, setError] = useState<string | null>(null)
   const [tab, setTab] = useState<Tab>('queue')
   const [linkCopied, setLinkCopied] = useState(false)
-  const [view, setView] = useState<'landing' | 'app'>(() =>
-    location.hash === '' || location.hash === '#contact' ? 'landing' : 'app',
-  )
+  const [view, setView] = useState<View>(() => {
+    const hash = location.hash.slice(1)
+    if (isTrustPage(hash)) return hash
+    return hash === '' || hash === 'contact' ? 'landing' : 'app'
+  })
   const { session, loading: authLoading, enabled: authEnabled, signOut } = useAuth()
 
   const start = (input: RunInput) => {
@@ -56,6 +67,18 @@ export default function App() {
       setError(`Could not read the CSV files (${detail}). Check the column layout against the hints on each upload box.`)
     }
   }
+
+  useEffect(() => {
+    const onHashChange = () => {
+      const hash = location.hash.slice(1)
+      if (isTrustPage(hash)) {
+        setView(hash)
+        window.scrollTo(0, 0)
+      }
+    }
+    window.addEventListener('hashchange', onHashChange)
+    return () => window.removeEventListener('hashchange', onHashChange)
+  }, [])
 
   useEffect(() => {
     const fromUrl = runFromLocation()
@@ -107,6 +130,10 @@ export default function App() {
 
   if (view === 'landing') {
     return <Landing onOpenApp={openApp} onSampleRun={sampleRun} />
+  }
+
+  if (view !== 'app') {
+    return <TrustPage page={view} onHome={goHome} />
   }
 
   return (
