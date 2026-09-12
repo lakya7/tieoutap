@@ -103,8 +103,8 @@ export function LandingNav({ onOpenApp, onSampleRun }: LandingNavProps) {
   return (
     <nav ref={navRef} className="relative mx-auto max-w-6xl px-6">
       <div className="flex items-center justify-between py-5">
-        <span className="font-display text-xl font-bold tracking-tight text-slate-900">
-          TieOut <span className="text-blue-700">AP</span>
+        <span className="font-serif text-2xl font-medium tracking-tight text-ink">
+          TieOut <span className="text-pine">AP</span>
         </span>
 
         {/* Desktop menu */}
@@ -115,10 +115,10 @@ export function LandingNav({ onOpenApp, onSampleRun }: LandingNavProps) {
               type="button"
               aria-expanded={open === menu.id}
               onClick={() => setOpen((o) => (o === menu.id ? null : menu.id))}
-              className={`flex items-center gap-1 rounded-md px-3 py-2 text-sm font-semibold transition-colors ${
+              className={`flex items-center gap-1 rounded-sm px-3 py-2 text-sm font-semibold transition-colors ${
                 open === menu.id
-                  ? 'bg-blue-700 text-white'
-                  : 'text-slate-700 hover:bg-slate-100 hover:text-blue-700'
+                  ? 'bg-ink text-paper'
+                  : 'text-ink-soft hover:bg-ink/5 hover:text-pine'
               }`}
             >
               {menu.label}
@@ -139,7 +139,7 @@ export function LandingNav({ onOpenApp, onSampleRun }: LandingNavProps) {
           <a
             href="#contact"
             onClick={closeAll}
-            className="rounded-md px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100 hover:text-blue-700"
+            className="rounded-sm px-3 py-2 text-sm font-semibold text-ink-soft hover:bg-ink/5 hover:text-pine"
           >
             Contact
           </a>
@@ -149,14 +149,14 @@ export function LandingNav({ onOpenApp, onSampleRun }: LandingNavProps) {
           <button
             type="button"
             onClick={onSampleRun}
-            className="hidden rounded-md border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 sm:block"
+            className="hidden rounded-sm border border-ink/25 px-4 py-2 text-sm font-medium text-ink hover:bg-ink/5 sm:block"
           >
             See a sample run
           </button>
           <button
             type="button"
             onClick={onOpenApp}
-            className="rounded-md bg-blue-700 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-800"
+            className="rounded-sm bg-ink px-4 py-2 text-sm font-semibold text-paper transition-colors hover:bg-pine-deep"
           >
             Open the app
           </button>
@@ -169,7 +169,7 @@ export function LandingNav({ onOpenApp, onSampleRun }: LandingNavProps) {
               setMobileOpen((o) => !o)
               setOpen(null)
             }}
-            className="rounded-md p-2 text-slate-700 hover:bg-slate-100 md:hidden"
+            className="rounded-sm p-2 text-ink hover:bg-ink/5 md:hidden"
           >
             <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" className="h-5 w-5">
               {mobileOpen ? (
@@ -200,18 +200,18 @@ export function LandingNav({ onOpenApp, onSampleRun }: LandingNavProps) {
               key={menu.id}
               className="absolute left-0 right-0 top-full z-20 hidden px-6 md:block"
             >
-              <div className="grid grid-cols-2 gap-x-8 gap-y-6 rounded-2xl border border-slate-200 bg-white p-8 shadow-xl shadow-slate-900/10 lg:grid-cols-4">
+              <div className="grid grid-cols-2 gap-x-8 gap-y-6 border border-line bg-cream p-8 shadow-xl shadow-ink/10 lg:grid-cols-4">
                 {menu.items.map((item) => (
                   <a
                     key={item.title}
                     href={item.href}
                     onClick={closeAll}
-                    className="group block rounded-lg"
+                    className="group block"
                   >
-                    <p className="text-sm font-bold text-slate-900 group-hover:text-blue-700">
+                    <p className="font-serif text-base font-medium text-ink group-hover:text-pine">
                       {item.title}
                     </p>
-                    <p className="mt-1.5 text-sm leading-relaxed text-slate-500">{item.desc}</p>
+                    <p className="mt-1.5 text-sm leading-relaxed text-ink-soft">{item.desc}</p>
                   </a>
                 ))}
               </div>
@@ -222,10 +222,10 @@ export function LandingNav({ onOpenApp, onSampleRun }: LandingNavProps) {
       {/* Mobile menu */}
       {mobileOpen && (
         <div className="absolute left-0 right-0 top-full z-20 px-6 md:hidden">
-          <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-xl shadow-slate-900/10">
+          <div className="border border-line bg-cream p-5 shadow-xl shadow-ink/10">
             {MENUS.map((menu) => (
               <div key={menu.id} className="mb-4">
-                <p className="text-xs font-bold uppercase tracking-wider text-slate-400">
+                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-pine">
                   {menu.label}
                 </p>
                 <div className="mt-2 space-y-2">
@@ -234,7 +234,7 @@ export function LandingNav({ onOpenApp, onSampleRun }: LandingNavProps) {
                       key={item.title}
                       href={item.href}
                       onClick={closeAll}
-                      className="block text-sm font-semibold text-slate-800 hover:text-blue-700"
+                      className="block text-sm font-semibold text-ink hover:text-pine"
                     >
                       {item.title}
                     </a>
@@ -245,7 +245,7 @@ export function LandingNav({ onOpenApp, onSampleRun }: LandingNavProps) {
             <a
               href="#contact"
               onClick={closeAll}
-              className="block text-sm font-semibold text-slate-800 hover:text-blue-700"
+              className="block text-sm font-semibold text-ink hover:text-pine"
             >
               Contact
             </a>
