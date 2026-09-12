@@ -290,7 +290,7 @@ export default function App() {
           )
         ) : (
           <div className="space-y-6">
-            <SummaryBar result={run.result} />
+            <SummaryBar run={run} />
             {(!authEnabled || session) && <AiSummary key={runKey(run)} run={run} />}
             <nav className="flex gap-1 border border-line bg-cream p-1">
               {TABS.map((t) => (

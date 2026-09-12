@@ -3,6 +3,7 @@ import { formatCentsGrouped } from '../../../ts/src'
 import type { Finding, Match } from '../../../ts/src'
 import { findingRefs } from '../lib/email'
 import { downloadExceptionsXlsx } from '../lib/export'
+import { exceptionId, findingLabel, orderedFindings } from '../lib/labels'
 import type { Run } from '../lib/run'
 
 const BUCKET_STYLES: Record<string, string> = {
@@ -27,7 +28,7 @@ const METHOD_LABELS: Record<string, string> = {
 function EvidenceRow({ finding }: { finding: Finding }) {
   return (
     <tr>
-      <td colSpan={5} className="bg-paper px-4 py-3">
+      <td colSpan={6} className="bg-paper px-4 py-3">
         <dl className="grid grid-cols-2 gap-x-8 gap-y-1 sm:grid-cols-3">
           <div>
             <dt className="font-mono text-[11px] uppercase tracking-[0.15em] text-ink-faint">Rule</dt>
@@ -64,9 +65,7 @@ function matchAmount(run: Run, m: Match): number {
 export function ExceptionQueue({ run }: { run: Run }) {
   const [open, setOpen] = useState<string | null>(null)
   const { diagnostic } = run.result
-  const findings = run.result.findings
-    .slice()
-    .sort((a, b) => b.amount - a.amount || a.rule_id.localeCompare(b.rule_id))
+  const findings = orderedFindings(run)
   const tentative = run.result.matches
     .filter((m) => m.requires_human_confirmation)
     .slice()
@@ -75,8 +74,8 @@ export function ExceptionQueue({ run }: { run: Run }) {
   if (diagnostic !== null) {
     return (
       <p className="border border-red-200 bg-red-50 p-6 text-sm text-red-800">
-        Reconciliation failed — the bridge does not tie out, so findings are
-        suppressed. Diagnostic: <span className="font-mono">{diagnostic}</span>
+        Reconciliation failed — the variance cannot be fully explained, so
+        findings are suppressed. Diagnostic: <span className="font-mono">{diagnostic}</span>
       </p>
     )
   }
@@ -107,7 +106,8 @@ export function ExceptionQueue({ run }: { run: Run }) {
             <table className="w-full text-left text-sm">
               <thead>
                 <tr className="border-b border-line font-mono text-[11px] uppercase tracking-[0.15em] text-ink-faint">
-                  <th className="px-4 py-3 font-medium">Type</th>
+                  <th className="px-4 py-3 font-medium">ID</th>
+                  <th className="px-4 py-3 font-medium">Exception</th>
                   <th className="px-4 py-3 font-medium">Bucket</th>
                   <th className="px-4 py-3 font-medium">References</th>
                   <th className="px-4 py-3 text-right font-medium">Amount</th>
@@ -120,6 +120,7 @@ export function ExceptionQueue({ run }: { run: Run }) {
                     key={`f-${i}`}
                     run={run}
                     finding={f}
+                    id={exceptionId(i)}
                     open={open === `f-${i}`}
                     onToggle={() => setOpen(open === `f-${i}` ? null : `f-${i}`)}
                   />
@@ -179,11 +180,13 @@ export function ExceptionQueue({ run }: { run: Run }) {
 function FindingRows({
   run,
   finding,
+  id,
   open,
   onToggle,
 }: {
   run: Run
   finding: Finding
+  id: string
   open: boolean
   onToggle: () => void
 }) {
@@ -193,7 +196,13 @@ function FindingRows({
         className="cursor-pointer border-b border-line/60 last:border-b-0 hover:bg-paper"
         onClick={onToggle}
       >
-        <td className="px-4 py-3 font-mono text-xs font-semibold">{finding.type}</td>
+        <td className="px-4 py-3 font-mono text-xs text-ink-faint">{id}</td>
+        <td className="px-4 py-3">
+          <span className="text-sm font-medium text-ink">{findingLabel(finding.type)}</span>
+          <span className="mt-0.5 block font-mono text-[11px] uppercase tracking-wide text-ink-faint">
+            {finding.type}
+          </span>
+        </td>
         <td className="px-4 py-3">
           <span
             className={`whitespace-nowrap px-2 py-0.5 text-xs font-medium ${

@@ -13,6 +13,10 @@ export interface RunInput {
   ledgerCsv: string
   supplier: string
   asAt: string
+  /** Original file names, when the run came from local uploads. Not encoded
+   * into share links, so runs opened from a link have neither. */
+  statementName?: string
+  ledgerName?: string
 }
 
 export interface Run {
