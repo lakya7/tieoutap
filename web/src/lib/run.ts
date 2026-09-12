@@ -24,6 +24,10 @@ export interface Run {
   statement: StatementLine[]
   ledger: LedgerLine[]
   result: ReconcileResult
+  /** Sanity warnings about the inputs themselves (supplier name, currency,
+   * cutoff date), computed alongside — never inside — the deterministic
+   * engine. */
+  inputWarnings: string[]
 }
 
 /** Supplier default: the most common supplier value in the ledger CSV. */
@@ -59,6 +63,62 @@ export function deriveAsAt(statementCsv: string): string {
   }
 }
 
+function checkInputs(
+  input: RunInput,
+  statement: StatementLine[],
+  ledger: LedgerLine[],
+): string[] {
+  const warnings: string[] = []
+  if (statement.length === 0) {
+    warnings.push(
+      'The statement file parsed to zero lines — it may be empty, truncated, or missing pages.',
+    )
+  }
+  if (ledger.length === 0) {
+    warnings.push(
+      'The ledger file parsed to zero lines — it may be an empty or truncated export.',
+    )
+  }
+  const supplierRows = ledger.filter((l) => l.supplier === input.supplier)
+  if (ledger.length > 0 && supplierRows.length === 0) {
+    const wanted = input.supplier.trim().toLowerCase()
+    const near = ledger.find((l) => l.supplier.trim().toLowerCase() === wanted)
+    warnings.push(
+      near
+        ? `No ledger rows exactly match supplier “${input.supplier}” — the ledger spells it “${near.supplier}”, so the run compared against zero ledger lines.`
+        : `No ledger rows match supplier “${input.supplier}” — check the name against the ledger's supplier column; the run compared against zero ledger lines.`,
+    )
+  }
+  const dates = statement
+    .map((l) => l.doc_date)
+    .filter((d) => d !== '')
+    .sort()
+  if (dates.length > 0 && input.asAt !== '' && input.asAt < dates[0]) {
+    warnings.push(
+      `The as-at date ${input.asAt} is earlier than every statement line (earliest ${dates[0]}) — check the cutoff date; differences may be cutoff artefacts.`,
+    )
+  }
+  const stmtCurrencies = [...new Set(statement.map((l) => l.currency).filter((c) => c !== ''))]
+  const ledgerCurrencies = [
+    ...new Set(supplierRows.map((l) => l.currency).filter((c) => c !== '')),
+  ]
+  if (stmtCurrencies.length > 1) {
+    warnings.push(
+      `The statement mixes currencies (${stmtCurrencies.sort().join(', ')}) — its total combines unlike units.`,
+    )
+  }
+  if (
+    stmtCurrencies.length === 1 &&
+    ledgerCurrencies.length === 1 &&
+    stmtCurrencies[0] !== ledgerCurrencies[0]
+  ) {
+    warnings.push(
+      `The statement is in ${stmtCurrencies[0]} but the ledger rows are in ${ledgerCurrencies[0]} — the two balances are not directly comparable.`,
+    )
+  }
+  return warnings
+}
+
 export function executeRun(input: RunInput): Run {
   const statement = loadStatementCsv(input.statementCsv)
   const ledger = loadLedgerCsv(input.ledgerCsv)
@@ -70,5 +130,5 @@ export function executeRun(input: RunInput): Run {
     DEFAULT_CONFIG,
     null,
   )
-  return { input, statement, ledger, result }
+  return { input, statement, ledger, result, inputWarnings: checkInputs(input, statement, ledger) }
 }

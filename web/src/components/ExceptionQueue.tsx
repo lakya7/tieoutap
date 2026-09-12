@@ -8,7 +8,21 @@ import {
   findingStatementLines,
 } from '../lib/evidence'
 import { downloadExceptionsXlsx } from '../lib/export'
-import { exceptionId, findingLabel, orderedFindings, runId } from '../lib/labels'
+import {
+  FINDING_TYPES,
+  exceptionId,
+  findingLabel,
+  orderedFindings,
+  runStorageKey,
+} from '../lib/labels'
+import {
+  ASSESSMENT_LABELS,
+  clearReview,
+  loadReviews,
+  saveReview,
+  subscribeReviews,
+} from '../lib/reviews'
+import type { ExceptionReview, ReviewAssessment, RunReviews } from '../lib/reviews'
 import type { Run } from '../lib/run'
 import {
   DEFAULT_STATUS,
@@ -105,14 +119,130 @@ function ledgerRows(lines: LedgerLine[]): (string | number)[][] {
   return lines.map((l) => [l.raw_ref, l.doc_date, l.doc_type, l.original_amount, l.open_amount])
 }
 
-function EvidenceRow({ run, finding }: { run: Run; finding: Finding }) {
+function ReviewPanel({
+  finding,
+  review,
+  onSave,
+  onClear,
+}: {
+  finding: Finding
+  review: ExceptionReview | undefined
+  onSave: (review: Omit<ExceptionReview, 'updatedAt'>) => void
+  onClear: () => void
+}) {
+  const [assessment, setAssessment] = useState<ReviewAssessment>(
+    review?.assessment ?? 'confirmed',
+  )
+  const [reclassifiedTo, setReclassifiedTo] = useState(review?.reclassifiedTo ?? '')
+  const [reason, setReason] = useState(review?.reason ?? '')
+  const needsTarget = assessment === 'reclassified'
+  const canSave = reason.trim() !== '' && (!needsTarget || reclassifiedTo !== '')
+  return (
+    <div className="border border-line bg-cream px-3 py-2">
+      <div className="flex flex-wrap items-baseline justify-between gap-2">
+        <p className="font-mono text-xs uppercase tracking-[0.15em] text-ink-faint">
+          Reviewer assessment
+        </p>
+        {review && (
+          <p className="font-mono text-xs text-ink-faint">
+            Recorded {review.updatedAt.slice(0, 10)} in this browser
+          </p>
+        )}
+      </div>
+      <div className="mt-2 flex flex-wrap items-center gap-4">
+        {(Object.keys(ASSESSMENT_LABELS) as ReviewAssessment[]).map((a) => (
+          <label key={a} className="flex items-center gap-1.5 text-sm text-ink">
+            <input
+              type="radio"
+              name={`assessment-${finding.rule_id}-${finding.statement_line_ids.join('-')}-${finding.ledger_line_ids.join('-')}`}
+              checked={assessment === a}
+              onChange={() => setAssessment(a)}
+              className="accent-pine"
+            />
+            {ASSESSMENT_LABELS[a]}
+          </label>
+        ))}
+        {needsTarget && (
+          <select
+            value={reclassifiedTo}
+            onChange={(e) => setReclassifiedTo(e.target.value)}
+            className="border border-line bg-paper px-2 py-1 text-xs"
+            aria-label="Reclassify as"
+          >
+            <option value="">Reclassify as…</option>
+            {FINDING_TYPES.filter((t) => t !== finding.type).map((t) => (
+              <option key={t} value={t}>
+                {findingLabel(t)}
+              </option>
+            ))}
+          </select>
+        )}
+      </div>
+      <div className="mt-2 flex flex-wrap items-start gap-2">
+        <textarea
+          value={reason}
+          onChange={(e) => setReason(e.target.value)}
+          placeholder="Reason (required) — recorded with the assessment and stamped into exports"
+          rows={2}
+          className="min-w-0 flex-1 border border-line bg-paper px-2 py-1.5 text-sm"
+          aria-label="Reviewer reason"
+        />
+        <div className="flex gap-2">
+          <button
+            type="button"
+            disabled={!canSave}
+            onClick={() =>
+              onSave({
+                assessment,
+                reason: reason.trim(),
+                ...(needsTarget ? { reclassifiedTo } : {}),
+              })
+            }
+            className="bg-ink px-3 py-1.5 text-xs font-semibold text-paper hover:bg-pine-deep disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            {review ? 'Update' : 'Record'}
+          </button>
+          {review && (
+            <button
+              type="button"
+              onClick={onClear}
+              className="border border-line bg-paper px-3 py-1.5 text-xs font-medium text-ink-soft hover:border-ink-faint"
+            >
+              Remove
+            </button>
+          )}
+        </div>
+      </div>
+      <p className="mt-1.5 text-xs text-ink-faint">
+        Assessments are working notes stored in your browser — the deterministic
+        classification above is never changed by them.
+      </p>
+    </div>
+  )
+}
+
+function EvidenceRow({
+  run,
+  finding,
+  review,
+  onSaveReview,
+  onClearReview,
+}: {
+  run: Run
+  finding: Finding
+  review: ExceptionReview | undefined
+  onSaveReview: (review: Omit<ExceptionReview, 'updatedAt'>) => void
+  onClearReview: () => void
+}) {
   const narrative = findingNarrative(run, finding)
   const sLines = findingStatementLines(run, finding)
   const lLines = findingLedgerLines(run, finding)
   return (
     <tr>
-      <td colSpan={7} className="bg-paper px-4 py-4">
-        <div className="space-y-4">
+      <td colSpan={7} className="bg-paper">
+        {/* Sticky + viewport-capped so the drawer stays fully on screen even
+            when the queue table itself needs horizontal scrolling. */}
+        <div className="sticky left-0 max-w-[calc(100vw-3.5rem)] space-y-4 px-4 py-4">
           <div className="grid gap-4 md:grid-cols-2">
             <div>
               <p className="font-mono text-xs uppercase tracking-[0.15em] text-ink-faint">
@@ -154,6 +284,13 @@ function EvidenceRow({ run, finding }: { run: Run; finding: Finding }) {
             <p className="mt-1 text-sm leading-relaxed text-pine-deep">{narrative.nextAction}</p>
           </div>
 
+          <ReviewPanel
+            finding={finding}
+            review={review}
+            onSave={onSaveReview}
+            onClear={onClearReview}
+          />
+
           <dl className="grid grid-cols-2 gap-x-8 gap-y-1 border-t border-line pt-3 sm:grid-cols-3">
             <div>
               <dt className="font-mono text-xs uppercase tracking-[0.15em] text-ink-faint">Rule</dt>
@@ -190,8 +327,9 @@ function matchAmount(run: Run, m: Match): number {
 
 export function ExceptionQueue({ run }: { run: Run }) {
   const [open, setOpen] = useState<string | null>(null)
-  const id = runId(run)
+  const id = runStorageKey(run)
   const [statuses, setStatuses] = useState<RunStatuses>(() => loadStatuses(id))
+  const [reviews, setReviews] = useState<RunReviews>(() => loadReviews(id))
   useEffect(() => {
     setStatuses(loadStatuses(id))
     const onStorage = (e: StorageEvent) => {
@@ -199,6 +337,10 @@ export function ExceptionQueue({ run }: { run: Run }) {
     }
     window.addEventListener('storage', onStorage)
     return () => window.removeEventListener('storage', onStorage)
+  }, [id])
+  useEffect(() => {
+    setReviews(loadReviews(id))
+    return subscribeReviews(() => setReviews(loadReviews(id)))
   }, [id])
   const setStatus = (exceptionId: string, status: ExceptionStatus) => {
     saveStatus(id, exceptionId, status)
@@ -264,6 +406,9 @@ export function ExceptionQueue({ run }: { run: Run }) {
                     id={exceptionId(i)}
                     status={statuses[exceptionId(i)] ?? DEFAULT_STATUS}
                     onStatus={(s) => setStatus(exceptionId(i), s)}
+                    review={reviews[exceptionId(i)]}
+                    onSaveReview={(r) => saveReview(id, exceptionId(i), r)}
+                    onClearReview={() => clearReview(id, exceptionId(i))}
                     open={open === `f-${i}`}
                     onToggle={() => setOpen(open === `f-${i}` ? null : `f-${i}`)}
                   />
@@ -326,6 +471,9 @@ function FindingRows({
   id,
   status,
   onStatus,
+  review,
+  onSaveReview,
+  onClearReview,
   open,
   onToggle,
 }: {
@@ -334,6 +482,9 @@ function FindingRows({
   id: string
   status: ExceptionStatus
   onStatus: (status: ExceptionStatus) => void
+  review: ExceptionReview | undefined
+  onSaveReview: (review: Omit<ExceptionReview, 'updatedAt'>) => void
+  onClearReview: () => void
   open: boolean
   onToggle: () => void
 }) {
@@ -349,6 +500,14 @@ function FindingRows({
           <span className="mt-0.5 block font-mono text-xs uppercase tracking-wide text-ink-faint">
             {finding.type}
           </span>
+          {review && (
+            <span className="mt-0.5 block text-xs text-pine-deep">
+              Reviewer: {ASSESSMENT_LABELS[review.assessment].toLowerCase()}
+              {review.assessment === 'reclassified' && review.reclassifiedTo
+                ? ` as “${findingLabel(review.reclassifiedTo)}”`
+                : ''}
+            </span>
+          )}
         </td>
         <td className="px-4 py-3">
           <span
@@ -382,7 +541,15 @@ function FindingRows({
           {open ? 'Hide' : 'Evidence'}
         </td>
       </tr>
-      {open && <EvidenceRow run={run} finding={finding} />}
+      {open && (
+        <EvidenceRow
+          run={run}
+          finding={finding}
+          review={review}
+          onSaveReview={onSaveReview}
+          onClearReview={onClearReview}
+        />
+      )}
     </>
   )
 }

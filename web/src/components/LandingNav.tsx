@@ -29,7 +29,7 @@ const MENUS: Menu[] = [
       },
       {
         title: 'Exceptions & bridge',
-        desc: 'Every difference named in AP language and bridged exactly — down to 0.00 unexplained',
+        desc: 'Differences named in AP language and bridged — the unexplained residual is always shown',
         href: '#features',
       },
       {
