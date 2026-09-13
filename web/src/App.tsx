@@ -284,7 +284,7 @@ export default function App() {
                     Sign in instead
                   </button>
                 </p>
-                <UploadPanel onRun={startGuest} error={error} />
+                <UploadPanel onRun={startGuest} error={error} guest onSignIn={() => setShowAuth(true)} />
               </div>
             )
           ) : (
