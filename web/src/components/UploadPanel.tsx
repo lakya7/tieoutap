@@ -156,6 +156,8 @@ function ReportHelp() {
 interface UploadPanelProps {
   onRun: (input: RunInput, opts?: { sample?: boolean }) => void
   error: string | null
+  guest?: boolean
+  onSignIn?: () => void
 }
 
 type MapKind = 'statement' | 'ledger'
@@ -168,7 +170,7 @@ interface MapOffer {
   saved?: Record<string, string>
 }
 
-export function UploadPanel({ onRun, error }: UploadPanelProps) {
+export function UploadPanel({ onRun, error, guest = false, onSignIn }: UploadPanelProps) {
   const [statement, setStatement] = useState<{ name: string; text: string } | null>(null)
   const [ledger, setLedger] = useState<{ name: string; text: string } | null>(null)
   const [supplier, setSupplier] = useState('')
@@ -258,6 +260,14 @@ export function UploadPanel({ onRun, error }: UploadPanelProps) {
   }
 
   const runExtraction = (file: File, mediaType: string) => {
+    if (guest) {
+      extractSeq.current++
+      setExtractionNote({
+        kind: 'error',
+        text: 'AI statement reading needs an account — sign in (14-day trial, no card) to read PDF or image statements, or upload the statement as CSV or Excel.',
+      })
+      return
+    }
     const seq = ++extractSeq.current
     setExtracting(true)
     setExtractionNote(null)
@@ -396,7 +406,9 @@ export function UploadPanel({ onRun, error }: UploadPanelProps) {
                 column names.{' '}
                 {offer.saved
                   ? 'It matches a column mapping you saved earlier: '
-                  : 'AI can map them — only the header row and 3 sample values are sent, never the file.'}
+                  : guest
+                    ? 'AI can map them, but AI features need an account — sign in (14-day trial, no card) or rename the columns in the file yourself.'
+                    : 'AI can map them — only the header row and 3 sample values are sent, never the file.'}
                 {offer.saved && (
                   <span className="font-mono text-xs">{describeMapping(offer.saved)}</span>
                 )}
@@ -415,24 +427,36 @@ export function UploadPanel({ onRun, error }: UploadPanelProps) {
                     Apply saved mapping
                   </button>
                 )}
-                <button
-                  type="button"
-                  disabled={offer.status === 'busy'}
-                  onClick={() => runMapping(kind)}
-                  className={
-                    offer.saved
-                      ? 'text-xs text-ink-faint underline decoration-dotted underline-offset-4 hover:text-pine'
-                      : 'bg-ink px-3 py-1 text-xs font-semibold text-paper hover:bg-pine-deep disabled:cursor-not-allowed disabled:bg-ink-faint'
-                  }
-                >
-                  {offer.status === 'busy'
-                    ? 'Mapping…'
-                    : offer.status === 'error'
-                      ? 'Try again'
-                      : offer.saved
-                        ? 'Remap with AI'
-                        : 'Map columns with AI'}
-                </button>
+                {guest && !offer.saved ? (
+                  <button
+                    type="button"
+                    onClick={() => onSignIn?.()}
+                    className="bg-ink px-3 py-1 text-xs font-semibold text-paper hover:bg-pine-deep"
+                  >
+                    Sign in to map with AI
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    disabled={offer.status === 'busy'}
+                    onClick={() => (guest ? onSignIn?.() : runMapping(kind))}
+                    className={
+                      offer.saved
+                        ? 'text-xs text-ink-faint underline decoration-dotted underline-offset-4 hover:text-pine'
+                        : 'bg-ink px-3 py-1 text-xs font-semibold text-paper hover:bg-pine-deep disabled:cursor-not-allowed disabled:bg-ink-faint'
+                    }
+                  >
+                    {offer.status === 'busy'
+                      ? 'Mapping…'
+                      : offer.status === 'error'
+                        ? 'Try again'
+                        : offer.saved
+                          ? guest
+                            ? 'Sign in to remap with AI'
+                            : 'Remap with AI'
+                          : 'Map columns with AI'}
+                  </button>
+                )}
                 {offer.saved && (
                   <button
                     type="button"
