@@ -315,6 +315,34 @@ export function Landing({ onOpenApp, onSampleRun }: LandingProps) {
           <div className="mt-10">
             <ResultsShowcase onSampleRun={onSampleRun} />
           </div>
+
+          <div className="mt-16 border-t border-line pt-12">
+            <div className="max-w-3xl">
+              <p className="font-mono text-xs uppercase tracking-[0.2em] text-ink-faint">
+                Watch a real run
+              </p>
+              <h3 className="mt-3 font-serif text-2xl font-medium text-ink">
+                From two files to a worked exception queue
+              </h3>
+              <p className="mt-3 text-[15px] leading-relaxed text-ink-soft">
+                A real reconciliation, recorded in the app: upload a supplier statement
+                and an AP export, reconcile, and review the exceptions &mdash; each with
+                its evidence, the context carried from the AP export, and the drafted
+                supplier email.
+              </p>
+            </div>
+            <video
+              className="mt-8 w-full max-w-4xl border border-line bg-night shadow-sm"
+              src="/demo-run.mp4"
+              poster="/demo-run-poster.jpg"
+              controls
+              muted
+              loop
+              playsInline
+              autoPlay
+              aria-label="Screen recording of a reconciliation run in TieOut AP"
+            />
+          </div>
         </div>
       </section>
 
@@ -391,6 +419,11 @@ export function Landing({ onOpenApp, onSampleRun }: LandingProps) {
                 line needs the supplier, reference, date, type, original amount, and open
                 (remaining) amount. Column names don&rsquo;t have to match &mdash; AI maps
                 them for you.
+              </p>
+              <p className="mt-4 text-[15px] leading-relaxed text-ink-soft">
+                Extra AP columns in your export &mdash; due dates, AP comments, hold
+                reasons, payment details &mdash; are carried through into the review and
+                exports as evidence.
               </p>
               <p className="mt-4 text-sm text-ink-soft">
                 Want to see the expected shape?{' '}
