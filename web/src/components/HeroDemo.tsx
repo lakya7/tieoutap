@@ -46,7 +46,7 @@ function FileChip({
       }`}
       style={{ transitionDelay: show ? delay : '0ms' }}
     >
-      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-sm bg-ink text-[11px] font-bold text-paper">
+      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-sm btn-gold text-[11px] font-bold">
         {kind}
       </div>
       <div className="min-w-0 flex-1">
@@ -92,7 +92,7 @@ export function HeroDemo({ onSampleRun }: HeroDemoProps) {
               aria-pressed={i === stage}
               className={`flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold transition-colors duration-300 motion-reduce:transition-none ${
                 i === stage
-                  ? 'bg-ink text-paper'
+                  ? 'btn-gold'
                   : 'bg-ink/5 text-ink-soft hover:bg-ink/10'
               }`}
             >
@@ -136,7 +136,7 @@ export function HeroDemo({ onSampleRun }: HeroDemoProps) {
               />
             </div>
             <div
-              className={`mt-4 flex justify-between rounded-sm border border-amber-300/60 bg-amber-50 p-3 font-mono text-xs font-semibold text-amber-900 transition-all duration-500 motion-reduce:transition-none ${
+              className={`mt-4 flex justify-between rounded-sm border border-amber-500/40 bg-amber-500/10 p-3 font-mono text-xs font-semibold text-amber-200 transition-all duration-500 motion-reduce:transition-none ${
                 stage === 0 ? 'translate-y-0 opacity-100' : 'translate-y-3 opacity-0'
               }`}
               style={{ transitionDelay: stage === 0 ? '900ms' : '0ms' }}

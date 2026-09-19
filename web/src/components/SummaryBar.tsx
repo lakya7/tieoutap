@@ -67,7 +67,7 @@ export function SummaryBar({ run }: { run: Run }) {
               Variance fully explained
             </span>
           ) : (
-            <span className="bg-red-100 px-3 py-1 text-sm font-semibold text-red-800">
+            <span className="bg-red-500/15 px-3 py-1 text-sm font-semibold text-red-300">
               Unexplained variance
             </span>
           )}
@@ -89,7 +89,7 @@ export function SummaryBar({ run }: { run: Run }) {
           {cashAtRisk > 0 && (
             <>
               {' · '}
-              <span className="font-semibold text-red-800">
+              <span className="font-semibold text-red-300">
                 {formatCentsGrouped(cashAtRisk)} cash at risk
               </span>
             </>
@@ -101,7 +101,7 @@ export function SummaryBar({ run }: { run: Run }) {
           {[...result.warnings, ...run.inputWarnings].map((w) => (
             <li
               key={w}
-              className="border border-amber-200 bg-amber-50 px-3 py-1.5 text-sm text-amber-800"
+              className="border border-amber-500/30 bg-amber-500/10 px-3 py-1.5 text-sm text-amber-300"
             >
               {w}
             </li>
@@ -109,7 +109,7 @@ export function SummaryBar({ run }: { run: Run }) {
         </ul>
       )}
       {result.diagnostic && (
-        <p className="mt-3 border border-red-200 bg-red-50 px-3 py-1.5 text-sm text-red-700">
+        <p className="mt-3 border border-red-500/30 bg-red-500/10 px-3 py-1.5 text-sm text-red-300">
           {result.diagnostic}
         </p>
       )}

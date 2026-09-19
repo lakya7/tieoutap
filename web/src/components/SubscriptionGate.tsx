@@ -46,7 +46,7 @@ export function SubscriptionGate({ children }: { children: ReactNode }) {
   if (state.kind === 'error') {
     return (
       <div className="mx-auto max-w-md border border-line bg-cream p-8 text-center">
-        <p className="text-sm text-red-700">Could not check your subscription: {state.detail}</p>
+        <p className="text-sm text-red-300">Could not check your subscription: {state.detail}</p>
         <button
           type="button"
           onClick={() => location.reload()}
@@ -82,7 +82,7 @@ export function SubscriptionGate({ children }: { children: ReactNode }) {
             >
               Subscribe now
             </button>
-            {actionError && <span className="ml-2 text-red-600">{actionError}</span>}
+            {actionError && <span className="ml-2 text-red-400">{actionError}</span>}
           </p>
         )}
         {managed && (
@@ -98,7 +98,7 @@ export function SubscriptionGate({ children }: { children: ReactNode }) {
             >
               Manage billing
             </button>
-            {actionError && <span className="ml-2 text-red-600">{actionError}</span>}
+            {actionError && <span className="ml-2 text-red-400">{actionError}</span>}
           </p>
         )}
       </div>
@@ -117,18 +117,18 @@ export function SubscriptionGate({ children }: { children: ReactNode }) {
         <li>— Cancel in one click from Manage billing</li>
       </ul>
       {info.status === 'canceled' && (
-        <p className="mt-4 border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800">
+        <p className="mt-4 border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-sm text-amber-300">
           Your previous subscription has ended — subscribe again to continue.
         </p>
       )}
       {actionError && (
-        <p className="mt-4 border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{actionError}</p>
+        <p className="mt-4 border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-300">{actionError}</p>
       )}
       <button
         type="button"
         onClick={() => void redirect('checkout')}
         disabled={busy}
-        className="mt-6 w-full bg-ink px-4 py-2 text-sm font-semibold text-paper hover:bg-pine-deep disabled:opacity-60"
+        className="mt-6 w-full btn-gold px-4 py-2 text-sm font-semibold disabled:opacity-60"
       >
         {busy ? 'Opening checkout…' : 'Subscribe — $19/month'}
       </button>

@@ -35,9 +35,9 @@ import {
 import type { ExceptionStatus, RunStatuses } from '../lib/statuses'
 
 const BUCKET_STYLES: Record<string, string> = {
-  cash_at_risk: 'bg-red-100 text-red-800',
-  unrecorded_liability: 'bg-amber-100 text-amber-800',
-  investigate: 'bg-sky-100 text-sky-800',
+  cash_at_risk: 'bg-red-500/15 text-red-300',
+  unrecorded_liability: 'bg-amber-500/15 text-amber-300',
+  investigate: 'bg-sky-500/15 text-sky-300',
   explained: 'bg-moss text-pine-deep',
 }
 
@@ -55,8 +55,8 @@ const METHOD_LABELS: Record<string, string> = {
 
 const STATUS_STYLES: Record<ExceptionStatus, string> = {
   open: 'border-line bg-cream text-ink',
-  investigating: 'border-sky-300 bg-sky-50 text-sky-900',
-  awaiting_supplier: 'border-amber-300 bg-amber-50 text-amber-900',
+  investigating: 'border-sky-500/40 bg-sky-500/10 text-sky-200',
+  awaiting_supplier: 'border-amber-500/40 bg-amber-500/10 text-amber-200',
   resolved: 'border-pine/40 bg-moss text-pine-deep',
   accepted: 'border-pine/40 bg-moss text-pine-deep',
 }
@@ -198,7 +198,7 @@ function ReviewPanel({
                 ...(needsTarget ? { reclassifiedTo } : {}),
               })
             }
-            className="bg-ink px-3 py-1.5 text-xs font-semibold text-paper hover:bg-pine-deep disabled:cursor-not-allowed disabled:opacity-40"
+            className="btn-gold px-3 py-1.5 text-xs font-semibold disabled:cursor-not-allowed disabled:opacity-40"
           >
             {review ? 'Update' : 'Record'}
           </button>
@@ -355,7 +355,7 @@ export function ExceptionQueue({ run }: { run: Run }) {
 
   if (diagnostic !== null) {
     return (
-      <p className="border border-red-200 bg-red-50 p-6 text-sm text-red-800">
+      <p className="border border-red-500/30 bg-red-500/10 p-6 text-sm text-red-300">
         Reconciliation failed — the variance cannot be fully explained, so
         findings are suppressed. Diagnostic: <span className="font-mono">{diagnostic}</span>
       </p>

@@ -190,21 +190,26 @@ export default function App() {
   return (
     <div className="min-h-screen bg-paper text-ink">
       <header className="border-b border-line">
-        <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
-          <div className="flex items-baseline gap-3">
+        <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-y-2 px-6 py-4">
+          <div className="flex items-center gap-3">
             <button
               type="button"
               onClick={goHome}
-              className="font-serif text-2xl font-medium tracking-tight text-ink hover:text-pine"
+              className="flex items-center gap-2.5 text-left"
               title="Back to home page"
             >
-              TieOut <span className="text-pine">AP</span>
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-sm bg-gradient-to-br from-burgundy to-burgundy-soft font-serif text-sm font-semibold text-gold-light">
+                TA
+              </span>
+              <span className="font-serif text-xl font-semibold uppercase tracking-[0.14em] text-ink hover:text-pine">
+                TieOut <span className="text-pine">AP</span>
+              </span>
             </button>
             <span className="hidden font-mono text-xs uppercase tracking-[0.2em] text-ink-faint md:inline">
               Statement reconciliation
             </span>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
             <button
               type="button"
               onClick={goHome}
@@ -246,7 +251,7 @@ export default function App() {
               <button
                 type="button"
                 onClick={reset}
-                className="bg-ink px-3 py-1.5 text-sm font-semibold text-paper hover:bg-pine-deep"
+                className="btn-gold px-3 py-1.5 text-sm font-semibold"
               >
                 New run
               </button>
@@ -295,7 +300,7 @@ export default function App() {
         ) : (
           <div className="space-y-6">
             {shareNotice && (
-              <p className="flex items-baseline justify-between gap-4 border border-amber-200 bg-amber-50 px-4 py-2.5 text-sm text-amber-800">
+              <p className="flex items-baseline justify-between gap-4 border border-amber-500/30 bg-amber-500/10 px-4 py-2.5 text-sm text-amber-300">
                 <span>
                   Link copied. The link itself carries this run&rsquo;s data &mdash;
                   encoded, not encrypted &mdash; so anyone who has the link can open
@@ -320,7 +325,7 @@ export default function App() {
                   onClick={() => setTab(t.id)}
                   className={`flex-1 px-4 py-2 text-sm font-medium transition-colors ${
                     tab === t.id
-                      ? 'bg-ink text-paper'
+                      ? 'btn-gold'
                       : 'text-ink-soft hover:bg-paper'
                   }`}
                 >
