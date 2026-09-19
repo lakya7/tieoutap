@@ -8,7 +8,7 @@ import {
   findingStatementLines,
 } from '../lib/evidence'
 import { downloadExceptionsXlsx } from '../lib/export'
-import { carryOvers, findingFingerprint } from '../lib/history'
+import { carryOvers } from '../lib/history'
 import { ledgerChips, ledgerContextNotes } from '../lib/passthrough'
 import type { ChipTone } from '../lib/passthrough'
 import {
@@ -431,11 +431,7 @@ export function ExceptionQueue({ run }: { run: Run }) {
                     run={run}
                     finding={f}
                     id={exceptionId(i)}
-                    recurringSince={
-                      carry?.recurring.has(findingFingerprint(run, i))
-                        ? carry.prior.asAt || carry.prior.savedAt.slice(0, 10)
-                        : null
-                    }
+                    recurringSince={carry?.recurring.has(i) ? carry.prior.asAt : null}
                     status={statuses[exceptionId(i)] ?? DEFAULT_STATUS}
                     onStatus={(s) => setStatus(exceptionId(i), s)}
                     review={reviews[exceptionId(i)]}

@@ -3,9 +3,10 @@
  * compared across cycles. Nothing leaves the browser — reopening a run
  * re-executes the deterministic engine on the stored input. */
 import { findingRefs } from './email'
-import { orderedFindings, runId, runStorageKey } from './labels'
+import { exceptionId, orderedFindings, runId, runStorageKey } from './labels'
 import type { Run } from './run'
 import { encodeRun } from './share'
+import { DEFAULT_STATUS, loadStatuses } from './statuses'
 
 const STORAGE_KEY = 'tieout-run-history'
 const MAX_ENTRIES = 20
@@ -167,16 +168,29 @@ export function previousRun(run: Run): HistoryEntry | null {
   })
 }
 
-/** Fingerprints of this run's findings that were already open on the previous
- * saved run for the same supplier — recurring exceptions to chase harder. */
-export function carryOvers(run: Run): { prior: HistoryEntry; recurring: Set<string> } | null {
+/** Indices of this run's findings that were still open on the previous saved
+ * run for the same supplier — recurring exceptions to chase harder. Prior
+ * findings the reviewer marked resolved or accepted don't count, and each
+ * prior occurrence matches at most one current finding, so duplicates with
+ * identical fingerprints are counted one-to-one. */
+export function carryOvers(run: Run): { prior: HistoryEntry; recurring: Set<number> } | null {
   const prior = previousRun(run)
   if (!prior) return null
-  const priorSet = new Set(prior.fingerprints)
-  const recurring = new Set<string>()
+  const statuses = loadStatuses(prior.key)
+  const remaining = new Map<string, number>()
+  prior.fingerprints.forEach((fp, i) => {
+    const status = statuses[exceptionId(i)] ?? DEFAULT_STATUS
+    if (status === 'resolved' || status === 'accepted') return
+    remaining.set(fp, (remaining.get(fp) ?? 0) + 1)
+  })
+  const recurring = new Set<number>()
   orderedFindings(run).forEach((_, i) => {
     const fp = findingFingerprint(run, i)
-    if (priorSet.has(fp)) recurring.add(fp)
+    const count = remaining.get(fp) ?? 0
+    if (count > 0) {
+      recurring.add(i)
+      remaining.set(fp, count - 1)
+    }
   })
   return { prior, recurring }
 }
