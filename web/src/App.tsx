@@ -11,8 +11,10 @@ import { SubscriptionGate } from './components/SubscriptionGate'
 import { SummaryBar } from './components/SummaryBar'
 import { TrustPage } from './components/TrustPages'
 import type { TrustPageId } from './components/TrustPages'
+import { RunHistory } from './components/RunHistory'
 import { UploadPanel } from './components/UploadPanel'
 import { downloadAuditPackXlsx } from './lib/export'
+import { recordRun } from './lib/history'
 import { deriveAsAt, deriveSupplier, executeRun } from './lib/run'
 import type { Run, RunInput } from './lib/run'
 import { runFromLocation, shareUrl } from './lib/share'
@@ -80,7 +82,9 @@ export default function App() {
 
   const start = (input: RunInput): boolean => {
     try {
-      setRun(executeRun(input))
+      const next = executeRun(input)
+      recordRun(next)
+      setRun(next)
       setError(null)
       setShareNotice(false)
       setTab('queue')
@@ -134,7 +138,9 @@ export default function App() {
       setError('The shared run link is malformed or incomplete — ask the sender to copy it again.')
     } else if (fromUrl.kind === 'run') {
       try {
-        setRun(executeRun(fromUrl.input))
+        const fromLink = executeRun(fromUrl.input)
+        recordRun(fromLink)
+        setRun(fromLink)
       } catch {
         setError('The shared run link could not be loaded.')
       }
@@ -275,6 +281,7 @@ export default function App() {
                   </p>
                 )}
                 <AuthPanel onSampleRun={sampleRun} />
+                <RunHistory onOpen={start} />
               </div>
             ) : (
               <div className="space-y-4">
@@ -290,12 +297,16 @@ export default function App() {
                   </button>
                 </p>
                 <UploadPanel onRun={startGuest} error={error} guest onSignIn={() => setShowAuth(true)} />
+                <RunHistory onOpen={start} />
               </div>
             )
           ) : (
-            <SubscriptionGate>
-              <UploadPanel onRun={start} error={error} />
-            </SubscriptionGate>
+            <>
+              <SubscriptionGate>
+                <UploadPanel onRun={start} error={error} />
+              </SubscriptionGate>
+              <RunHistory onOpen={start} />
+            </>
           )
         ) : (
           <div className="space-y-6">

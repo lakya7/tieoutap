@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { formatCentsGrouped } from '../../../ts/src'
+import { carryOvers } from '../lib/history'
 import { exceptionId, orderedFindings, runId, runStorageKey } from '../lib/labels'
 import type { Run } from '../lib/run'
 import { DEFAULT_STATUS, loadStatuses, subscribeStatuses } from '../lib/statuses'
@@ -33,6 +34,8 @@ export function SummaryBar({ run }: { run: Run }) {
     const s = statuses[exceptionId(i)] ?? DEFAULT_STATUS
     return s !== 'resolved' && s !== 'accepted'
   }).length
+  const carry = carryOvers(run)
+  const recurring = carry?.recurring.size ?? 0
   const singleCurrency = (values: string[]): string | null => {
     const set = [...new Set(values.filter((c) => c !== ''))]
     return set.length === 1 ? set[0] : null
@@ -85,6 +88,14 @@ export function SummaryBar({ run }: { run: Run }) {
             <span className="font-semibold text-pine-deep">complete</span>
           ) : (
             'in progress'
+          )}
+          {recurring > 0 && carry && (
+            <>
+              {' · '}
+              <span className="font-semibold text-red-300">
+                {recurring} recurring from the {carry.prior.asAt} run
+              </span>
+            </>
           )}
           {cashAtRisk > 0 && (
             <>
