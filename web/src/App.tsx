@@ -190,7 +190,7 @@ export default function App() {
   return (
     <div className="min-h-screen bg-paper text-ink">
       <header className="border-b border-line">
-        <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
+        <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-y-2 px-6 py-4">
           <div className="flex items-center gap-3">
             <button
               type="button"
@@ -209,7 +209,7 @@ export default function App() {
               Statement reconciliation
             </span>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
             <button
               type="button"
               onClick={goHome}
