@@ -7,6 +7,8 @@ import {
   reconcile,
 } from '../../../ts/src'
 import type { LedgerLine, ReconcileResult, StatementLine } from '../../../ts/src'
+import { parseLedgerExtras } from './passthrough'
+import type { RunLedgerExtras } from './passthrough'
 
 export interface RunInput {
   statementCsv: string
@@ -28,6 +30,10 @@ export interface Run {
    * cutoff date), computed alongside — never inside — the deterministic
    * engine. */
   inputWarnings: string[]
+  /** Optional AP-export context columns (due date, holds, payment details,
+   * ...) keyed by ledger line id — display and export only, never an input
+   * to matching or the bridge. */
+  ledgerExtras: RunLedgerExtras
 }
 
 /** Supplier default: the most common supplier value in the ledger CSV. */
@@ -130,5 +136,12 @@ export function executeRun(input: RunInput): Run {
     DEFAULT_CONFIG,
     null,
   )
-  return { input, statement, ledger, result, inputWarnings: checkInputs(input, statement, ledger) }
+  return {
+    input,
+    statement,
+    ledger,
+    result,
+    inputWarnings: checkInputs(input, statement, ledger),
+    ledgerExtras: parseLedgerExtras(input.ledgerCsv),
+  }
 }

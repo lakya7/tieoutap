@@ -5,7 +5,9 @@
 import * as XLSX from 'xlsx'
 import type { Finding, Match } from '../../../ts/src'
 import { findingRefs } from './email'
+import { findingLedgerLines } from './evidence'
 import { exceptionId, findingLabel, orderedFindings, runId, runStorageKey } from './labels'
+import { ledgerContextNotes, presentFields } from './passthrough'
 import { ASSESSMENT_LABELS, loadReviews } from './reviews'
 import type { Run } from './run'
 import { DEFAULT_STATUS, STATUS_LABELS, loadStatuses } from './statuses'
@@ -61,6 +63,7 @@ function matchAmount(run: Run, m: Match): number {
 function exceptionsSheet(run: Run): XLSX.WorkSheet {
   const statuses = loadStatuses(runStorageKey(run))
   const reviews = loadReviews(runStorageKey(run))
+  const hasExtras = presentFields(run.ledgerExtras).length > 0
   const rows: Cell[][] = [
     [
       'ID',
@@ -72,6 +75,7 @@ function exceptionsSheet(run: Run): XLSX.WorkSheet {
       'Amount',
       'Rule',
       'Evidence',
+      ...(hasExtras ? ['AP export context'] : []),
       'Reviewer assessment',
       'Reclassified as',
       'Reviewer reason',
@@ -89,6 +93,9 @@ function exceptionsSheet(run: Run): XLSX.WorkSheet {
       money(f.amount),
       f.rule_id,
       evidenceText(f),
+      ...(hasExtras
+        ? [ledgerContextNotes(findingLedgerLines(run, f), run.ledgerExtras).join(' | ')]
+        : []),
       review ? ASSESSMENT_LABELS[review.assessment] : '',
       review?.reclassifiedTo ? findingLabel(review.reclassifiedTo) : '',
       review?.reason ?? '',
@@ -142,8 +149,19 @@ function statementSheet(run: Run): XLSX.WorkSheet {
 }
 
 function ledgerSheet(run: Run): XLSX.WorkSheet {
+  const extraFields = presentFields(run.ledgerExtras)
   const rows: Cell[][] = [
-    ['Supplier', 'Reference', 'Date', 'Type', 'Original amount', 'Open amount', 'Currency', 'PO number'],
+    [
+      'Supplier',
+      'Reference',
+      'Date',
+      'Type',
+      'Original amount',
+      'Open amount',
+      'Currency',
+      'PO number',
+      ...extraFields.map((f) => f.label),
+    ],
   ]
   for (const l of run.ledger) {
     rows.push([
@@ -155,6 +173,7 @@ function ledgerSheet(run: Run): XLSX.WorkSheet {
       money(l.open_amount),
       l.currency,
       l.po_number,
+      ...extraFields.map((f) => run.ledgerExtras[l.id]?.[f.key] ?? ''),
     ])
   }
   return sheet(rows, [4, 5])
@@ -213,7 +232,7 @@ function readMeSheet(run: Run): XLSX.WorkSheet {
     ['Matches', 'Every matched pairing, including any flagged for human confirmation.'],
     ['Bridge', 'The signed walk from the AP ledger open balance to the supplier statement balance.'],
     ['Statement input', 'The supplier statement lines as parsed for this run.'],
-    ['Ledger input', 'The AP ledger lines as parsed for this run.'],
+    ['Ledger input', 'The AP ledger lines as parsed for this run, including any optional AP-export context columns (due date, holds, payment details) carried through for reference.'],
     [''],
     ['How this pack was produced:'],
     ['The reconciliation is deterministic: the same two files always produce the same'],
