@@ -27,6 +27,11 @@ export function SubscriptionGate({ children }: { children: ReactNode }) {
     }
   }, [])
 
+  const goContact = () => {
+    location.hash = 'contact'
+    location.reload()
+  }
+
   const redirect = async (kind: 'checkout' | 'portal') => {
     setBusy(true)
     setActionError(null)
@@ -76,11 +81,10 @@ export function SubscriptionGate({ children }: { children: ReactNode }) {
             {info.trial_end ? `Free trial until ${info.trial_end} · ` : ''}
             <button
               type="button"
-              onClick={() => void redirect('checkout')}
-              disabled={busy}
-              className="underline hover:text-pine disabled:opacity-60"
+              onClick={goContact}
+              className="underline hover:text-pine"
             >
-              Subscribe now
+              Contact us to continue after the trial
             </button>
             {actionError && <span className="ml-2 text-red-400">{actionError}</span>}
           </p>
@@ -109,16 +113,16 @@ export function SubscriptionGate({ children }: { children: ReactNode }) {
     <div className="mx-auto max-w-md border border-line bg-cream p-8">
       <h2 className="font-serif text-2xl font-medium tracking-tight text-ink">Your free trial has ended</h2>
       <p className="mt-1 text-sm text-ink-soft">
-        Keep full access to reconciliation, AI column mapping, AI summaries, and
-        PDF statement reading for $19/month — cancel anytime.
+        Contact us to keep full access to reconciliation, AI column mapping, AI
+        summaries, and PDF statement reading.
       </p>
       <ul className="mt-4 space-y-2 text-sm text-ink-soft">
         <li>— Your files still never leave the browser</li>
-        <li>— Cancel in one click from Manage billing</li>
+        <li>— Full access resumes as soon as your subscription is set up</li>
       </ul>
       {info.status === 'canceled' && (
         <p className="mt-4 border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-sm text-amber-300">
-          Your previous subscription has ended — subscribe again to continue.
+          Your previous subscription has ended — contact us to continue.
         </p>
       )}
       {actionError && (
@@ -126,14 +130,13 @@ export function SubscriptionGate({ children }: { children: ReactNode }) {
       )}
       <button
         type="button"
-        onClick={() => void redirect('checkout')}
-        disabled={busy}
-        className="mt-6 w-full btn-gold px-4 py-2 text-sm font-semibold disabled:opacity-60"
+        onClick={goContact}
+        className="mt-6 w-full btn-gold px-4 py-2 text-sm font-semibold"
       >
-        {busy ? 'Opening checkout…' : 'Subscribe — $19/month'}
+        Contact us for pricing
       </button>
       <p className="mt-3 text-center text-xs text-ink-faint">
-        Secure payment by Stripe. TieOut AP never sees your card details.
+        We&rsquo;ll get back to you with pricing and set up your subscription.
       </p>
     </div>
   )

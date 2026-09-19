@@ -465,21 +465,18 @@ export function Landing({ onOpenApp, onSampleRun }: LandingProps) {
                 </li>
               ))}
             </ul>
-            <div className="mt-6 flex items-baseline justify-between border-t border-ink/60 pt-4">
-              <span className="text-sm font-semibold text-ink">Total</span>
-              <p className="font-serif text-4xl font-medium text-ink">
-                $19<span className="text-base text-ink-faint">/month</span>
-              </p>
+            <div className="mt-6 flex items-baseline justify-between gap-4 border-t border-ink/60 pt-4">
+              <span className="text-sm font-semibold text-ink">Pricing</span>
+              <p className="text-right font-serif text-2xl font-medium text-ink">Contact us</p>
             </div>
             <div aria-hidden="true" className="double-rule mt-1.5 text-ink/50" />
             <p className="mt-4 text-sm font-medium text-pine">
               14-day free trial — no card required
             </p>
             <p className="mt-2 text-xs leading-relaxed text-ink-faint">
-              USD, per user, billed monthly by Stripe. AI statement reading and
-              summaries are included, subject to fair use. When the trial ends
-              you choose whether to subscribe — nothing is charged
-              automatically, and you can cancel any time.
+              Full access during the trial, including AI statement reading and
+              summaries — nothing is charged automatically. When the trial
+              ends, contact us to keep using TieOut AP.
             </p>
             <button
               type="button"
@@ -488,6 +485,12 @@ export function Landing({ onOpenApp, onSampleRun }: LandingProps) {
             >
               Start free trial
             </button>
+            <a
+              href="#contact"
+              className="mt-3 block w-full rounded-sm border border-gold/40 px-4 py-3 text-center text-sm font-semibold text-pine transition-colors hover:bg-gold/10"
+            >
+              Contact us for pricing
+            </a>
           </div>
         </div>
       </section>

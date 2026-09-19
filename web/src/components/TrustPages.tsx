@@ -101,7 +101,7 @@ const PAGES: Record<TrustPageId, PageContent> = {
       {
         heading: 'Accounts, trial, and billing',
         paras: [
-          'Sign-up is free and includes a 14-day free trial with full access — no card required. After the trial, continued use requires a paid subscription ($19 per month, billed by Stripe). You can cancel at any time from the billing portal; access continues to the end of the paid period. Prices may change with notice; changes never apply retroactively to a period you have already paid for.',
+          'Sign-up is free and includes a 14-day free trial with full access — no card required. After the trial, continued use requires a paid subscription — contact us for pricing and we will set it up (billing is handled by Stripe). You can cancel at any time from the billing portal; access continues to the end of the paid period. Prices may change with notice; changes never apply retroactively to a period you have already paid for.',
         ],
       },
       {
