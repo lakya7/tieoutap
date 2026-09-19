@@ -8,6 +8,7 @@ import {
   findingStatementLines,
 } from '../lib/evidence'
 import { downloadExceptionsXlsx } from '../lib/export'
+import { carryOvers } from '../lib/history'
 import { ledgerChips, ledgerContextNotes } from '../lib/passthrough'
 import type { ChipTone } from '../lib/passthrough'
 import {
@@ -373,6 +374,7 @@ export function ExceptionQueue({ run }: { run: Run }) {
   }
   const { diagnostic } = run.result
   const findings = orderedFindings(run)
+  const carry = carryOvers(run)
   const tentative = run.result.matches
     .filter((m) => m.requires_human_confirmation)
     .slice()
@@ -429,6 +431,7 @@ export function ExceptionQueue({ run }: { run: Run }) {
                     run={run}
                     finding={f}
                     id={exceptionId(i)}
+                    recurringSince={carry?.recurring.has(i) ? carry.prior.asAt : null}
                     status={statuses[exceptionId(i)] ?? DEFAULT_STATUS}
                     onStatus={(s) => setStatus(exceptionId(i), s)}
                     review={reviews[exceptionId(i)]}
@@ -494,6 +497,7 @@ function FindingRows({
   run,
   finding,
   id,
+  recurringSince,
   status,
   onStatus,
   review,
@@ -505,6 +509,7 @@ function FindingRows({
   run: Run
   finding: Finding
   id: string
+  recurringSince: string | null
   status: ExceptionStatus
   onStatus: (status: ExceptionStatus) => void
   review: ExceptionReview | undefined
@@ -526,8 +531,16 @@ function FindingRows({
           <span className="mt-0.5 block font-mono text-xs uppercase tracking-wide text-ink-faint">
             {finding.type}
           </span>
-          {chips.length > 0 && (
+          {(chips.length > 0 || recurringSince !== null) && (
             <span className="mt-1 flex flex-wrap gap-1">
+              {recurringSince !== null && (
+                <span
+                  className={`whitespace-nowrap px-1.5 py-0.5 text-xs font-medium ${CHIP_STYLES.alert}`}
+                  title={`This exception was already open on the previous saved run for this supplier (as at ${recurringSince}).`}
+                >
+                  Recurring &mdash; also open on the {recurringSince} run
+                </span>
+              )}
               {chips.map((c) => (
                 <span
                   key={c.label}
