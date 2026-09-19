@@ -11,6 +11,9 @@ import { SubscriptionGate } from './components/SubscriptionGate'
 import { SummaryBar } from './components/SummaryBar'
 import { TrustPage } from './components/TrustPages'
 import type { TrustPageId } from './components/TrustPages'
+import { BatchPanel } from './components/BatchPanel'
+import { EMPTY_BATCH } from './lib/batch'
+import type { BatchSession } from './lib/batch'
 import { RunHistory } from './components/RunHistory'
 import { UploadPanel } from './components/UploadPanel'
 import { downloadAuditPackXlsx } from './lib/export'
@@ -78,6 +81,9 @@ export default function App() {
   })
   const [guestRunUsed, setGuestRunUsed] = useState(readGuestRunUsed)
   const [showAuth, setShowAuth] = useState(false)
+  const [mode, setMode] = useState<'single' | 'batch'>('single')
+  const [batch, setBatch] = useState<BatchSession>(EMPTY_BATCH)
+  const [fromBatch, setFromBatch] = useState(false)
   const { session, loading: authLoading, enabled: authEnabled, signOut } = useAuth()
 
   const start = (input: RunInput): boolean => {
@@ -152,6 +158,20 @@ export default function App() {
     setError(null)
     setShareNotice(false)
     setShowAuth(false)
+    setFromBatch(false)
+    history.replaceState(null, '', `${location.pathname}#app`)
+  }
+
+  const openBatchRun = (batchRun: Run) => {
+    if (start(batchRun.input)) setFromBatch(true)
+  }
+
+  const backToBatch = () => {
+    setRun(null)
+    setError(null)
+    setShareNotice(false)
+    setFromBatch(false)
+    setMode('batch')
     history.replaceState(null, '', `${location.pathname}#app`)
   }
 
@@ -303,13 +323,44 @@ export default function App() {
           ) : (
             <>
               <SubscriptionGate>
-                <UploadPanel onRun={start} error={error} />
+                {mode === 'batch' ? (
+                  <BatchPanel
+                    session={batch}
+                    onSession={setBatch}
+                    onOpen={openBatchRun}
+                    onSingle={() => setMode('single')}
+                  />
+                ) : (
+                  <>
+                    <UploadPanel onRun={start} error={error} />
+                    <p className="mx-auto mt-3 max-w-3xl text-right">
+                      <button
+                        type="button"
+                        onClick={() => setMode('batch')}
+                        className="text-sm text-ink-faint underline decoration-dotted underline-offset-4 hover:text-pine"
+                      >
+                        Several suppliers to reconcile? Switch to batch mode &rarr;
+                      </button>
+                    </p>
+                  </>
+                )}
               </SubscriptionGate>
-              <RunHistory onOpen={start} />
+              {mode === 'single' && <RunHistory onOpen={start} />}
             </>
           )
         ) : (
           <div className="space-y-6">
+            {fromBatch && (
+              <p>
+                <button
+                  type="button"
+                  onClick={backToBatch}
+                  className="text-sm font-semibold text-ink-soft hover:text-pine"
+                >
+                  &larr; Back to batch summary
+                </button>
+              </p>
+            )}
             {shareNotice && (
               <p className="flex items-baseline justify-between gap-4 border border-amber-500/30 bg-amber-500/10 px-4 py-2.5 text-sm text-amber-300">
                 <span>
