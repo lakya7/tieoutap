@@ -8,6 +8,8 @@ import { deriveAsAt, executeRun } from './run'
 import type { Run } from './run'
 
 export interface BatchStatement {
+  /** Stable identity for this selection — filenames can repeat. */
+  id: string
   name: string
   csv: string
 }
@@ -29,6 +31,18 @@ export interface BatchItem {
   asAt: string
   run: Run | null
   error: string | null
+}
+
+/** Parses the ledger export fully, returning the error message when it isn't
+ * a valid AP open-items table (e.g. a statement-shaped file whose header check
+ * passed but that lacks the ledger's amount columns). */
+export function checkLedger(ledgerCsv: string): string | null {
+  try {
+    loadLedgerCsv(ledgerCsv)
+    return null
+  } catch (e) {
+    return e instanceof Error ? e.message : String(e)
+  }
 }
 
 /** Distinct supplier names in the ledger export, in first-seen order. */

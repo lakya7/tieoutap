@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react'
 import { formatCentsGrouped } from '../../../ts/src'
-import { ledgerSuppliers, runBatch, runBatchItem } from '../lib/batch'
+import { checkLedger, ledgerSuppliers, runBatch, runBatchItem } from '../lib/batch'
 import type { BatchSession, BatchStatement } from '../lib/batch'
 import type { Run } from '../lib/run'
 import { fileToRawCsv, hasEngineColumns } from '../lib/tabular'
@@ -8,9 +8,11 @@ import { fileToRawCsv, hasEngineColumns } from '../lib/tabular'
 const TABULAR_ACCEPT =
   '.csv,.tsv,.txt,.xlsx,.xls,.xlsm,.xlsb,.ods,text/csv,text/tab-separated-values,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
 
+let nextStatementId = 1
+
 interface BatchPanelProps {
   session: BatchSession
-  onSession: (session: BatchSession) => void
+  onSession: (update: (prev: BatchSession) => BatchSession) => void
   onOpen: (run: Run) => void
   onSingle: () => void
 }
@@ -31,7 +33,7 @@ export function BatchPanel({ session, onSession, onOpen, onSingle }: BatchPanelP
             `${file.name}: columns don't use the standard names — reconcile it in single-run mode, where AI column mapping is available.`,
           )
         }
-        return { name: file.name, csv: text }
+        return { id: `s${nextStatementId++}`, name: file.name, csv: text }
       }),
     ).then((results) => {
       const ok: BatchStatement[] = []
@@ -43,13 +45,7 @@ export function BatchPanel({ session, onSession, onOpen, onSingle }: BatchPanelP
           errors.push(detail.includes(':') ? detail : `${files[i].name}: ${detail}`)
         }
       })
-      onSession({
-        ...session,
-        statements: [
-          ...session.statements.filter((s) => !ok.some((n) => n.name === s.name)),
-          ...ok,
-        ],
-      })
+      onSession((prev) => ({ ...prev, statements: [...prev.statements, ...ok] }))
       setFileErrors(errors)
     })
   }
@@ -64,8 +60,15 @@ export function BatchPanel({ session, onSession, onOpen, onSingle }: BatchPanelP
           ])
           return
         }
+        const ledgerError = checkLedger(text)
+        if (ledgerError !== null) {
+          setFileErrors([
+            `${file.name} doesn't parse as an AP open-items export (${ledgerError}) — it needs supplier, ref, date, type, original, open, po, and currency columns.`,
+          ])
+          return
+        }
         setFileErrors([])
-        onSession({ ...session, ledger: { name: file.name, text } })
+        onSession((prev) => ({ ...prev, ledger: { name: file.name, text } }))
       })
       .catch((e: unknown) => {
         setFileErrors([
@@ -78,14 +81,21 @@ export function BatchPanel({ session, onSession, onOpen, onSingle }: BatchPanelP
 
   const reconcileAll = () => {
     if (!ledger) return
-    onSession({ ...session, items: runBatch(statements, ledger.text, ledger.name) })
+    try {
+      const nextItems = runBatch(statements, ledger.text, ledger.name)
+      onSession((prev) => ({ ...prev, items: nextItems }))
+    } catch (e) {
+      setFileErrors([
+        `Could not reconcile against ${ledger.name}: ${e instanceof Error ? e.message : String(e)}`,
+      ])
+    }
   }
 
   const overrideSupplier = (index: number, supplier: string) => {
     if (!items || !ledger) return
     const next = items.slice()
     next[index] = runBatchItem(items[index].statement, ledger.text, ledger.name, supplier)
-    onSession({ ...session, items: next })
+    onSession((prev) => ({ ...prev, items: next }))
   }
 
   if (items !== null && ledger !== null) {
@@ -105,7 +115,7 @@ export function BatchPanel({ session, onSession, onOpen, onSingle }: BatchPanelP
             </div>
             <button
               type="button"
-              onClick={() => onSession({ ...session, items: null })}
+              onClick={() => onSession((prev) => ({ ...prev, items: null }))}
               className="text-sm text-ink-faint underline decoration-dotted underline-offset-4 hover:text-pine"
             >
               Change files
@@ -134,7 +144,7 @@ export function BatchPanel({ session, onSession, onOpen, onSingle }: BatchPanelP
                       bridge.adjustments.reduce((sum, adj) => sum + adj.amount, 0)
                     : null
                   return (
-                    <tr key={item.statement.name} className="border-b border-line/50 align-top last:border-b-0">
+                    <tr key={item.statement.id} className="border-b border-line/50 align-top last:border-b-0">
                       <td className="max-w-[16rem] truncate py-2 pr-4 font-mono text-xs" title={item.statement.name}>
                         {item.statement.name}
                       </td>
@@ -291,15 +301,15 @@ export function BatchPanel({ session, onSession, onOpen, onSingle }: BatchPanelP
         {statements.length > 0 && (
           <ul className="mt-3 space-y-1">
             {statements.map((s) => (
-              <li key={s.name} className="flex items-center gap-2 font-mono text-xs text-ink-soft">
+              <li key={s.id} className="flex items-center gap-2 font-mono text-xs text-ink-soft">
                 {s.name}
                 <button
                   type="button"
                   onClick={() =>
-                    onSession({
-                      ...session,
-                      statements: session.statements.filter((p) => p.name !== s.name),
-                    })
+                    onSession((prev) => ({
+                      ...prev,
+                      statements: prev.statements.filter((p) => p.id !== s.id),
+                    }))
                   }
                   className="text-ink-faint underline decoration-dotted underline-offset-4 hover:text-pine"
                   aria-label={`Remove ${s.name}`}
