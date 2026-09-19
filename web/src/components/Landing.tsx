@@ -122,8 +122,8 @@ export function Landing({ onOpenApp, onSampleRun }: LandingProps) {
   return (
     <div className="bg-paper text-ink">
       {/* Hero */}
-      <div className="border-b border-line">
-        <header className="border-b border-line">
+      <div className="border-b border-line bg-gradient-to-br from-burgundy/50 via-night to-night">
+        <header className="border-b border-line/60">
           <LandingNav onOpenApp={onOpenApp} onSampleRun={onSampleRun} />
         </header>
 
@@ -133,8 +133,9 @@ export function Landing({ onOpenApp, onSampleRun }: LandingProps) {
               Supplier statement reconciliation
               <span aria-hidden="true" className="h-px w-10 bg-pine/40" />
             </p>
-            <h1 className="mt-5 font-serif text-[2.65rem] font-medium leading-[1.06] tracking-tight text-ink sm:text-6xl">
-              Know exactly why your supplier balance doesn&rsquo;t match.
+            <h1 className="mt-5 font-serif text-[2.65rem] font-medium leading-[1.06] tracking-tight text-pine sm:text-6xl">
+              Know exactly why your supplier balance{' '}
+              <span className="font-accent italic text-pine-deep">doesn&rsquo;t match</span>.
             </h1>
             <p className="mt-6 max-w-xl text-lg leading-relaxed text-ink-soft">
               Turn a supplier-statement mismatch into an auditable explanation in
@@ -147,7 +148,7 @@ export function Landing({ onOpenApp, onSampleRun }: LandingProps) {
               <button
                 type="button"
                 onClick={onSampleRun}
-                className="rounded-sm bg-ink px-7 py-3.5 text-sm font-semibold text-paper transition-colors hover:bg-pine-deep"
+                className="rounded-sm btn-gold px-7 py-3.5 text-sm font-semibold transition-colors"
               >
                 Try the sample reconciliation &mdash; no signup
               </button>
@@ -220,45 +221,45 @@ export function Landing({ onOpenApp, onSampleRun }: LandingProps) {
       </section>
 
       {/* AI vs determinism */}
-      <section id="ai" className="scroll-mt-6 bg-ink text-paper">
+      <section id="ai" className="scroll-mt-6 border-y border-line bg-gradient-to-br from-night-card via-night to-night-warm text-ink">
         <div className="mx-auto max-w-6xl px-6 py-24">
-          <p className="flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.2em] text-moss">
+          <p className="flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.2em] text-pine">
             <span className="font-mono">02</span>
-            <span aria-hidden="true" className="h-px w-8 bg-moss/40" />
+            <span aria-hidden="true" className="h-px w-8 bg-gold/40" />
             Where the AI stops
           </p>
           <h2 className="mt-4 max-w-2xl font-serif text-3xl font-medium tracking-tight sm:text-4xl">
             AI where it helps. Determinism where it counts.
           </h2>
-          <p className="mt-5 max-w-2xl leading-relaxed text-paper/70">
+          <p className="mt-5 max-w-2xl leading-relaxed text-ink-soft">
             AI is great at reading documents and wording explanations — and terrible at
             being right every time. So TieOut draws a hard line: AI touches the
             paperwork and the prose, never the numbers.
           </p>
 
           <div className="mt-14 grid gap-12 lg:grid-cols-2 lg:gap-16">
-            <div className="divide-y divide-paper/15">
+            <div className="divide-y divide-line">
               {AI_ITEMS.map((item) => (
                 <div key={item.label} className="py-6 first:pt-0 last:pb-0">
-                  <h3 className="font-serif text-lg font-medium text-paper">{item.label}</h3>
-                  <p className="mt-2.5 text-sm leading-relaxed text-paper/70">{item.body}</p>
+                  <h3 className="font-serif text-lg font-medium text-ink">{item.label}</h3>
+                  <p className="mt-2.5 text-sm leading-relaxed text-ink-soft">{item.body}</p>
                 </div>
               ))}
             </div>
-            <div className="border border-paper/20 bg-paper/5 p-8 sm:p-10">
-              <p className="font-mono text-xs uppercase tracking-[0.2em] text-moss">
+            <div className="border border-gold/25 bg-night/60 p-8 sm:p-10">
+              <p className="font-mono text-xs uppercase tracking-[0.2em] text-pine">
                 And then — no AI at all
               </p>
-              <h3 className="mt-4 font-serif text-2xl font-medium leading-snug text-paper">
+              <h3 className="mt-4 font-serif text-2xl font-medium leading-snug text-ink">
                 Determinism does the maths
               </h3>
-              <p className="mt-4 text-sm leading-relaxed text-paper/70">
+              <p className="mt-4 text-sm leading-relaxed text-ink-soft">
                 Matching, arithmetic, classification and the bridge run in a
                 deterministic six-pass cascade — no model anywhere in the numbers.
                 The same two files always produce the same findings and the same
                 bridge.
               </p>
-              <div className="mt-8 space-y-1.5 font-mono text-sm text-paper/80">
+              <div className="mt-8 space-y-1.5 font-mono text-sm text-ink-soft">
                 <div className="flex justify-between">
                   <span>Same two files in</span>
                   <span>every time</span>
@@ -267,11 +268,11 @@ export function Landing({ onOpenApp, onSampleRun }: LandingProps) {
                   <span>Same answer out</span>
                   <span>every time</span>
                 </div>
-                <div className="mt-3 flex justify-between border-t border-paper/30 pt-3 font-semibold text-paper">
+                <div className="mt-3 flex justify-between border-t border-gold/30 pt-3 font-semibold text-ink">
                   <span>Unexplained</span>
                   <span>0.00</span>
                 </div>
-                <div aria-hidden="true" className="double-rule text-paper/70" />
+                <div aria-hidden="true" className="double-rule text-ink-soft" />
               </div>
             </div>
           </div>
@@ -483,7 +484,7 @@ export function Landing({ onOpenApp, onSampleRun }: LandingProps) {
             <button
               type="button"
               onClick={onOpenApp}
-              className="mt-6 w-full rounded-sm bg-ink px-4 py-3 text-sm font-semibold text-paper transition-colors hover:bg-pine-deep"
+              className="mt-6 w-full rounded-sm btn-gold px-4 py-3 text-sm font-semibold transition-colors"
             >
               Start free trial
             </button>
@@ -495,7 +496,7 @@ export function Landing({ onOpenApp, onSampleRun }: LandingProps) {
       <ContactSection />
 
       {/* Final CTA */}
-      <section className="bg-ink text-paper">
+      <section className="bg-gradient-to-br from-burgundy via-night-warm to-night text-ink">
         <div className="mx-auto max-w-6xl px-6 py-20 text-center">
           <h2 className="font-serif text-3xl font-medium tracking-tight sm:text-4xl">
             Find out why it doesn&rsquo;t match &mdash; in minutes
@@ -504,35 +505,35 @@ export function Landing({ onOpenApp, onSampleRun }: LandingProps) {
             <button
               type="button"
               onClick={onOpenApp}
-              className="rounded-sm bg-paper px-7 py-3.5 text-sm font-semibold text-ink transition-colors hover:bg-moss"
+              className="rounded-sm btn-gold px-7 py-3.5 text-sm font-semibold transition-colors"
             >
               Reconcile a statement
             </button>
             <button
               type="button"
               onClick={onSampleRun}
-              className="rounded-sm border border-paper/30 px-7 py-3.5 text-sm font-semibold text-paper hover:bg-paper/10"
+              className="rounded-sm border border-gold/40 px-7 py-3.5 text-sm font-semibold text-pine hover:bg-gold/10"
             >
               See a sample run
             </button>
           </div>
         </div>
-        <footer className="border-t border-paper/15">
-          <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-2 px-6 py-6 text-xs text-paper/50 sm:flex-row">
-            <span className="font-serif text-sm text-paper/80">
-              TieOut <span className="text-moss">AP</span> — tieoutap.com
+        <footer className="border-t border-ink/15">
+          <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-2 px-6 py-6 text-xs text-ink-faint sm:flex-row">
+            <span className="font-serif text-sm text-ink-soft">
+              TieOut <span className="text-pine">AP</span> — tieoutap.com
             </span>
             <span className="flex flex-wrap items-center justify-center gap-4">
-              <a href="#privacy-policy" className="text-paper/70 hover:text-paper">
+              <a href="#privacy-policy" className="text-ink-soft hover:text-pine">
                 Privacy Policy
               </a>
-              <a href="#terms" className="text-paper/70 hover:text-paper">
+              <a href="#terms" className="text-ink-soft hover:text-pine">
                 Terms
               </a>
-              <a href="#security" className="text-paper/70 hover:text-paper">
+              <a href="#security" className="text-ink-soft hover:text-pine">
                 Security
               </a>
-              <a href="#contact" className="text-paper/70 hover:text-paper">
+              <a href="#contact" className="text-ink-soft hover:text-pine">
                 Contact
               </a>
               <span>

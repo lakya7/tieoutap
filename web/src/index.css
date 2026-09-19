@@ -3,23 +3,34 @@
 @theme {
   --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI",
     Roboto, "Helvetica Neue", Arial, sans-serif;
-  --font-display: "Space Grotesk", "Inter", ui-sans-serif, system-ui,
-    sans-serif;
-  --font-serif: "Fraunces", "Iowan Old Style", Georgia, "Times New Roman",
-    serif;
+  --font-display: "Playfair Display", "Iowan Old Style", Georgia,
+    "Times New Roman", serif;
+  --font-serif: "Playfair Display", "Iowan Old Style", Georgia,
+    "Times New Roman", serif;
+  --font-accent: "Cormorant Garamond", "Iowan Old Style", Georgia,
+    "Times New Roman", serif;
   --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Consolas,
     "Liberation Mono", monospace;
 
-  /* Landing-page palette: ledger paper + ink + pine green */
-  --color-paper: #f6f3ea;
-  --color-cream: #fdfbf5;
-  --color-ink: #1c2721;
-  --color-ink-soft: #4d5a52;
-  --color-ink-faint: #67736a;
-  --color-line: #ddd5c4;
-  --color-pine: #16604a;
-  --color-pine-deep: #0e4634;
-  --color-moss: #e5efe8;
+  /* Dark luxe palette: near-black surfaces, gold accents, burgundy brand.
+     Token names kept from the original ledger-paper theme so existing
+     class usage maps 1:1 (paper = page bg, ink = primary text, etc.). */
+  --color-paper: #0a0a0a;
+  --color-cream: #171717;
+  --color-ink: #f5f5f5;
+  --color-ink-soft: #c6c6c6;
+  --color-ink-faint: #8f8f8f;
+  --color-line: #2e2b24;
+  --color-pine: #d4af37;
+  --color-pine-deep: #e8ca6d;
+  --color-moss: #262010;
+  --color-gold: #d4af37;
+  --color-gold-light: #f4e4b0;
+  --color-burgundy: #8b1538;
+  --color-burgundy-soft: #a52a2a;
+  --color-night: #0a0a0a;
+  --color-night-card: #1a1a1a;
+  --color-night-warm: #2d1f1f;
 }
 
 body {
@@ -31,4 +42,18 @@ body {
   height: 7px;
   border-top: 1px solid currentColor;
   border-bottom: 2px solid currentColor;
+}
+
+/* Primary action: gold gradient with dark text. */
+.btn-gold {
+  background-image: linear-gradient(to right, #d4af37, #f4e4b0);
+  color: #0a0a0a;
+}
+.btn-gold:hover:not(:disabled) {
+  background-image: linear-gradient(to right, #e0c04f, #f8ecc6);
+}
+.btn-gold:disabled {
+  background-image: none;
+  background-color: #3a3a3a;
+  color: #8f8f8f;
 }

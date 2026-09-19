@@ -95,7 +95,7 @@ export function ResultsShowcase({ onSampleRun }: { onSampleRun: () => void }) {
         <button
           type="button"
           onClick={onSampleRun}
-          className="w-full rounded-sm bg-ink px-4 py-3 text-sm font-semibold text-paper transition-colors hover:bg-pine-deep"
+          className="w-full rounded-sm btn-gold px-4 py-3 text-sm font-semibold transition-colors"
         >
           Open this exact run live — no signup
         </button>

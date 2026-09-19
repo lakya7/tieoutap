@@ -55,7 +55,7 @@ export function BridgeView({ bridge }: { bridge: Bridge }) {
         <span className="text-ink">{formatCentsGrouped(Math.abs(explained))}</span>
         {' '}={' '}
         <span className="text-ink">supplier statement {formatCentsGrouped(bridge.statement_total)}</span>
-        <span className={unexplained === 0 ? 'text-pine-deep' : 'text-red-800'}>
+        <span className={unexplained === 0 ? 'text-pine-deep' : 'text-red-300'}>
           {' '}· Unexplained {formatCentsGrouped(unexplained)}
         </span>
       </p>
@@ -89,7 +89,7 @@ export function BridgeView({ bridge }: { bridge: Bridge }) {
                   </td>
                   <td
                     className={`px-4 py-3 text-right font-mono tabular-nums ${
-                      adj.amount < 0 ? 'text-red-700' : 'text-pine'
+                      adj.amount < 0 ? 'text-red-300' : 'text-pine'
                     }`}
                   >
                     {adj.amount >= 0 ? '+' : ''}
@@ -112,7 +112,7 @@ export function BridgeView({ bridge }: { bridge: Bridge }) {
                       fully explained
                     </span>
                   ) : (
-                    <span className="bg-red-100 px-2 py-0.5 text-xs font-semibold text-red-800">
+                    <span className="bg-red-500/15 px-2 py-0.5 text-xs font-semibold text-red-300">
                       does not reconcile
                     </span>
                   )}
@@ -131,7 +131,7 @@ export function BridgeView({ bridge }: { bridge: Bridge }) {
                 <td className="px-4 py-3" />
                 <td
                   className={`px-4 py-3 text-right font-mono tabular-nums ${
-                    bridge.ties_out ? 'text-pine-deep' : 'text-red-800'
+                    bridge.ties_out ? 'text-pine-deep' : 'text-red-300'
                   }`}
                 >
                   {formatCentsGrouped(unexplained)}

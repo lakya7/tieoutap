@@ -44,7 +44,7 @@ export function AiSummary({ run }: { run: Run }) {
           type="button"
           disabled={state === 'busy'}
           onClick={generate}
-          className="bg-ink px-4 py-1.5 text-sm font-semibold text-paper hover:bg-pine-deep disabled:cursor-not-allowed disabled:bg-ink-faint"
+          className="btn-gold px-4 py-1.5 text-sm font-semibold disabled:cursor-not-allowed"
         >
           {state === 'busy'
             ? 'Summarising…'
@@ -54,7 +54,7 @@ export function AiSummary({ run }: { run: Run }) {
         </button>
       </div>
       {result && !result.ok && (
-        <p className="mt-3 border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800">
+        <p className="mt-3 border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-sm text-amber-300">
           Could not generate the summary: {result.detail}
         </p>
       )}

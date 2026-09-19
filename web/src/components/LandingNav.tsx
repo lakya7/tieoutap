@@ -103,8 +103,18 @@ export function LandingNav({ onOpenApp, onSampleRun }: LandingNavProps) {
   return (
     <nav ref={navRef} className="relative mx-auto max-w-6xl px-6">
       <div className="flex items-center justify-between py-5">
-        <span className="font-serif text-2xl font-medium tracking-tight text-ink">
-          TieOut <span className="text-pine">AP</span>
+        <span className="flex items-center gap-3">
+          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-sm bg-gradient-to-br from-burgundy to-burgundy-soft font-serif text-lg font-semibold text-gold-light">
+            TA
+          </span>
+          <span>
+            <span className="block font-serif text-xl font-semibold uppercase tracking-[0.18em] text-ink">
+              TieOut <span className="text-pine">AP</span>
+            </span>
+            <span className="block font-accent text-sm italic tracking-[0.22em] text-pine">
+              EVERY DIFFERENCE EXPLAINED
+            </span>
+          </span>
         </span>
 
         {/* Desktop menu */}
@@ -117,7 +127,7 @@ export function LandingNav({ onOpenApp, onSampleRun }: LandingNavProps) {
               onClick={() => setOpen((o) => (o === menu.id ? null : menu.id))}
               className={`flex items-center gap-1 rounded-sm px-3 py-2 text-sm font-semibold transition-colors ${
                 open === menu.id
-                  ? 'bg-ink text-paper'
+                  ? 'btn-gold'
                   : 'text-ink-soft hover:bg-ink/5 hover:text-pine'
               }`}
             >
@@ -156,7 +166,7 @@ export function LandingNav({ onOpenApp, onSampleRun }: LandingNavProps) {
           <button
             type="button"
             onClick={onOpenApp}
-            className="rounded-sm bg-ink px-4 py-2 text-sm font-semibold text-paper transition-colors hover:bg-pine-deep"
+            className="rounded-sm btn-gold px-4 py-2 text-sm font-semibold transition-colors"
           >
             Open the app
           </button>

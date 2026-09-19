@@ -78,7 +78,7 @@ export function AuthPanel({ onSampleRun }: AuthPanelProps) {
           />
         </div>
         {error && (
-          <p className="border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>
+          <p className="border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-300">{error}</p>
         )}
         {notice && (
           <p className="border border-pine/30 bg-moss px-3 py-2 text-sm text-pine-deep">{notice}</p>
@@ -86,7 +86,7 @@ export function AuthPanel({ onSampleRun }: AuthPanelProps) {
         <button
           type="submit"
           disabled={busy}
-          className="w-full bg-ink px-4 py-2 text-sm font-semibold text-paper hover:bg-pine-deep disabled:opacity-60"
+          className="w-full btn-gold px-4 py-2 text-sm font-semibold disabled:opacity-60"
         >
           {busy ? 'Working…' : mode === 'signin' ? 'Sign in' : 'Sign up'}
         </button>

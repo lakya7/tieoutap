@@ -75,8 +75,8 @@ export function ContactSection() {
           <form onSubmit={handleSubmit} className="mt-10 space-y-5">
             <div className="grid gap-5 sm:grid-cols-2">
               <div>
-                <label htmlFor="contact-name" className="block text-sm font-medium text-ink">
-                  Name
+                <label htmlFor="contact-name" className="block text-sm font-semibold text-ink">
+                  Name <span className="text-pine">*</span>
                 </label>
                 <input
                   id="contact-name"
@@ -84,13 +84,13 @@ export function ContactSection() {
                   type="text"
                   required
                   autoComplete="name"
-                  className="mt-1.5 w-full rounded-sm border border-line bg-cream px-3.5 py-2.5 text-sm text-ink shadow-sm placeholder:text-ink-faint focus:border-pine focus:outline-none focus:ring-1 focus:ring-pine"
+                  className="mt-1.5 w-full rounded-lg border border-line bg-cream px-3.5 py-2.5 text-sm text-ink shadow-sm placeholder:text-ink-faint focus:border-pine focus:outline-none focus:ring-1 focus:ring-pine"
                   placeholder="Jane Doe"
                 />
               </div>
               <div>
-                <label htmlFor="contact-email" className="block text-sm font-medium text-ink">
-                  Email
+                <label htmlFor="contact-email" className="block text-sm font-semibold text-ink">
+                  Email <span className="text-pine">*</span>
                 </label>
                 <input
                   id="contact-email"
@@ -98,26 +98,26 @@ export function ContactSection() {
                   type="email"
                   required
                   autoComplete="email"
-                  className="mt-1.5 w-full rounded-sm border border-line bg-cream px-3.5 py-2.5 text-sm text-ink shadow-sm placeholder:text-ink-faint focus:border-pine focus:outline-none focus:ring-1 focus:ring-pine"
+                  className="mt-1.5 w-full rounded-lg border border-line bg-cream px-3.5 py-2.5 text-sm text-ink shadow-sm placeholder:text-ink-faint focus:border-pine focus:outline-none focus:ring-1 focus:ring-pine"
                   placeholder="jane@company.com"
                 />
               </div>
             </div>
             <div>
-              <label htmlFor="contact-message" className="block text-sm font-medium text-ink">
-                Message
+              <label htmlFor="contact-message" className="block text-sm font-semibold text-ink">
+                Message <span className="text-pine">*</span>
               </label>
               <textarea
                 id="contact-message"
                 name="message"
                 required
                 rows={5}
-                className="mt-1.5 w-full rounded-sm border border-line bg-cream px-3.5 py-2.5 text-sm text-ink shadow-sm placeholder:text-ink-faint focus:border-pine focus:outline-none focus:ring-1 focus:ring-pine"
+                className="mt-1.5 w-full rounded-lg border border-line bg-cream px-3.5 py-2.5 text-sm text-ink shadow-sm placeholder:text-ink-faint focus:border-pine focus:outline-none focus:ring-1 focus:ring-pine"
                 placeholder="How can we help?"
               />
             </div>
             {status === 'error' && (
-              <p className="text-sm font-medium text-red-600" role="alert">
+              <p className="text-sm font-medium text-red-400" role="alert">
                 {error}
               </p>
             )}
@@ -128,7 +128,7 @@ export function ContactSection() {
               <button
                 type="submit"
                 disabled={status === 'sending'}
-                className="shrink-0 rounded-sm bg-ink px-6 py-2.5 text-sm font-semibold text-paper shadow-sm transition-colors hover:bg-pine-deep disabled:cursor-not-allowed disabled:opacity-60"
+                className="shrink-0 rounded-lg btn-gold px-6 py-2.5 text-sm font-semibold shadow-sm transition-colors disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {status === 'sending' ? 'Sending…' : 'Send message'}
               </button>
