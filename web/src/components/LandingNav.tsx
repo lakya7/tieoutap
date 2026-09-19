@@ -60,7 +60,7 @@ const MENUS: Menu[] = [
       },
       {
         title: 'Pricing',
-        desc: '$19/month, everything included — 14-day free trial, no card required',
+        desc: 'Contact us for pricing — 14-day free trial, no card required',
         href: '#pricing',
       },
     ],
