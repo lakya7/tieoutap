@@ -1,7 +1,8 @@
 /** Deterministic supplier email draft built from the reconciliation result.
  * Nothing is ever sent — this is copy-paste material for the AP clerk. */
 import { formatCentsGrouped } from '../../../ts/src'
-import type { Finding } from '../../../ts/src'
+import type { Finding, LedgerLine } from '../../../ts/src'
+import { emailErpNote } from './passthrough'
 import type { Run } from './run'
 
 function money(cents: number): string {
@@ -52,11 +53,16 @@ export function draftEmail(run: Run): string {
     `We have reconciled your statement dated ${result.as_at} against our accounts payable ledger and have the following queries:`,
   )
   lines.push('')
+  const ledgerById = new Map(run.ledger.map((l) => [l.id, l]))
   let n = 1
   for (const f of items) {
     const build = ITEM_BUILDERS[f.type]
     if (!build) continue
-    lines.push(`${n}. ${build(findingRefs(run, f), f)}`)
+    const ledgerLines = f.ledger_line_ids
+      .map((id) => ledgerById.get(id))
+      .filter((l): l is LedgerLine => l !== undefined)
+    const note = emailErpNote(ledgerLines, run.ledgerExtras)
+    lines.push(`${n}. ${build(findingRefs(run, f), f)}${note ? ` ${note}` : ''}`)
     n += 1
   }
   if (n === 1) {

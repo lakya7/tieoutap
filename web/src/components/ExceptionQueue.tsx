@@ -8,6 +8,8 @@ import {
   findingStatementLines,
 } from '../lib/evidence'
 import { downloadExceptionsXlsx } from '../lib/export'
+import { ledgerChips, ledgerContextNotes } from '../lib/passthrough'
+import type { ChipTone } from '../lib/passthrough'
 import {
   FINDING_TYPES,
   exceptionId,
@@ -51,6 +53,13 @@ const BUCKET_LABELS: Record<string, string> = {
 const METHOD_LABELS: Record<string, string> = {
   amount_date: 'Amount + date',
   subset_sum: 'Sum of lines',
+}
+
+const CHIP_STYLES: Record<ChipTone, string> = {
+  alert: 'bg-red-500/15 text-red-300',
+  warn: 'bg-amber-500/15 text-amber-300',
+  info: 'bg-sky-500/15 text-sky-300',
+  ok: 'bg-moss text-pine-deep',
 }
 
 const STATUS_STYLES: Record<ExceptionStatus, string> = {
@@ -237,6 +246,7 @@ function EvidenceRow({
   const narrative = findingNarrative(run, finding)
   const sLines = findingStatementLines(run, finding)
   const lLines = findingLedgerLines(run, finding)
+  const contextNotes = ledgerContextNotes(lLines, run.ledgerExtras)
   return (
     <tr>
       <td colSpan={7} className="bg-paper">
@@ -274,6 +284,21 @@ function EvidenceRow({
                   rows={ledgerRows(lLines)}
                 />
               )}
+            </div>
+          )}
+
+          {contextNotes.length > 0 && (
+            <div className="border border-line bg-cream px-3 py-2">
+              <p className="font-mono text-xs uppercase tracking-[0.15em] text-ink-faint">
+                From your AP export
+              </p>
+              <ul className="mt-1 space-y-0.5">
+                {contextNotes.map((note) => (
+                  <li key={note} className="font-mono text-xs leading-relaxed text-ink-soft">
+                    {note}
+                  </li>
+                ))}
+              </ul>
             </div>
           )}
 
@@ -488,6 +513,7 @@ function FindingRows({
   open: boolean
   onToggle: () => void
 }) {
+  const chips = ledgerChips(findingLedgerLines(run, finding), run.ledgerExtras)
   return (
     <>
       <tr
@@ -500,6 +526,18 @@ function FindingRows({
           <span className="mt-0.5 block font-mono text-xs uppercase tracking-wide text-ink-faint">
             {finding.type}
           </span>
+          {chips.length > 0 && (
+            <span className="mt-1 flex flex-wrap gap-1">
+              {chips.map((c) => (
+                <span
+                  key={c.label}
+                  className={`whitespace-nowrap px-1.5 py-0.5 text-xs font-medium ${CHIP_STYLES[c.tone]}`}
+                >
+                  {c.label}
+                </span>
+              ))}
+            </span>
+          )}
           {review && (
             <span className="mt-0.5 block text-xs text-pine-deep">
               Reviewer: {ASSESSMENT_LABELS[review.assessment].toLowerCase()}

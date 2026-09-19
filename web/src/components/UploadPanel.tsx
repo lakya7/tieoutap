@@ -350,7 +350,7 @@ export function UploadPanel({ onRun, error, guest = false, onSignIn }: UploadPan
           />
           <FileDrop
             label="AP open-items export (CSV / Excel)"
-            hint="CSV, TSV, or Excel — columns: supplier, ref, date, type, original, open, po, currency"
+            hint="CSV, TSV, or Excel — columns: supplier, ref, date, type, original, open, po, currency; optional AP columns (due date, AP comment, hold reason, payment details) are carried through for review"
             accept=".csv,.tsv,.txt,.xlsx,.xls,.xlsm,.xlsb,.ods,text/csv,text/tab-separated-values,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
             fileName={ledger?.name ?? null}
             onUnmapped={offerMapping('ledger')}
