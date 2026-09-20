@@ -415,13 +415,13 @@ export function ExceptionQueue({ run }: { run: Run }) {
             <table className="w-full text-left text-sm">
               <thead>
                 <tr className="border-b border-line font-mono text-xs uppercase tracking-[0.15em] text-ink-faint">
-                  <th className="px-4 py-3 font-medium">ID</th>
-                  <th className="px-4 py-3 font-medium">Exception</th>
-                  <th className="px-4 py-3 font-medium">Bucket</th>
-                  <th className="px-4 py-3 font-medium">References</th>
-                  <th className="px-4 py-3 text-right font-medium">Amount</th>
-                  <th className="px-4 py-3 font-medium">Status</th>
-                  <th className="px-4 py-3" />
+                  <th className="hidden px-4 py-3 font-medium md:table-cell">ID</th>
+                  <th className="px-3 py-3 font-medium md:px-4">Exception</th>
+                  <th className="hidden px-4 py-3 font-medium sm:table-cell">Bucket</th>
+                  <th className="hidden px-4 py-3 font-medium lg:table-cell">References</th>
+                  <th className="px-3 py-3 text-right font-medium md:px-4">Amount</th>
+                  <th className="px-3 py-3 font-medium md:px-4">Status</th>
+                  <th className="hidden px-4 py-3 sm:table-cell" />
                 </tr>
               </thead>
               <tbody>
@@ -525,11 +525,23 @@ function FindingRows({
         className="cursor-pointer border-b border-line/60 last:border-b-0 hover:bg-paper"
         onClick={onToggle}
       >
-        <td className="px-4 py-3 font-mono text-xs text-ink-faint">{id}</td>
-        <td className="px-4 py-3">
+        <td className="hidden px-4 py-3 font-mono text-xs text-ink-faint md:table-cell">{id}</td>
+        <td className="px-3 py-3 md:px-4">
           <span className="text-sm font-medium text-ink">{findingLabel(finding.type)}</span>
           <span className="mt-0.5 block font-mono text-xs uppercase tracking-wide text-ink-faint">
             {finding.type}
+          </span>
+          <span className="mt-1 flex flex-wrap items-center gap-2 sm:hidden">
+            <span
+              className={`whitespace-nowrap px-1.5 py-0.5 text-xs font-medium ${
+                BUCKET_STYLES[finding.bucket] ?? 'bg-paper text-ink-soft'
+              }`}
+            >
+              {BUCKET_LABELS[finding.bucket] ?? finding.bucket}
+            </span>
+            <span className="text-xs text-ink-faint underline decoration-dotted underline-offset-2">
+              {open ? 'Hide evidence' : 'Evidence'}
+            </span>
           </span>
           {(chips.length > 0 || recurringSince !== null) && (
             <span className="mt-1 flex flex-wrap gap-1">
@@ -560,7 +572,7 @@ function FindingRows({
             </span>
           )}
         </td>
-        <td className="px-4 py-3">
+        <td className="hidden px-4 py-3 sm:table-cell">
           <span
             className={`whitespace-nowrap px-2 py-0.5 text-xs font-medium ${
               BUCKET_STYLES[finding.bucket] ?? 'bg-paper text-ink-soft'
@@ -569,11 +581,11 @@ function FindingRows({
             {BUCKET_LABELS[finding.bucket] ?? finding.bucket}
           </span>
         </td>
-        <td className="px-4 py-3 font-mono text-xs">{findingRefs(run, finding)}</td>
-        <td className="px-4 py-3 text-right font-mono tabular-nums">
+        <td className="hidden px-4 py-3 font-mono text-xs lg:table-cell">{findingRefs(run, finding)}</td>
+        <td className="px-3 py-3 text-right font-mono tabular-nums md:px-4">
           {formatCentsGrouped(finding.amount)}
         </td>
-        <td className="px-4 py-3">
+        <td className="px-3 py-3 md:px-4">
           <select
             value={status}
             onClick={(e) => e.stopPropagation()}
@@ -588,7 +600,7 @@ function FindingRows({
             ))}
           </select>
         </td>
-        <td className="px-4 py-3 text-right text-xs text-ink-faint">
+        <td className="hidden px-4 py-3 text-right text-xs text-ink-faint sm:table-cell">
           {open ? 'Hide' : 'Evidence'}
         </td>
       </tr>

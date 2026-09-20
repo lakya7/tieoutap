@@ -17,7 +17,7 @@ interface PageContent {
   blocks: Block[]
 }
 
-const LAST_UPDATED = '12 September 2026'
+const LAST_UPDATED = '19 September 2026'
 
 const PAGES: Record<TrustPageId, PageContent> = {
   'privacy-policy': {
@@ -58,10 +58,16 @@ const PAGES: Record<TrustPageId, PageContent> = {
         ],
       },
       {
+        heading: 'Site analytics',
+        paras: [
+          'The site uses Vercel Web Analytics, a cookie-free, privacy-focused measurement service. It counts page visits and a handful of anonymous funnel events (for example “sample run started” or “pricing viewed”) so we can see which parts of the site are used. It sets no cookies, does not track you across sites, and builds no personal profile. Events carry only the event name — never your files, figures, or anything you type.',
+        ],
+      },
+      {
         heading: 'What we do not do',
         paras: [],
         list: [
-          'No analytics or tracking scripts on the site.',
+          'No advertising trackers, cross-site tracking, or tracking cookies — only the cookie-free, anonymous site analytics described above.',
           'No selling or sharing of personal data.',
           'No marketing emails without your consent — account emails (confirmation, password reset) only.',
           'No connection to your ERP, and no credentials for it.',
@@ -71,7 +77,7 @@ const PAGES: Record<TrustPageId, PageContent> = {
         heading: 'Subprocessors',
         paras: ['We rely on the following providers to run the service:'],
         list: [
-          'Vercel — hosting and serverless endpoints.',
+          'Vercel — hosting, serverless endpoints, and cookie-free site analytics.',
           'Supabase — account authentication.',
           'Stripe — billing and subscriptions.',
           'Anthropic — reading PDF/image statements and wording summaries, only when you use those features.',
@@ -101,7 +107,7 @@ const PAGES: Record<TrustPageId, PageContent> = {
       {
         heading: 'Accounts, trial, and billing',
         paras: [
-          'Sign-up is free and includes a 14-day free trial with full access — no card required. After the trial, continued use requires a paid subscription — contact us for pricing and we will set it up (billing is handled by Stripe). You can cancel at any time from the billing portal; access continues to the end of the paid period. Prices may change with notice; changes never apply retroactively to a period you have already paid for.',
+          'Sign-up is free and includes a 14-day free trial with full access — no card required. After the trial, continued use requires a paid subscription: the Solo plan is $49 per user per month and includes 25 AI statement reads (PDF/image) per month, with reconciliation itself unmetered; Team and Firm plans are agreed individually. Contact us and we will set your subscription up (billing is handled by Stripe). You can cancel at any time from the billing portal; access continues to the end of the paid period. Prices may change with notice; changes never apply retroactively to a period you have already paid for.',
         ],
       },
       {

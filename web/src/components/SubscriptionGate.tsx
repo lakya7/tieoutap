@@ -113,8 +113,9 @@ export function SubscriptionGate({ children }: { children: ReactNode }) {
     <div className="mx-auto max-w-md border border-line bg-cream p-8">
       <h2 className="font-serif text-2xl font-medium tracking-tight text-ink">Your free trial has ended</h2>
       <p className="mt-1 text-sm text-ink-soft">
-        Contact us to keep full access to reconciliation, AI column mapping, AI
-        summaries, and PDF statement reading.
+        The Solo plan is $49/month with 25 AI statement reads &mdash;
+        reconciliation itself is never metered. Contact us and we&rsquo;ll set
+        your subscription up.
       </p>
       <ul className="mt-4 space-y-2 text-sm text-ink-soft">
         <li>— Your files still never leave the browser</li>
@@ -133,10 +134,10 @@ export function SubscriptionGate({ children }: { children: ReactNode }) {
         onClick={goContact}
         className="mt-6 w-full btn-gold px-4 py-2 text-sm font-semibold"
       >
-        Contact us for pricing
+        Contact us to subscribe
       </button>
       <p className="mt-3 text-center text-xs text-ink-faint">
-        We&rsquo;ll get back to you with pricing and set up your subscription.
+        We&rsquo;ll get back to you and set up your subscription.
       </p>
     </div>
   )
