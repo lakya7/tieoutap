@@ -60,7 +60,7 @@ const PAGES: Record<TrustPageId, PageContent> = {
       {
         heading: 'Site analytics',
         paras: [
-          'The site uses Vercel Web Analytics, a cookie-free, privacy-focused measurement service. It counts page visits and a handful of anonymous funnel events (for example “sample run started” or “pricing viewed”) so we can see which parts of the site are used. It sets no cookies, does not track you across sites, and builds no personal profile. Events carry only the event name — never your files, figures, or anything you type.',
+          'The site uses two cookie-free, privacy-focused measurement services: Vercel Web Analytics counts page visits, and Umami records a handful of anonymous funnel events (for example “sample run started” or “pricing viewed”) so we can see which parts of the site are used. Neither sets cookies, tracks you across sites, or builds a personal profile. Events carry only the event name — never your files, figures, or anything you type.',
         ],
       },
       {
@@ -77,7 +77,8 @@ const PAGES: Record<TrustPageId, PageContent> = {
         heading: 'Subprocessors',
         paras: ['We rely on the following providers to run the service:'],
         list: [
-          'Vercel — hosting, serverless endpoints, and cookie-free site analytics.',
+          'Vercel — hosting, serverless endpoints, and cookie-free page-view analytics.',
+          'Umami — cookie-free, anonymous funnel-event analytics.',
           'Supabase — account authentication.',
           'Stripe — billing and subscriptions.',
           'Anthropic — reading PDF/image statements and wording summaries, only when you use those features.',
