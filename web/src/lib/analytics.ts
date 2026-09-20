@@ -24,6 +24,11 @@ declare global {
 
 let injected = false
 
+/** Events fired before the Umami script finishes loading, flushed on its
+ * `load` event and discarded if the script fails. */
+let pending: FunnelEvent[] | null = []
+const PENDING_LIMIT = 20
+
 /** Load the cookie-free beacons once per page. No-op outside production
  * builds so local dev sends nothing. */
 export function initAnalytics(): void {
@@ -43,6 +48,14 @@ export function initAnalytics(): void {
     // Events only — page views are already counted by Vercel.
     script.dataset.autoPageview = 'false'
     script.dataset.excludeHash = 'true'
+    script.addEventListener('load', () => {
+      const queued = pending
+      pending = null
+      queued?.forEach((event) => window.umami?.track(event))
+    })
+    script.addEventListener('error', () => {
+      pending = null
+    })
     document.head.appendChild(script)
   } catch {
     // Analytics must never break the app.
@@ -52,7 +65,11 @@ export function initAnalytics(): void {
 export function track(event: FunnelEvent): void {
   if (!import.meta.env.PROD) return
   try {
-    window.umami?.track(event)
+    if (window.umami) {
+      window.umami.track(event)
+    } else if (pending && pending.length < PENDING_LIMIT) {
+      pending.push(event)
+    }
   } catch {
     // Analytics must never break the app.
   }
