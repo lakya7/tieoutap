@@ -1,9 +1,11 @@
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import statementSample from '../../../fixtures/meridian_stmt.csv?raw'
 import ledgerSample from '../../../fixtures/acme_ledger.csv?raw'
+import { track } from '../lib/analytics'
 import { ContactSection } from './ContactSection'
 import { HeroDemo } from './HeroDemo'
 import { LandingNav } from './LandingNav'
+import { LeadCapture } from './LeadCapture'
 import { ResultsShowcase } from './ResultsShowcase'
 
 interface LandingProps {
@@ -113,10 +115,28 @@ function SectionHead({
 }
 
 export function Landing({ onOpenApp, onSampleRun }: LandingProps) {
+  const pricingRef = useRef<HTMLElement>(null)
+
   useEffect(() => {
     if (location.hash === '#contact') {
       document.getElementById('contact')?.scrollIntoView()
     }
+  }, [])
+
+  useEffect(() => {
+    const el = pricingRef.current
+    if (!el || typeof IntersectionObserver === 'undefined') return
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((e) => e.isIntersecting)) {
+          track('pricing_viewed')
+          observer.disconnect()
+        }
+      },
+      { threshold: 0.4 },
+    )
+    observer.observe(el)
+    return () => observer.disconnect()
   }, [])
 
   return (
@@ -346,11 +366,62 @@ export function Landing({ onOpenApp, onSampleRun }: LandingProps) {
         </div>
       </section>
 
+      {/* Monthly workflow: batch, history, recurring */}
+      <section id="monthly" className="scroll-mt-6 border-b border-line">
+        <div className="mx-auto max-w-6xl px-6 py-24">
+          <SectionHead
+            n="05"
+            eyebrow="Month after month"
+            title="Built for the close that comes back every month"
+          />
+          <p className="mt-5 max-w-3xl leading-relaxed text-ink-soft">
+            A statement reconciliation is rarely a one-off. TieOut treats it as the
+            recurring control it is &mdash; across your whole supplier list, and across
+            closes.
+          </p>
+          <div className="mt-14 grid gap-12 md:grid-cols-3 md:gap-0 md:divide-x md:divide-line">
+            {[
+              {
+                title: 'Batch runs',
+                body: 'Drop in several supplier statements against one AP export. TieOut works out which supplier each statement belongs to from its document references \u2014 you only pick manually when it can\u2019t be certain \u2014 and reconciles every statement through the same deterministic engine, with a per-supplier summary of what tied out and what needs attention.',
+              },
+              {
+                title: 'Run history',
+                body: 'Your recent runs are saved in your browser \u2014 never on a server. Reopen any past reconciliation and the engine re-computes the same findings and the same bridge from the same files, so last month\u2019s answer is always one click away.',
+              },
+              {
+                title: 'Recurring exceptions',
+                body: 'An exception still open from the previous saved run is flagged: \u201cRecurring \u2014 also open on the \u2026 run\u201d. Items you resolved or accepted stay resolved. The statement stops being re-discovered from scratch every close \u2014 you see exactly what has been sitting there since last month.',
+              },
+            ].map((p) => (
+              <div key={p.title} className="md:px-8 md:first:pl-0 md:last:pr-0">
+                <h3 className="font-serif text-xl font-medium text-ink">{p.title}</h3>
+                <p className="mt-3 text-[15px] leading-relaxed text-ink-soft">{p.body}</p>
+              </div>
+            ))}
+          </div>
+          <div className="mt-12 max-w-xl border border-line bg-cream p-5">
+            <p className="font-mono text-xs uppercase tracking-[0.15em] text-ink-faint">
+              How it looks in the queue
+            </p>
+            <p className="mt-3 flex flex-wrap items-center gap-2 text-sm text-ink">
+              <span className="font-medium">Invoice missing from your ledger</span>
+              <span className="whitespace-nowrap bg-red-500/15 px-1.5 py-0.5 text-xs font-medium text-red-400">
+                Recurring &mdash; also open on the 2026-08-31 run
+              </span>
+            </p>
+            <p className="mt-2 text-xs text-ink-faint">
+              Carried forward automatically from your saved run history &mdash; all in your browser.
+            </p>
+          </div>
+        </div>
+      </section>
+
       {/* Who it's for */}
       <section className="border-b border-line">
         <div className="mx-auto max-w-6xl px-6 py-24">
           <SectionHead
-            n="05"
+            n="06"
             eyebrow="Who it's for"
             title="For the teams still reconciling statements in spreadsheets"
           />
@@ -401,7 +472,7 @@ export function Landing({ onOpenApp, onSampleRun }: LandingProps) {
       {/* Formats & privacy */}
       <section id="privacy" className="scroll-mt-6 border-b border-line bg-cream">
         <div className="mx-auto max-w-6xl px-6 py-24">
-          <SectionHead n="06" eyebrow="No IT project" title="Your files, your browser" />
+          <SectionHead n="07" eyebrow="No IT project" title="Your files, your browser" />
           <div className="mt-14 grid gap-12 md:grid-cols-2 md:gap-0 md:divide-x md:divide-line">
             <div className="md:pr-12">
               <h3 className="font-serif text-xl font-medium text-ink">
@@ -477,56 +548,99 @@ export function Landing({ onOpenApp, onSampleRun }: LandingProps) {
       </section>
 
       {/* Pricing */}
-      <section id="pricing" className="scroll-mt-6 border-t border-line bg-cream">
-        <div className="mx-auto max-w-4xl px-6 py-24">
-          <SectionHead n="07" eyebrow="Pricing" title="One plan, everything included" center />
-          <div className="mx-auto mt-12 max-w-md border border-line bg-paper p-8 text-left">
-            <div className="flex items-baseline justify-between font-mono text-xs uppercase tracking-[0.2em] text-ink-faint">
-              <span>TieOut AP</span>
-              <span>Monthly plan</span>
+      <section ref={pricingRef} id="pricing" className="scroll-mt-6 border-t border-line bg-cream">
+        <div className="mx-auto max-w-5xl px-6 py-24">
+          <SectionHead n="08" eyebrow="Pricing" title="Simple pricing, no surprises" center />
+          <div className="mx-auto mt-12 grid max-w-3xl gap-8 text-left md:grid-cols-2 md:gap-6">
+            {/* Solo */}
+            <div className="border border-line bg-paper p-8">
+              <div className="flex items-baseline justify-between font-mono text-xs uppercase tracking-[0.2em] text-ink-faint">
+                <span>Solo</span>
+                <span>Per user, monthly</span>
+              </div>
+              <div className="mt-4 flex items-baseline gap-2">
+                <p className="font-serif text-4xl font-medium text-ink">$49</p>
+                <p className="text-sm text-ink-soft">/ month</p>
+              </div>
+              <ul className="mt-6 divide-y divide-line text-sm text-ink-soft">
+                {[
+                  'Unlimited reconciliations & batch runs (Excel, CSV, TSV — all in your browser)',
+                  '25 AI statement reads / month (PDF & scanned statements)',
+                  'AI column mapping and AI summaries (fair use)',
+                  'Run history, recurring-exception tracking, drafted supplier emails',
+                  'Excel exception exports, audit packs, shareable runs',
+                ].map((item) => (
+                  <li key={item} className="flex items-baseline gap-2.5 py-2.5">
+                    <span aria-hidden="true" className="shrink-0 text-pine">✓</span>
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+              <div aria-hidden="true" className="double-rule mt-5 text-ink/50" />
+              <p className="mt-4 text-sm font-medium text-pine">
+                14-day free trial — no card required
+              </p>
+              <p className="mt-2 text-xs leading-relaxed text-ink-faint">
+                Full access during the trial, including AI statement reading and
+                summaries — nothing is charged automatically.
+              </p>
+              <button
+                type="button"
+                onClick={onOpenApp}
+                className="mt-6 w-full rounded-sm btn-gold px-4 py-3 text-sm font-semibold transition-colors"
+              >
+                Start free trial
+              </button>
             </div>
-            <ul className="mt-6 divide-y divide-line text-sm text-ink-soft">
-              {[
-                'Unlimited reconciliations (fair use)',
-                'PDF, scan, Excel, CSV and TSV statements',
-                'AI column mapping and AI summaries',
-                'Drafted supplier emails and shareable runs',
-              ].map((item) => (
-                <li key={item} className="flex items-baseline justify-between gap-4 py-2.5">
-                  <span>{item}</span>
-                  <span className="shrink-0 font-mono text-xs text-pine">included</span>
-                </li>
-              ))}
-            </ul>
-            <div className="mt-6 flex items-baseline justify-between gap-4 border-t border-ink/60 pt-4">
-              <span className="text-sm font-semibold text-ink">Pricing</span>
-              <p className="text-right font-serif text-2xl font-medium text-ink">Contact us</p>
+            {/* Team / Firm */}
+            <div className="border border-line bg-paper p-8">
+              <div className="flex items-baseline justify-between font-mono text-xs uppercase tracking-[0.2em] text-ink-faint">
+                <span>Team &amp; Firm</span>
+                <span>By agreement</span>
+              </div>
+              <div className="mt-4 flex items-baseline gap-2">
+                <p className="font-serif text-4xl font-medium text-ink">Let&rsquo;s talk</p>
+              </div>
+              <ul className="mt-6 divide-y divide-line text-sm text-ink-soft">
+                {[
+                  'Everything in Solo',
+                  'Multiple users',
+                  'Higher AI statement-read volumes',
+                  'Onboarding for your statement and export formats',
+                  'Priority support',
+                ].map((item) => (
+                  <li key={item} className="flex items-baseline gap-2.5 py-2.5">
+                    <span aria-hidden="true" className="shrink-0 text-pine">✓</span>
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+              <div aria-hidden="true" className="double-rule mt-5 text-ink/50" />
+              <p className="mt-4 text-sm font-medium text-pine">
+                For AP teams and accounting firms
+              </p>
+              <p className="mt-2 text-xs leading-relaxed text-ink-faint">
+                Tell us how many statements you clear a month and we&rsquo;ll come
+                back with a price.
+              </p>
+              <a
+                href="#contact"
+                className="mt-6 block w-full rounded-sm border border-gold/40 px-4 py-3 text-center text-sm font-semibold text-pine transition-colors hover:bg-gold/10"
+              >
+                Contact us
+              </a>
             </div>
-            <div aria-hidden="true" className="double-rule mt-1.5 text-ink/50" />
-            <p className="mt-4 text-sm font-medium text-pine">
-              14-day free trial — no card required
-            </p>
-            <p className="mt-2 text-xs leading-relaxed text-ink-faint">
-              Full access during the trial, including AI statement reading and
-              summaries — nothing is charged automatically. When the trial
-              ends, contact us to keep using TieOut AP.
-            </p>
-            <button
-              type="button"
-              onClick={onOpenApp}
-              className="mt-6 w-full rounded-sm btn-gold px-4 py-3 text-sm font-semibold transition-colors"
-            >
-              Start free trial
-            </button>
-            <a
-              href="#contact"
-              className="mt-3 block w-full rounded-sm border border-gold/40 px-4 py-3 text-center text-sm font-semibold text-pine transition-colors hover:bg-gold/10"
-            >
-              Contact us for pricing
-            </a>
           </div>
+          <p className="mx-auto mt-8 max-w-3xl text-center text-xs leading-relaxed text-ink-faint">
+            Reconciliation itself runs in your browser and is never metered. The AI
+            statement-read allowance covers PDF and scanned statements, which are read
+            server-side — spreadsheet statements don&rsquo;t count against it.
+          </p>
         </div>
       </section>
+
+      {/* Design-partner lead capture */}
+      <LeadCapture />
 
       {/* Contact */}
       <ContactSection />

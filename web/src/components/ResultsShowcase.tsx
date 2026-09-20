@@ -54,7 +54,7 @@ export function ResultsShowcase({ onSampleRun }: { onSampleRun: () => void }) {
             <table className="w-full text-left text-sm">
               <thead>
                 <tr className="border-b border-line font-mono text-xs uppercase tracking-[0.15em] text-ink-faint">
-                  <th className="px-4 py-2.5 font-medium">ID</th>
+                  <th className="hidden px-4 py-2.5 font-medium sm:table-cell">ID</th>
                   <th className="px-4 py-2.5 font-medium">Exception</th>
                   <th className="px-4 py-2.5 font-medium">Bucket</th>
                   <th className="px-4 py-2.5 text-right font-medium">Amount</th>
@@ -63,7 +63,7 @@ export function ResultsShowcase({ onSampleRun }: { onSampleRun: () => void }) {
               <tbody className="divide-y divide-line">
                 {findings.slice(0, SHOWN_ROWS).map((f, i) => (
                   <tr key={f.rule_id + f.amount}>
-                    <td className="px-4 py-2.5 font-mono text-xs text-ink-faint">
+                    <td className="hidden px-4 py-2.5 font-mono text-xs text-ink-faint sm:table-cell">
                       {exceptionId(i)}
                     </td>
                     <td className="px-4 py-2.5">

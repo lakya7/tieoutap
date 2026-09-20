@@ -18,6 +18,7 @@ import { RunHistory } from './components/RunHistory'
 import { UploadPanel } from './components/UploadPanel'
 import { downloadAuditPackXlsx } from './lib/export'
 import { recordRun } from './lib/history'
+import { initAnalytics, track } from './lib/analytics'
 import { deriveAsAt, deriveSupplier, executeRun } from './lib/run'
 import type { Run, RunInput } from './lib/run'
 import { runFromLocation, shareUrl } from './lib/share'
@@ -31,6 +32,8 @@ const TRUST_PAGES: TrustPageId[] = ['privacy-policy', 'terms', 'security']
 function isTrustPage(hash: string): hash is TrustPageId {
   return (TRUST_PAGES as string[]).includes(hash)
 }
+
+initAnalytics()
 
 const GUEST_RUN_KEY = 'tieout-guest-run-used'
 
@@ -90,6 +93,7 @@ export default function App() {
     try {
       const next = executeRun(input)
       recordRun(next)
+      track('run_completed')
       setRun(next)
       setError(null)
       setShareNotice(false)
@@ -105,9 +109,11 @@ export default function App() {
 
   const startGuest = (input: RunInput, opts?: { sample?: boolean }) => {
     if (opts?.sample) {
+      track('sample_run_started')
       start(input)
       return
     }
+    track('own_file_run_started')
     if (readGuestRunUsed()) {
       setGuestRunUsed(true)
       return
@@ -180,7 +186,13 @@ export default function App() {
     history.replaceState(null, '', `${location.pathname}#app`)
   }
 
+  const startOwnFiles = (input: RunInput): boolean => {
+    track('own_file_run_started')
+    return start(input)
+  }
+
   const sampleRun = () => {
+    track('sample_run_started')
     setView('app')
     start({
       statementCsv: statementSample,
@@ -332,7 +344,7 @@ export default function App() {
                   />
                 ) : (
                   <>
-                    <UploadPanel onRun={start} error={error} />
+                    <UploadPanel onRun={startOwnFiles} error={error} />
                     <p className="mx-auto mt-3 max-w-3xl text-right">
                       <button
                         type="button"

@@ -37,6 +37,11 @@ const MENUS: Menu[] = [
         desc: 'A drafted, ready-to-review query email built from the findings — nothing sent automatically',
         href: '#features',
       },
+      {
+        title: 'Monthly workflow',
+        desc: 'Batch runs across suppliers, browser-local run history, and recurring exceptions flagged month over month',
+        href: '#monthly',
+      },
     ],
   },
   {
@@ -60,7 +65,7 @@ const MENUS: Menu[] = [
       },
       {
         title: 'Pricing',
-        desc: 'Contact us for pricing — 14-day free trial, no card required',
+        desc: 'Solo $49/month with 25 AI statement reads; Team & Firm by agreement — 14-day free trial, no card required',
         href: '#pricing',
       },
     ],

@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { track } from '../lib/analytics'
 
 /** Access key for the Web3Forms relay that forwards contact-form submissions
  * to the site owner's inbox. Public by design (it only identifies the inbox);
@@ -38,6 +39,7 @@ export function ContactSection() {
       const json: { success?: boolean; message?: string } = await res.json()
       if (json.success) {
         setStatus('sent')
+        track('contact_submitted')
         form.reset()
       } else {
         setStatus('error')
@@ -53,7 +55,7 @@ export function ContactSection() {
     <section id="contact" className="border-t border-line bg-paper">
       <div className="mx-auto max-w-2xl px-6 py-24">
         <p className="flex items-center justify-center gap-3 text-xs font-semibold uppercase tracking-[0.2em] text-pine">
-          <span className="font-mono">08</span>
+          <span className="font-mono">09</span>
           <span aria-hidden="true" className="h-px w-8 bg-pine/40" />
           Contact
         </p>
