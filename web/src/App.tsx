@@ -198,6 +198,8 @@ export default function App() {
   }
 
   const openApp = () => {
+    setMode('single')
+    setShowAuth(false)
     setView('app')
     history.replaceState(null, '', `${location.pathname}#app`)
   }
@@ -285,7 +287,11 @@ export default function App() {
                 </span>
                 <button
                   type="button"
-                  onClick={signOut}
+                  onClick={() => {
+                    setMode('single')
+                    setShowAuth(false)
+                    signOut()
+                  }}
                   className="border border-line bg-cream px-3 py-1.5 text-sm font-medium text-ink hover:border-ink-faint"
                 >
                   Sign out
