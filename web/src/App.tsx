@@ -328,12 +328,18 @@ export default function App() {
               <p className="py-16 text-center text-sm text-ink-faint">Loading…</p>
             ) : guestRunUsed || showAuth ? (
               <div className="space-y-4">
-                {guestRunUsed && (
+                {guestRunUsed ? (
                   <p className="mx-auto max-w-md border border-pine/30 bg-moss px-4 py-3 text-center text-sm text-pine-deep">
                     You&rsquo;ve used your free run. Create a free account to keep
                     reconciling &mdash; 14-day trial, no card needed.
                   </p>
-                )}
+                ) : mode === 'holds' ? (
+                  <p className="mx-auto max-w-md border border-pine/30 bg-moss px-4 py-3 text-center text-sm text-pine-deep">
+                    The holds workbench needs an account. Sign in or create one
+                    &mdash; 14-day free trial, no card &mdash; and you&rsquo;ll land
+                    straight in it.
+                  </p>
+                ) : null}
                 <AuthPanel onSampleRun={sampleRun} />
                 <RunHistory onOpen={start} />
               </div>
@@ -351,6 +357,15 @@ export default function App() {
                   </button>
                 </p>
                 <UploadPanel onRun={startGuest} error={error} guest onSignIn={() => setShowAuth(true)} />
+                <p className="mx-auto max-w-3xl flex justify-end">
+                  <button
+                    type="button"
+                    onClick={openHolds}
+                    className="text-sm text-ink-faint underline decoration-dotted underline-offset-4 hover:text-pine"
+                  >
+                    Invoices on hold in your ERP? Open the holds workbench &rarr;
+                  </button>
+                </p>
                 <RunHistory onOpen={start} />
               </div>
             )
