@@ -47,6 +47,7 @@ const PAGES: Record<TrustPageId, PageContent> = {
           'AI findings summary and email wording: the findings produced by the deterministic engine (references, classifications, amounts) — never your files.',
           'PDF/image reading: the statement document, as described above.',
           'Holds workbench AI read: the hold reasons, buyer comments, references, and amounts from your on-hold report — the report file itself never leaves your browser.',
+          'PDF/image on-hold report reading: an on-hold report you explicitly upload as a PDF or image makes the same single round trip as a PDF statement — read into hold rows you review before loading, never stored. Spreadsheet on-hold reports never leave your browser.',
           'Proof document reading: a proof document you explicitly upload (PDF or image) makes the same single round trip as a PDF statement — read into references and quantities, never stored.',
         ],
       },
@@ -155,12 +156,13 @@ const PAGES: Record<TrustPageId, PageContent> = {
       },
       {
         heading: 'What is sent over the network, exactly?',
-        paras: ['Five optional features make network requests, each sending only:'],
+        paras: ['Six optional features make network requests, each sending only:'],
         list: [
           'PDF/image statement reading: the document itself, one round trip, processed in memory, never stored.',
           'AI column mapping: the header row and up to three sample values per column.',
           'AI summary and email wording: the deterministic findings (references, classifications, amounts).',
           'Holds workbench AI read: hold reasons, buyer comments, references, and amounts from your on-hold report — never the file itself.',
+          'PDF/image on-hold report reading: the report document you explicitly upload, one round trip, processed in memory, never stored; you review the extracted rows before they are loaded.',
           'Proof document reading: a proof document you explicitly upload, one round trip, processed in memory, never stored.',
         ],
       },
