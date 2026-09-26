@@ -206,7 +206,7 @@ export default function App() {
 
   const openHolds = () => {
     setMode('holds')
-    setShowAuth(true)
+    setShowAuth(false)
     setView('app')
     history.replaceState(null, '', `${location.pathname}#app`)
   }
@@ -333,6 +333,26 @@ export default function App() {
           authEnabled && !session ? (
             authLoading ? (
               <p className="py-16 text-center text-sm text-ink-faint">Loading…</p>
+            ) : mode === 'holds' && !showAuth ? (
+              <div className="space-y-4">
+                <p className="border border-pine/30 bg-moss px-4 py-3 text-sm text-pine-deep">
+                  Trying the holds workbench without an account &mdash; you get one
+                  free run with your own on-hold report. Nothing you upload leaves
+                  your browser.{' '}
+                  <button
+                    type="button"
+                    onClick={() => setShowAuth(true)}
+                    className="font-semibold underline hover:text-ink"
+                  >
+                    Sign in instead
+                  </button>
+                </p>
+                <HoldsPanel
+                  guest
+                  onSingle={() => setMode('single')}
+                  onSignIn={() => setShowAuth(true)}
+                />
+              </div>
             ) : guestRunUsed || showAuth ? (
               <div className="space-y-4">
                 {guestRunUsed ? (
@@ -342,9 +362,9 @@ export default function App() {
                   </p>
                 ) : mode === 'holds' ? (
                   <p className="mx-auto max-w-md border border-pine/30 bg-moss px-4 py-3 text-center text-sm text-pine-deep">
-                    The holds workbench needs an account. Sign in or create one
-                    &mdash; 14-day free trial, no card &mdash; and you&rsquo;ll land
-                    straight in it.
+                    Sign in or create an account &mdash; 14-day free trial, no card
+                    &mdash; and you&rsquo;ll land straight back in the holds
+                    workbench.
                   </p>
                 ) : null}
                 <AuthPanel onSampleRun={sampleRun} />
@@ -364,7 +384,7 @@ export default function App() {
                   </button>
                 </p>
                 <UploadPanel onRun={startGuest} error={error} guest onSignIn={() => setShowAuth(true)} />
-                <HoldsEntryCard onOpen={openHolds} />
+                <HoldsEntryCard onOpen={openHolds} guest />
                 <RunHistory onOpen={start} />
               </div>
             )
