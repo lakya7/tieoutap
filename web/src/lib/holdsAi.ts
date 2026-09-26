@@ -104,6 +104,78 @@ export async function requestProofRead(file: File, mediaType: string): Promise<P
   return body as ProofReadResult
 }
 
+export interface HoldRowExtract {
+  supplier: string
+  invoice: string
+  po: string
+  hold_reason: string
+  comments: string
+  amount_text: string
+  currency: string
+  qty_invoiced_text: string
+  qty_received_text: string
+  hold_date_text: string
+  supplier_email: string
+}
+
+export type HoldsExtractResult =
+  | { ok: true; rows: HoldRowExtract[]; report_total_text: string; notes: string }
+  | AiError
+
+/** Posts a PDF/image on-hold report for transcription into hold rows. */
+export async function requestHoldsExtract(file: File, mediaType: string): Promise<HoldsExtractResult> {
+  const headers: Record<string, string> = { 'content-type': 'application/json' }
+  if (supabase) {
+    const token = (await supabase.auth.getSession()).data.session?.access_token
+    if (token) headers['authorization'] = `Bearer ${token}`
+  }
+  let response: Response
+  try {
+    response = await fetch('/api/holds-extract', {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({ media_type: mediaType, data: toBase64(await file.arrayBuffer()) }),
+    })
+  } catch (e) {
+    return { ok: false, detail: `could not reach the server: ${e instanceof Error ? e.message : String(e)}` }
+  }
+  const body = (await response.json().catch(() => ({}))) as { detail?: string; ok?: boolean }
+  if (!response.ok) {
+    return { ok: false, detail: body.detail ?? `request failed (HTTP ${response.status})` }
+  }
+  return body as HoldsExtractResult
+}
+
+const HOLDS_CSV_HEADER =
+  'supplier,invoice,po,hold reason,comments,amount,currency,qty invoiced,qty received,hold date,supplier email'
+
+function csvField(field: string): string {
+  return /[",\n\r]/.test(field) ? `"${field.replaceAll('"', '""')}"` : field
+}
+
+/** Extracted rows -> the on-hold CSV format parseHoldsReport reads, so the
+ * deterministic classification/grouping pipeline is unchanged. */
+export function extractedRowsToHoldsCsv(rows: HoldRowExtract[]): string {
+  const lines = rows.map((r) =>
+    [
+      r.supplier,
+      r.invoice,
+      r.po,
+      r.hold_reason,
+      r.comments,
+      r.amount_text,
+      r.currency,
+      r.qty_invoiced_text,
+      r.qty_received_text,
+      r.hold_date_text,
+      r.supplier_email,
+    ]
+      .map(csvField)
+      .join(','),
+  )
+  return [HOLDS_CSV_HEADER, ...lines, ''].join('\n')
+}
+
 /** Total quantity the proof shows shipped for this invoice/PO: sums the
  * lines whose reference matches the invoice or PO. When no line carries a
  * matching reference, all lines are summed only if the document itself

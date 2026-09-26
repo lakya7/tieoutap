@@ -5,7 +5,7 @@
  * is only ever released by the buyer, in the ERP. */
 import { useEffect, useRef, useState } from 'react'
 import onHoldSample from '../../../fixtures/onhold_sample.csv?raw'
-import { formatCentsGrouped } from '../../../ts/src'
+import { formatCentsGrouped, parseAmount } from '../../../ts/src'
 import {
   CATEGORY_AUDIENCE,
   CATEGORY_LABELS,
@@ -19,8 +19,15 @@ import {
   supplierEmailDraft,
 } from '../lib/holds'
 import type { HoldCategory, HoldInvoice, HoldsReport, SupplierHolds } from '../lib/holds'
-import { proofMediaType, proofQuantityFor, requestHoldsRead, requestProofRead } from '../lib/holdsAi'
-import type { SupplierRead } from '../lib/holdsAi'
+import {
+  extractedRowsToHoldsCsv,
+  proofMediaType,
+  proofQuantityFor,
+  requestHoldsExtract,
+  requestHoldsRead,
+  requestProofRead,
+} from '../lib/holdsAi'
+import type { HoldRowExtract, SupplierRead } from '../lib/holdsAi'
 import { downloadHoldPackXlsx } from '../lib/holdsExport'
 import {
   DEFAULT_HOLD_STATUS,
@@ -37,6 +44,32 @@ import type { HoldStatus } from '../lib/holdsStore'
 import { fileToRawCsv } from '../lib/tabular'
 
 const GUEST_HOLDS_KEY = 'tieout-guest-holds-run-used'
+
+type TotalCheck =
+  | { kind: 'match' | 'mismatch' | 'no_total'; sum: string }
+  | { kind: 'unparsed' }
+
+/** Deterministic check of an AI extraction: the extracted amounts must sum to
+ * the report's own printed total (when one is printed). Mirrors the closing-
+ * balance check on statement extraction. */
+function extractedTotalCheck(rows: HoldRowExtract[], reportTotalText: string): TotalCheck {
+  let sum = 0
+  for (const row of rows) {
+    if (row.amount_text.trim() === '') continue
+    try {
+      sum += parseAmount(row.amount_text)
+    } catch {
+      return { kind: 'unparsed' }
+    }
+  }
+  const formatted = formatCentsGrouped(sum)
+  if (reportTotalText.trim() === '') return { kind: 'no_total', sum: formatted }
+  try {
+    return { kind: parseAmount(reportTotalText) === sum ? 'match' : 'mismatch', sum: formatted }
+  } catch {
+    return { kind: 'unparsed' }
+  }
+}
 
 function readGuestHoldsUsed(): boolean {
   try {
@@ -400,6 +433,13 @@ export function HoldsPanel({
   const [reads, setReads] = useState<Record<string, SupplierRead> | null>(null)
   const [reading, setReading] = useState(false)
   const [readError, setReadError] = useState<string | null>(null)
+  const [extracting, setExtracting] = useState(false)
+  const [extracted, setExtracted] = useState<{
+    fileName: string
+    rows: HoldRowExtract[]
+    reportTotalText: string
+    notes: string
+  } | null>(null)
   const [, setVersion] = useState(0)
   const reportIdRef = useRef(report?.id)
 
@@ -429,6 +469,31 @@ export function HoldsPanel({
   }
 
   const onFile = async (file: File) => {
+    const mediaType = proofMediaType(file)
+    if (mediaType !== null) {
+      if (guest) {
+        setError(
+          'Reading PDF or image reports with AI needs an account — sign in for it, or upload the report as CSV, TSV, or Excel.',
+        )
+        return
+      }
+      setError(null)
+      setExtracted(null)
+      setExtracting(true)
+      const result = await requestHoldsExtract(file, mediaType)
+      setExtracting(false)
+      if (!result.ok) {
+        setError(`Could not read the report with AI: ${result.detail}`)
+        return
+      }
+      setExtracted({
+        fileName: file.name,
+        rows: result.rows,
+        reportTotalText: result.report_total_text,
+        notes: result.notes,
+      })
+      return
+    }
     if (guest) {
       if (guestRunPending) return
       if (guestRunUsedInTab || guestUsed || readGuestHoldsUsed()) {
@@ -468,6 +533,7 @@ export function HoldsPanel({
   }
 
   if (!report) {
+    const totalCheck = extracted === null ? null : extractedTotalCheck(extracted.rows, extracted.reportTotalText)
     return (
       <div className="mx-auto max-w-3xl space-y-4">
         {guest && guestUsed && (
@@ -482,23 +548,25 @@ export function HoldsPanel({
         <div className="border border-line bg-cream p-6">
           <h2 className="font-serif text-2xl font-semibold text-ink">Invoices on hold</h2>
           <p className="mt-2 text-sm text-ink-soft">
-            Upload the Invoices On Hold report from your ERP (CSV, TSV, or Excel). TieOut AP groups
-            the holds supplier-wise, reads each hold reason and your comments, and drafts the
-            supplier email or internal action for you to review. Drafts are never sent
+            Upload the Invoices On Hold report from your ERP (CSV, TSV, Excel, or PDF). TieOut AP
+            groups the holds supplier-wise, reads each hold reason and your comments, and drafts
+            the supplier email or internal action for you to review. Drafts are never sent
             automatically, and releasing a hold stays in your ERP, with you.
           </p>
           <p className="mt-2 text-xs text-ink-faint">
             Needs columns for supplier, invoice number, and hold reason; buyer comments, amounts,
-            quantities, hold dates, and supplier emails are used when present. The report stays in
-            your browser — only the AI read you explicitly request sends its text fields to the
-            server.
+            quantities, hold dates, and supplier emails are used when present. Spreadsheet reports
+            stay in your browser — only the AI read you explicitly request sends its text fields
+            to the server. PDF and image reports are read with AI (sign-in required): the document
+            is sent to the server, you review the extracted rows before loading them, and
+            everything after that is deterministic in your browser.
           </p>
           <div className="mt-4 flex flex-wrap items-center gap-3">
             <label className="btn-gold cursor-pointer px-4 py-2 text-sm font-semibold">
               Upload on-hold report
               <input
                 type="file"
-                accept=".csv,.tsv,.txt,.xlsx,.xls,.xlsm,.xlsb,.ods"
+                accept=".csv,.tsv,.txt,.xlsx,.xls,.xlsm,.xlsb,.ods,.pdf,.png,.jpg,.jpeg,.gif,.webp"
                 className="hidden"
                 onChange={(e) => {
                   const file = e.target.files?.[0]
@@ -515,10 +583,84 @@ export function HoldsPanel({
               Load sample report
             </button>
           </div>
+          {extracting && (
+            <p className="mt-3 border border-line bg-paper px-3 py-2 text-sm text-ink-soft">
+              AI is reading the report&hellip; you&rsquo;ll review the extracted rows before they
+              are loaded.
+            </p>
+          )}
           {error && (
             <p className="mt-3 border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-sm text-amber-300">{error}</p>
           )}
         </div>
+        {extracted !== null && totalCheck !== null && (
+          <div className="border border-gold/40 bg-cream p-6">
+            <h3 className="font-serif text-lg font-medium text-ink">
+              Review the AI-extracted rows &mdash; {extracted.fileName}
+            </h3>
+            <p className="mt-2 text-sm text-ink-soft">
+              AI transcribed {extracted.rows.length} hold row{extracted.rows.length === 1 ? '' : 's'}.{' '}
+              {totalCheck.kind === 'match' &&
+                `The rows sum to ${totalCheck.sum} — this matches the report's own printed total.`}
+              {totalCheck.kind === 'mismatch' &&
+                `The rows sum to ${totalCheck.sum}, but the report's printed total reads “${extracted.reportTotalText}” — check the document before loading.`}
+              {totalCheck.kind === 'no_total' &&
+                `The rows sum to ${totalCheck.sum}; the report shows no printed total to check against.`}
+              {totalCheck.kind === 'unparsed' &&
+                'Some amounts could not be read as numbers — check the document before loading.'}{' '}
+              Verify the rows against your PDF; the sum check is deterministic, but the
+              transcription is AI.
+            </p>
+            {extracted.notes !== '' && (
+              <p className="mt-2 text-xs text-ink-faint">Printed on the report: {extracted.notes}</p>
+            )}
+            <div className="mt-3 overflow-x-auto">
+              <table className="w-full text-left text-sm">
+                <thead>
+                  <tr className="border-b border-line font-mono text-xs uppercase tracking-[0.12em] text-ink-faint">
+                    <th className="py-1.5 pr-3">Supplier</th>
+                    <th className="py-1.5 pr-3">Invoice</th>
+                    <th className="py-1.5 pr-3">Hold reason</th>
+                    <th className="py-1.5 text-right">Amount</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {extracted.rows.map((r, i) => (
+                    <tr key={i} className="border-b border-line/50 text-ink-soft">
+                      <td className="py-1.5 pr-3">{r.supplier}</td>
+                      <td className="py-1.5 pr-3 font-mono">{r.invoice}</td>
+                      <td className="py-1.5 pr-3">{r.hold_reason}</td>
+                      <td className="py-1.5 text-right font-mono">
+                        {r.amount_text}
+                        {r.currency !== '' ? ` ${r.currency}` : ''}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <div className="mt-4 flex flex-wrap gap-3">
+              <button
+                type="button"
+                onClick={() => {
+                  if (loadCsv(extractedRowsToHoldsCsv(extracted.rows), extracted.fileName)) {
+                    setExtracted(null)
+                  }
+                }}
+                className="btn-gold px-4 py-2 text-sm font-semibold"
+              >
+                Load these holds
+              </button>
+              <button
+                type="button"
+                onClick={() => setExtracted(null)}
+                className="border border-line bg-paper px-4 py-2 text-sm font-medium text-ink hover:border-ink-faint"
+              >
+                Discard
+              </button>
+            </div>
+          </div>
+        )}
         <p className="text-right">
           <button
             type="button"
