@@ -14,6 +14,8 @@ const ROUTES: Record<string, [string, string]> = {
   '/api/extract': ['/server/extract.ts', 'handleExtract'],
   '/api/map': ['/server/map.ts', 'handleMap'],
   '/api/summarize': ['/server/summarize.ts', 'handleSummarize'],
+  '/api/holds-read': ['/server/holdsRead.ts', 'handleHoldsRead'],
+  '/api/proof-read': ['/server/proofRead.ts', 'handleProofRead'],
   '/api/checkout': ['/server/billing.ts', 'handleCheckout'],
   '/api/subscription': ['/server/billing.ts', 'handleSubscription'],
   '/api/portal': ['/server/billing.ts', 'handlePortal'],
