@@ -34,6 +34,18 @@ function isTrustPage(hash: string): hash is TrustPageId {
   return (TRUST_PAGES as string[]).includes(hash)
 }
 
+const LANDING_ANCHORS = [
+  'features',
+  'ai',
+  'how',
+  'results',
+  'monthly',
+  'holds',
+  'privacy',
+  'pricing',
+  'contact',
+]
+
 initAnalytics()
 
 const GUEST_RUN_KEY = 'tieout-guest-run-used'
@@ -81,7 +93,7 @@ export default function App() {
   const [view, setView] = useState<View>(() => {
     const hash = location.hash.slice(1)
     if (isTrustPage(hash)) return hash
-    return hash === '' || hash === 'contact' ? 'landing' : 'app'
+    return hash === '' || LANDING_ANCHORS.includes(hash) ? 'landing' : 'app'
   })
   const [guestRunUsed, setGuestRunUsed] = useState(readGuestRunUsed)
   const [showAuth, setShowAuth] = useState(false)
@@ -139,6 +151,8 @@ export default function App() {
       if (isTrustPage(hash)) {
         setView(hash)
         window.scrollTo(0, 0)
+      } else if (hash === '' || LANDING_ANCHORS.includes(hash)) {
+        setView('landing')
       }
     }
     window.addEventListener('hashchange', onHashChange)
@@ -187,6 +201,13 @@ export default function App() {
     history.replaceState(null, '', `${location.pathname}#app`)
   }
 
+  const openHolds = () => {
+    setMode('holds')
+    setShowAuth(true)
+    setView('app')
+    history.replaceState(null, '', `${location.pathname}#app`)
+  }
+
   const startOwnFiles = (input: RunInput): boolean => {
     track('own_file_run_started')
     return start(input)
@@ -219,7 +240,7 @@ export default function App() {
   }
 
   if (view === 'landing') {
-    return <Landing onOpenApp={openApp} onSampleRun={sampleRun} />
+    return <Landing onOpenApp={openApp} onOpenHolds={openHolds} onSampleRun={sampleRun} />
   }
 
   if (view !== 'app') {

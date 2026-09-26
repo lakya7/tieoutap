@@ -42,6 +42,11 @@ const MENUS: Menu[] = [
         desc: 'Batch runs across suppliers, browser-local run history, and recurring exceptions flagged month over month',
         href: '#monthly',
       },
+      {
+        title: 'Invoices on hold',
+        desc: 'Upload your ERP\u2019s on-hold report — a supplier-wise queue with reason-aware request drafts, proof verification, and chase aging',
+        href: '#holds',
+      },
     ],
   },
   {
