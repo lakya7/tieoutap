@@ -36,6 +36,24 @@ import {
 import type { HoldStatus } from '../lib/holdsStore'
 import { fileToRawCsv } from '../lib/tabular'
 
+const GUEST_HOLDS_KEY = 'tieout-guest-holds-run-used'
+
+function readGuestHoldsUsed(): boolean {
+  try {
+    return localStorage.getItem(GUEST_HOLDS_KEY) === '1'
+  } catch {
+    return false
+  }
+}
+
+function persistGuestHoldsUsed(): void {
+  try {
+    localStorage.setItem(GUEST_HOLDS_KEY, '1')
+  } catch {
+    // Storage unavailable — the in-memory flag still gates this tab.
+  }
+}
+
 const CATEGORY_CHIP: Record<HoldCategory, string> = {
   quantity: 'bg-amber-500/15 text-amber-300 border-amber-500/30',
   price: 'bg-burgundy/20 text-gold-light border-burgundy/40',
@@ -95,12 +113,16 @@ function InvoiceRow({
   inv,
   status,
   onStatus,
+  guest,
+  onSignIn,
 }: {
   report: HoldsReport
   supplier: SupplierHolds
   inv: HoldInvoice
   status: HoldStatus
   onStatus: (status: HoldStatus) => void
+  guest: boolean
+  onSignIn?: () => void
 }) {
   const [proof, setProof] = useState<ProofState | null>(null)
   const proofInput = useRef<HTMLInputElement>(null)
@@ -191,7 +213,16 @@ function InvoiceRow({
           {inv.comments}
         </p>
       )}
-      {inv.category === 'quantity' && (
+      {inv.category === 'quantity' && guest && (
+        <p className="text-sm text-ink-faint">
+          Supplier sent proof? Reading proof documents with AI needs an account &mdash;{' '}
+          <button type="button" onClick={onSignIn} className="font-semibold underline hover:text-pine">
+            sign in
+          </button>{' '}
+          to use it.
+        </p>
+      )}
+      {inv.category === 'quantity' && !guest && (
         <div className="space-y-1">
           <input
             ref={proofInput}
@@ -233,10 +264,14 @@ function SupplierCard({
   report,
   supplier,
   read,
+  guest,
+  onSignIn,
 }: {
   report: HoldsReport
   supplier: SupplierHolds
   read?: SupplierRead
+  guest: boolean
+  onSignIn?: () => void
 }) {
   const [open, setOpen] = useState(false)
   const statuses = loadHoldStatuses(report.id)
@@ -290,6 +325,8 @@ function SupplierCard({
                 inv={inv}
                 status={statuses[inv.key] ?? DEFAULT_HOLD_STATUS}
                 onStatus={(s) => saveHoldStatus(report.id, inv.key, supplier.supplier, s)}
+                guest={guest}
+                onSignIn={onSignIn}
               />
             ))}
           </div>
@@ -334,9 +371,18 @@ function SupplierCard({
   )
 }
 
-export function HoldsPanel({ onSingle }: { onSingle: () => void }) {
+export function HoldsPanel({
+  onSingle,
+  guest = false,
+  onSignIn,
+}: {
+  onSingle: () => void
+  guest?: boolean
+  onSignIn?: () => void
+}) {
   const [report, setReport] = useState<HoldsReport | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [guestUsed, setGuestUsed] = useState(readGuestHoldsUsed)
   const [reads, setReads] = useState<Record<string, SupplierRead> | null>(null)
   const [reading, setReading] = useState(false)
   const [readError, setReadError] = useState<string | null>(null)
@@ -349,7 +395,7 @@ export function HoldsPanel({ onSingle }: { onSingle: () => void }) {
 
   useEffect(() => subscribeHolds(() => setVersion((v) => v + 1)), [])
 
-  const loadCsv = (csv: string, fileName: string) => {
+  const loadCsv = (csv: string, fileName: string): boolean => {
     try {
       const parsed = parseHoldsReport(csv, fileName)
       setReport(parsed)
@@ -361,14 +407,23 @@ export function HoldsPanel({ onSingle }: { onSingle: () => void }) {
         supplier: '',
         event: `Report ${fileName} loaded — ${parsed.invoiceCount} invoice(s) on hold across ${parsed.suppliers.length} supplier(s)`,
       })
+      return true
     } catch (e) {
       setError(`Could not read the report (${e instanceof Error ? e.message : String(e)}).`)
+      return false
     }
   }
 
   const onFile = async (file: File) => {
+    if (guest && readGuestHoldsUsed()) {
+      setGuestUsed(true)
+      return
+    }
     try {
-      loadCsv(await fileToRawCsv(file), file.name)
+      if (loadCsv(await fileToRawCsv(file), file.name) && guest) {
+        persistGuestHoldsUsed()
+        setGuestUsed(true)
+      }
     } catch (e) {
       setError(`Could not read the file (${e instanceof Error ? e.message : String(e)}).`)
     }
@@ -394,6 +449,15 @@ export function HoldsPanel({ onSingle }: { onSingle: () => void }) {
   if (!report) {
     return (
       <div className="mx-auto max-w-3xl space-y-4">
+        {guest && guestUsed && (
+          <p className="mx-auto max-w-md border border-pine/30 bg-moss px-4 py-3 text-center text-sm text-pine-deep">
+            You&rsquo;ve used your free holds run. Create a free account to keep
+            working the queue &mdash; 14-day trial, no card needed.{' '}
+            <button type="button" onClick={onSignIn} className="font-semibold underline hover:text-ink">
+              Sign in
+            </button>
+          </p>
+        )}
         <div className="border border-line bg-cream p-6">
           <h2 className="font-serif text-2xl font-semibold text-ink">Invoices on hold</h2>
           <p className="mt-2 text-sm text-ink-soft">
@@ -528,14 +592,24 @@ export function HoldsPanel({ onSingle }: { onSingle: () => void }) {
           AI can read each hold reason and your comments, explain who needs to act, and word the
           supplier emails. Every figure in the drafts comes from the report itself.
         </p>
-        <button
-          type="button"
-          onClick={() => void aiRead()}
-          disabled={reading}
-          className="btn-gold ml-auto shrink-0 px-4 py-2 text-sm font-semibold disabled:opacity-60"
-        >
-          {reading ? 'Reading…' : reads ? 'Re-run AI read' : 'AI read of this report'}
-        </button>
+        {guest ? (
+          <button
+            type="button"
+            onClick={onSignIn}
+            className="btn-gold ml-auto shrink-0 px-4 py-2 text-sm font-semibold"
+          >
+            Sign in for the AI read
+          </button>
+        ) : (
+          <button
+            type="button"
+            onClick={() => void aiRead()}
+            disabled={reading}
+            className="btn-gold ml-auto shrink-0 px-4 py-2 text-sm font-semibold disabled:opacity-60"
+          >
+            {reading ? 'Reading…' : reads ? 'Re-run AI read' : 'AI read of this report'}
+          </button>
+        )}
       </div>
       {readError && (
         <p className="border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-sm text-amber-300">{readError}</p>
@@ -543,7 +617,14 @@ export function HoldsPanel({ onSingle }: { onSingle: () => void }) {
 
       <div className="space-y-3">
         {report.suppliers.map((s) => (
-          <SupplierCard key={s.supplier} report={report} supplier={s} read={reads?.[s.supplier]} />
+          <SupplierCard
+            key={s.supplier}
+            report={report}
+            supplier={s}
+            read={reads?.[s.supplier]}
+            guest={guest}
+            onSignIn={onSignIn}
+          />
         ))}
       </div>
 

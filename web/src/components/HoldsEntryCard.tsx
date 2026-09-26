@@ -1,4 +1,4 @@
-export function HoldsEntryCard({ onOpen }: { onOpen: () => void }) {
+export function HoldsEntryCard({ onOpen, guest = false }: { onOpen: () => void; guest?: boolean }) {
   return (
     <div className="mx-auto mt-6 max-w-3xl border border-gold/40 bg-cream p-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
@@ -14,6 +14,7 @@ export function HoldsEntryCard({ onOpen }: { onOpen: () => void }) {
             reason and comment, groups the queue supplier-wise, and drafts the
             supplier request or internal action for you to review. Nothing is
             sent automatically.
+            {guest && ' Try one run free \u2014 no account needed.'}
           </p>
         </div>
         <button
