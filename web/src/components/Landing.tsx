@@ -10,6 +10,7 @@ import { ResultsShowcase } from './ResultsShowcase'
 
 interface LandingProps {
   onOpenApp: () => void
+  onOpenHolds: () => void
   onSampleRun: () => void
 }
 
@@ -114,12 +115,13 @@ function SectionHead({
   )
 }
 
-export function Landing({ onOpenApp, onSampleRun }: LandingProps) {
+export function Landing({ onOpenApp, onOpenHolds, onSampleRun }: LandingProps) {
   const pricingRef = useRef<HTMLElement>(null)
 
   useEffect(() => {
-    if (location.hash === '#contact') {
-      document.getElementById('contact')?.scrollIntoView()
+    const anchor = location.hash.slice(1)
+    if (anchor) {
+      document.getElementById(anchor)?.scrollIntoView()
     }
   }, [])
 
@@ -466,7 +468,7 @@ export function Landing({ onOpenApp, onSampleRun }: LandingProps) {
             </p>
             <button
               type="button"
-              onClick={onOpenApp}
+              onClick={onOpenHolds}
               className="rounded-sm btn-gold px-5 py-2.5 text-sm font-semibold transition-colors"
             >
               Open the holds workbench
