@@ -128,7 +128,7 @@ function InvoiceRow({
       setProof({
         kind: 'done',
         detail:
-          'The document was read but no shipped quantity could be found on it — review it manually before deciding.',
+          'The document was read but no shipped quantity could be tied to this invoice or PO — review it manually before deciding.',
         documentType: result.document_type,
       })
       return
@@ -341,6 +341,11 @@ export function HoldsPanel({ onSingle }: { onSingle: () => void }) {
   const [reading, setReading] = useState(false)
   const [readError, setReadError] = useState<string | null>(null)
   const [, setVersion] = useState(0)
+  const reportIdRef = useRef(report?.id)
+
+  useEffect(() => {
+    reportIdRef.current = report?.id
+  }, [report])
 
   useEffect(() => subscribeHolds(() => setVersion((v) => v + 1)), [])
 
@@ -371,9 +376,11 @@ export function HoldsPanel({ onSingle }: { onSingle: () => void }) {
 
   const aiRead = async () => {
     if (!report) return
+    const requestedId = report.id
     setReading(true)
     setReadError(null)
     const result = await requestHoldsRead(report)
+    if (reportIdRef.current !== requestedId) return
     setReading(false)
     if (!result.ok) {
       setReadError(`AI read failed: ${result.detail}`)

@@ -105,8 +105,10 @@ export async function requestProofRead(file: File, mediaType: string): Promise<P
 }
 
 /** Total quantity the proof shows shipped for this invoice/PO: sums the
- * lines whose reference matches the invoice or PO, falling back to all lines
- * when none match. Returns null when no line carries a parseable quantity. */
+ * lines whose reference matches the invoice or PO. When no line carries a
+ * matching reference, all lines are summed only if the document itself
+ * references the invoice or PO; otherwise the proof cannot be tied to this
+ * invoice and null is returned for the buyer to compare manually. */
 export function proofQuantityFor(
   result: Extract<ProofReadResult, { ok: true }>,
   invoice: string,
@@ -114,15 +116,20 @@ export function proofQuantityFor(
 ): number | null {
   const norm = (s: string) => s.toUpperCase().replace(/[^A-Z0-9]+/g, '')
   const targets = [norm(invoice), norm(po)].filter((t) => t.length >= 3)
+  const matches = (raw: string): boolean => {
+    const r = norm(raw)
+    return r !== '' && targets.some((t) => r.includes(t) || t.includes(r))
+  }
   const qty = (text: string): number | null => {
     const m = text.replace(/,/g, '').match(/-?\d+(\.\d+)?/)
     return m ? Number(m[0]) : null
   }
-  const matching = result.lines.filter((l) => {
-    const r = norm(l.reference)
-    return r !== '' && targets.some((t) => r.includes(t) || t.includes(r))
-  })
-  const pool = matching.length > 0 ? matching : result.lines
+  const matching = result.lines.filter((l) => matches(l.reference))
+  let pool = matching
+  if (pool.length === 0) {
+    if (!result.references.some(matches)) return null
+    pool = result.lines
+  }
   const quantities = pool.map((l) => qty(l.quantity_text)).filter((q): q is number => q !== null)
   if (quantities.length === 0) return null
   return quantities.reduce((total, q) => total + q, 0)

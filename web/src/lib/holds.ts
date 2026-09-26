@@ -109,21 +109,26 @@ const QUANTITY_WORDS = ['qty', 'quantity', 'short', 'receipt', 'received', 'rece
 const PRICE_WORDS = ['price', 'rate', 'cost', 'freight', 'overcharge', 'ppv']
 const TAX_WORDS = ['tax', 'vat', 'gst', 'hst', 'withholding']
 const ADMIN_WORDS = [
-  'approval', 'approver', 'budget', 'duplicate', 'admin', 'validation', 'distribution',
+  'approval', 'approver', 'budget', 'duplicate', 'admin', 'validation', 'dist',
   'accounting', 'nopo', 'missingpo', 'invalidpo', 'matchrequired', 'site', 'supplierhold',
   'compliance', 'w9', 'w8', 'insurance', 'certificate',
 ]
+/** Phrases meaning the goods arrived but our own receiving hasn't posted them
+ * — an internal action, even when the hold reason itself mentions quantity. */
+const RECEIPT_PENDING_WORDS = ['notposted', 'notyetposted', 'unposted', 'missingreceipt', 'awaitingreceipt']
 
-/** Classifies one hold from its hold-reason text (comments only break the
- * tie for otherwise-unrecognised reasons). Pure keyword matching — no AI. */
+/** Classifies one hold from its hold-reason text (comments break the tie for
+ * otherwise-unrecognised reasons, and flag unposted receipts as internal).
+ * Pure keyword matching — no AI. */
 export function classifyHold(holdReason: string, comments: string): HoldCategory {
   const reason = normHeader(holdReason)
+  const combined = normHeader(holdReason + ' ' + comments)
   const inReason = (words: string[]) => words.some((w) => reason.includes(w))
+  if (RECEIPT_PENDING_WORDS.some((w) => combined.includes(w))) return 'admin'
   if (inReason(ADMIN_WORDS)) return 'admin'
   if (inReason(QUANTITY_WORDS)) return 'quantity'
   if (inReason(PRICE_WORDS)) return 'price'
   if (inReason(TAX_WORDS)) return 'tax'
-  const combined = normHeader(holdReason + ' ' + comments)
   const inBoth = (words: string[]) => words.some((w) => combined.includes(w))
   if (inBoth(ADMIN_WORDS)) return 'admin'
   if (inBoth(QUANTITY_WORDS)) return 'quantity'
@@ -189,14 +194,18 @@ export function parseHoldsReport(csv: string, fileName: string): HoldsReport {
   }
 
   const invoices: HoldInvoice[] = []
+  const keyCounts = new Map<string, number>()
   for (const row of rows) {
     const supplier = cell(row, 'supplier')
     const invoice = cell(row, 'invoice')
     if (supplier === '' && invoice === '') continue
     const holdReason = cell(row, 'holdReason')
     const comments = cell(row, 'comments')
+    const base = invoiceKey(supplier, invoice)
+    const seq = keyCounts.get(base) ?? 0
+    keyCounts.set(base, seq + 1)
     invoices.push({
-      key: invoiceKey(supplier, invoice),
+      key: seq === 0 ? base : `${base}\u0001${seq}`,
       supplier,
       invoice,
       po: cell(row, 'po'),
@@ -231,7 +240,13 @@ export function parseHoldsReport(csv: string, fileName: string): HoldsReport {
     .sort((a, b) => b.total - a.total || a.supplier.localeCompare(b.supplier))
 
   return {
-    id: contentId(invoices.map((i) => `${i.key}|${i.holdReason}|${i.amount ?? ''}`)),
+    id: contentId(
+      invoices.map(
+        (i) =>
+          `${i.key}|${i.po}|${i.holdReason}|${i.comments}|${i.amount ?? ''}|` +
+          `${i.qtyInvoiced ?? ''}|${i.qtyReceived ?? ''}|${i.holdDate}`,
+      ),
+    ),
     fileName,
     loadedAt: new Date().toISOString(),
     suppliers,

@@ -41,6 +41,17 @@ export interface ProofReadSuccess {
 
 export type ProofReadResponse = ApiResponse<ProofReadSuccess>
 
+/** Leading-byte signatures per media type, so mislabelled bytes are rejected
+ * before the document leaves for the transcription provider. */
+const SIGNATURES: Record<MediaType, (b: Buffer) => boolean> = {
+  'application/pdf': (b) => b.subarray(0, 4).toString('latin1') === '%PDF',
+  'image/png': (b) => b[0] === 0x89 && b[1] === 0x50 && b[2] === 0x4e && b[3] === 0x47,
+  'image/jpeg': (b) => b[0] === 0xff && b[1] === 0xd8 && b[2] === 0xff,
+  'image/gif': (b) => b.subarray(0, 4).toString('latin1') === 'GIF8',
+  'image/webp': (b) =>
+    b.subarray(0, 4).toString('latin1') === 'RIFF' && b.subarray(8, 12).toString('latin1') === 'WEBP',
+}
+
 function parseDocument(payload: unknown): ProofDocument | string {
   if (typeof payload !== 'object' || payload === null) return 'body must be a JSON object'
   const { media_type: mediaType, data } = payload as Record<string, unknown>
@@ -51,6 +62,10 @@ function parseDocument(payload: unknown): ProofDocument | string {
     return 'data must be a base64 string'
   }
   if (data.length * 0.75 > MAX_BYTES) return 'document exceeds the 12 MB limit'
+  const head = Buffer.from(data.slice(0, 24), 'base64')
+  if (head.length < 12 || !SIGNATURES[mediaType as MediaType](head)) {
+    return `document content does not look like ${mediaType}`
+  }
   return { media_type: mediaType as MediaType, data }
 }
 
