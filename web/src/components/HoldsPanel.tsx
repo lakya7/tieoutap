@@ -54,6 +54,10 @@ function persistGuestHoldsUsed(): void {
   }
 }
 
+// Keeps the loaded report across mode switches within the tab, so leaving the
+// workbench and coming back does not lose the run. Never persisted to storage.
+let lastReport: HoldsReport | null = null
+
 const CATEGORY_CHIP: Record<HoldCategory, string> = {
   quantity: 'bg-amber-500/15 text-amber-300 border-amber-500/30',
   price: 'bg-burgundy/20 text-gold-light border-burgundy/40',
@@ -380,9 +384,15 @@ export function HoldsPanel({
   guest?: boolean
   onSignIn?: () => void
 }) {
-  const [report, setReport] = useState<HoldsReport | null>(null)
+  const [report, setReportState] = useState<HoldsReport | null>(() => lastReport)
   const [error, setError] = useState<string | null>(null)
   const [guestUsed, setGuestUsed] = useState(readGuestHoldsUsed)
+  const guestRunClaimed = useRef(false)
+
+  const setReport = (r: HoldsReport | null) => {
+    lastReport = r
+    setReportState(r)
+  }
   const [reads, setReads] = useState<Record<string, SupplierRead> | null>(null)
   const [reading, setReading] = useState(false)
   const [readError, setReadError] = useState<string | null>(null)
@@ -415,16 +425,24 @@ export function HoldsPanel({
   }
 
   const onFile = async (file: File) => {
-    if (guest && readGuestHoldsUsed()) {
-      setGuestUsed(true)
-      return
+    if (guest) {
+      if (guestUsed || guestRunClaimed.current || readGuestHoldsUsed()) {
+        setGuestUsed(true)
+        return
+      }
+      guestRunClaimed.current = true
     }
     try {
-      if (loadCsv(await fileToRawCsv(file), file.name) && guest) {
-        persistGuestHoldsUsed()
-        setGuestUsed(true)
+      if (loadCsv(await fileToRawCsv(file), file.name)) {
+        if (guest) {
+          persistGuestHoldsUsed()
+          setGuestUsed(true)
+        }
+      } else if (guest) {
+        guestRunClaimed.current = false
       }
     } catch (e) {
+      if (guest) guestRunClaimed.current = false
       setError(`Could not read the file (${e instanceof Error ? e.message : String(e)}).`)
     }
   }
