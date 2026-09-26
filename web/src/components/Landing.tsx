@@ -417,11 +417,69 @@ export function Landing({ onOpenApp, onSampleRun }: LandingProps) {
         </div>
       </section>
 
+      {/* Invoices on hold */}
+      <section id="holds" className="scroll-mt-6 border-b border-line bg-cream">
+        <div className="mx-auto max-w-6xl px-6 py-24">
+          <SectionHead
+            n="06"
+            eyebrow="New — for buyers & AP"
+            title="Invoices on hold, worked supplier by supplier"
+          />
+          <p className="mt-5 max-w-3xl leading-relaxed text-ink-soft">
+            Every ERP puts invoices on hold &mdash; short receipts, price variances, tax
+            differences, approval and administrative holds &mdash; and working them is a
+            manual grind of reading hold reasons, writing supplier emails, and chasing
+            proof. Drop your Invoices On Hold report into the holds workbench and TieOut
+            does the legwork.
+          </p>
+          <div className="mt-14 grid gap-12 md:grid-cols-2 md:gap-x-16 lg:grid-cols-4 lg:gap-8">
+            {[
+              {
+                title: 'Supplier-wise hold queue',
+                body: 'One upload of your ERP\u2019s on-hold report becomes a queue grouped by supplier, largest amount first \u2014 with hold reasons, buyer comments, quantities, and a deterministic aging summary by reason and age bucket.',
+              },
+              {
+                title: 'Reason-aware drafts',
+                body: 'TieOut reads each hold reason and your comments, then drafts the right message: quantity holds ask the supplier for proof documents confirming the shipped quantity \u2014 or a credit note if only part shipped; price and tax holds ask for the agreed support. You review and send every email yourself.',
+              },
+              {
+                title: 'Internal holds stay internal',
+                body: 'Approval, distribution, and missing-receipt holds don\u2019t belong in a supplier\u2019s inbox. TieOut routes them to an internal action draft instead \u2014 ask receiving to post the receipt, ask the approver to clear the hold.',
+              },
+              {
+                title: 'Proof, chased and verified',
+                body: 'Unanswered requests show their age with a one-click follow-up draft. When the supplier\u2019s proof document arrives, AI reads it and the deterministic engine compares quantities \u2014 every action lands in a per-invoice activity log, exported in the hold pack.',
+              },
+            ].map((p) => (
+              <div key={p.title} className="border-t border-ink/25 pt-5">
+                <h3 className="font-serif text-xl font-medium text-ink">{p.title}</h3>
+                <p className="mt-3 text-[15px] leading-relaxed text-ink-soft">{p.body}</p>
+              </div>
+            ))}
+          </div>
+          <div className="mt-12 flex flex-wrap items-center justify-between gap-6 border border-line bg-paper p-5">
+            <p className="max-w-2xl text-sm leading-relaxed text-ink-soft">
+              <span className="font-semibold text-ink">You stay in control:</span> the
+              report is processed in your browser, no email is ever sent automatically,
+              and releasing the hold happens in your ERP &mdash; by you, with the
+              evidence in hand.
+            </p>
+            <button
+              type="button"
+              onClick={onOpenApp}
+              className="rounded-sm btn-gold px-5 py-2.5 text-sm font-semibold transition-colors"
+            >
+              Open the holds workbench
+            </button>
+          </div>
+        </div>
+      </section>
+
       {/* Who it's for */}
       <section className="border-b border-line">
         <div className="mx-auto max-w-6xl px-6 py-24">
           <SectionHead
-            n="06"
+            n="07"
             eyebrow="Who it's for"
             title="For the teams still reconciling statements in spreadsheets"
           />
@@ -458,6 +516,7 @@ export function Landing({ onOpenApp, onSampleRun }: LandingProps) {
                 'ERP migration — proving supplier balances match before and after cutover',
                 'Audit preparation — an evidence-backed pack for every reconciled statement',
                 'Supplier disputes — a drafted query email built from the findings',
+                'Invoices on hold — a supplier-wise queue with reason-aware request drafts',
               ].map((item) => (
                 <li key={item} className="flex items-baseline gap-2">
                   <span aria-hidden="true" className="text-pine">—</span>
@@ -472,7 +531,7 @@ export function Landing({ onOpenApp, onSampleRun }: LandingProps) {
       {/* Formats & privacy */}
       <section id="privacy" className="scroll-mt-6 border-b border-line bg-cream">
         <div className="mx-auto max-w-6xl px-6 py-24">
-          <SectionHead n="07" eyebrow="No IT project" title="Your files, your browser" />
+          <SectionHead n="08" eyebrow="No IT project" title="Your files, your browser" />
           <div className="mt-14 grid gap-12 md:grid-cols-2 md:gap-0 md:divide-x md:divide-line">
             <div className="md:pr-12">
               <h3 className="font-serif text-xl font-medium text-ink">
@@ -550,7 +609,7 @@ export function Landing({ onOpenApp, onSampleRun }: LandingProps) {
       {/* Pricing */}
       <section ref={pricingRef} id="pricing" className="scroll-mt-6 border-t border-line bg-cream">
         <div className="mx-auto max-w-5xl px-6 py-24">
-          <SectionHead n="08" eyebrow="Pricing" title="Simple pricing, no surprises" center />
+          <SectionHead n="09" eyebrow="Pricing" title="Simple pricing, no surprises" center />
           <div className="mx-auto mt-12 grid max-w-3xl gap-8 text-left md:grid-cols-2 md:gap-6">
             {/* Solo */}
             <div className="border border-line bg-paper p-8">
