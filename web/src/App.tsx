@@ -14,6 +14,7 @@ import type { TrustPageId } from './components/TrustPages'
 import { BatchPanel } from './components/BatchPanel'
 import { EMPTY_BATCH } from './lib/batch'
 import type { BatchSession } from './lib/batch'
+import { HoldsPanel } from './components/HoldsPanel'
 import { RunHistory } from './components/RunHistory'
 import { UploadPanel } from './components/UploadPanel'
 import { downloadAuditPackXlsx } from './lib/export'
@@ -84,7 +85,7 @@ export default function App() {
   })
   const [guestRunUsed, setGuestRunUsed] = useState(readGuestRunUsed)
   const [showAuth, setShowAuth] = useState(false)
-  const [mode, setMode] = useState<'single' | 'batch'>('single')
+  const [mode, setMode] = useState<'single' | 'batch' | 'holds'>('single')
   const [batch, setBatch] = useState<BatchSession>(EMPTY_BATCH)
   const [fromBatch, setFromBatch] = useState(false)
   const { session, loading: authLoading, enabled: authEnabled, signOut } = useAuth()
@@ -342,16 +343,25 @@ export default function App() {
                     onOpen={openBatchRun}
                     onSingle={() => setMode('single')}
                   />
+                ) : mode === 'holds' ? (
+                  <HoldsPanel onSingle={() => setMode('single')} />
                 ) : (
                   <>
                     <UploadPanel onRun={startOwnFiles} error={error} />
-                    <p className="mx-auto mt-3 max-w-3xl text-right">
+                    <p className="mx-auto mt-3 max-w-3xl flex flex-wrap justify-end gap-x-6 gap-y-1">
                       <button
                         type="button"
                         onClick={() => setMode('batch')}
                         className="text-sm text-ink-faint underline decoration-dotted underline-offset-4 hover:text-pine"
                       >
                         Several suppliers to reconcile? Switch to batch mode &rarr;
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setMode('holds')}
+                        className="text-sm text-ink-faint underline decoration-dotted underline-offset-4 hover:text-pine"
+                      >
+                        Invoices on hold in your ERP? Open the holds workbench &rarr;
                       </button>
                     </p>
                   </>
@@ -416,7 +426,7 @@ export default function App() {
 
       <footer className="mx-auto max-w-5xl px-6 pb-8 text-xs text-ink-faint">
         TieOut AP never writes to your ERP, holds no credentials, and sends nothing on
-        your behalf. Reconciliation runs entirely in your browser.
+        your behalf. Reconciliation and hold processing run entirely in your browser.
       </footer>
     </div>
   )
