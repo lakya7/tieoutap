@@ -14,6 +14,7 @@ import type { TrustPageId } from './components/TrustPages'
 import { BatchPanel } from './components/BatchPanel'
 import { EMPTY_BATCH } from './lib/batch'
 import type { BatchSession } from './lib/batch'
+import { HoldsEntryCard } from './components/HoldsEntryCard'
 import { HoldsPanel } from './components/HoldsPanel'
 import { RunHistory } from './components/RunHistory'
 import { UploadPanel } from './components/UploadPanel'
@@ -357,15 +358,7 @@ export default function App() {
                   </button>
                 </p>
                 <UploadPanel onRun={startGuest} error={error} guest onSignIn={() => setShowAuth(true)} />
-                <p className="mx-auto max-w-3xl flex justify-end">
-                  <button
-                    type="button"
-                    onClick={openHolds}
-                    className="text-sm text-ink-faint underline decoration-dotted underline-offset-4 hover:text-pine"
-                  >
-                    Invoices on hold in your ERP? Open the holds workbench &rarr;
-                  </button>
-                </p>
+                <HoldsEntryCard onOpen={openHolds} />
                 <RunHistory onOpen={start} />
               </div>
             )
@@ -392,14 +385,8 @@ export default function App() {
                       >
                         Several suppliers to reconcile? Switch to batch mode &rarr;
                       </button>
-                      <button
-                        type="button"
-                        onClick={() => setMode('holds')}
-                        className="text-sm text-ink-faint underline decoration-dotted underline-offset-4 hover:text-pine"
-                      >
-                        Invoices on hold in your ERP? Open the holds workbench &rarr;
-                      </button>
                     </p>
+                    <HoldsEntryCard onOpen={() => setMode('holds')} />
                   </>
                 )}
               </SubscriptionGate>
