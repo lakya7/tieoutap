@@ -151,6 +151,8 @@ export default function App() {
       if (isTrustPage(hash)) {
         setView(hash)
         window.scrollTo(0, 0)
+      } else if (hash === '' || LANDING_ANCHORS.includes(hash)) {
+        setView('landing')
       }
     }
     window.addEventListener('hashchange', onHashChange)
@@ -201,6 +203,7 @@ export default function App() {
 
   const openHolds = () => {
     setMode('holds')
+    setShowAuth(true)
     setView('app')
     history.replaceState(null, '', `${location.pathname}#app`)
   }
