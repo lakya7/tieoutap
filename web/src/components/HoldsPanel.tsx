@@ -58,6 +58,11 @@ function persistGuestHoldsUsed(): void {
 // workbench and coming back does not lose the run. Never persisted to storage.
 let lastReport: HoldsReport | null = null
 
+// Per-tab guest gating that survives panel remounts, including when
+// localStorage is unavailable. Never persisted to storage.
+let guestRunUsedInTab = false
+let guestRunPending = false
+
 const CATEGORY_CHIP: Record<HoldCategory, string> = {
   quantity: 'bg-amber-500/15 text-amber-300 border-amber-500/30',
   price: 'bg-burgundy/20 text-gold-light border-burgundy/40',
@@ -386,8 +391,7 @@ export function HoldsPanel({
 }) {
   const [report, setReportState] = useState<HoldsReport | null>(() => lastReport)
   const [error, setError] = useState<string | null>(null)
-  const [guestUsed, setGuestUsed] = useState(readGuestHoldsUsed)
-  const guestRunClaimed = useRef(false)
+  const [guestUsed, setGuestUsed] = useState(() => guestRunUsedInTab || readGuestHoldsUsed())
 
   const setReport = (r: HoldsReport | null) => {
     lastReport = r
@@ -426,24 +430,23 @@ export function HoldsPanel({
 
   const onFile = async (file: File) => {
     if (guest) {
-      if (guestUsed || guestRunClaimed.current || readGuestHoldsUsed()) {
+      if (guestRunPending) return
+      if (guestRunUsedInTab || guestUsed || readGuestHoldsUsed()) {
         setGuestUsed(true)
         return
       }
-      guestRunClaimed.current = true
+      guestRunPending = true
     }
     try {
-      if (loadCsv(await fileToRawCsv(file), file.name)) {
-        if (guest) {
-          persistGuestHoldsUsed()
-          setGuestUsed(true)
-        }
-      } else if (guest) {
-        guestRunClaimed.current = false
+      if (loadCsv(await fileToRawCsv(file), file.name) && guest) {
+        guestRunUsedInTab = true
+        persistGuestHoldsUsed()
+        setGuestUsed(true)
       }
     } catch (e) {
-      if (guest) guestRunClaimed.current = false
       setError(`Could not read the file (${e instanceof Error ? e.message : String(e)}).`)
+    } finally {
+      if (guest) guestRunPending = false
     }
   }
 
