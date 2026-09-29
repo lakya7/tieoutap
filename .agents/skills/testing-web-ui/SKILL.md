@@ -302,3 +302,10 @@ description: How to run and test the TieOut AP browser UI (web/) locally, includ
 - Final navy CTA band + footer are deliberately dark (#000856 bg, white text) — the only intentionally dark section left.
 - 390px testing: Chrome window resize bottoms out ~500px; use DevTools device emulation (F12, then click the device-toolbar icon — Ctrl+Shift+M after opening DevTools may not toggle it; click the icon). `ctrl+Home` doesn't scroll the emulated page; use repeated scroll-up over the viewport. Assert `document.documentElement.scrollWidth === clientWidth === 390`.
 - Console-log pitfall: `browser_console` returns logs from ALL pages visited in the session (e.g. reference tabs like xero.com inject New Relic warnings) — filter by origin before declaring the app console dirty.
+
+## Landing polish pass (PR #51, Landing/LandingNav/ContactSection/LeadCapture + index.css)
+- New objective selectors for visual-regression checks: `document.querySelectorAll('.num-chip').length === 7` (3 feature + 4 workflow blue square badges, figures "1".."4" with no leading zero) and a `.link-bold` hero link "Reconcile your own statement" (computed: font-weight 700, underline, color rgb(0,8,86)).
+- Marketing h2 headings now END WITH A PERIOD; when asserting "all headings end with '.'", exclude the live-results supplier data label `MERIDIAN IND SUPPLIES` — it's engine output, not a marketing heading.
+- Old markers that would indicate a stale bundle: mono "01 —" section eyebrows, serif headings, uppercase italic "EVERY DIFFERENCE EXPLAINED" nav tagline. New lockup: blue rounded-square "TA" + extrabold "TieOut AP" + sentence-case "Every difference explained".
+- Nav dropdown open/close is objectively observable via `aria-expanded` on the Product / Why TieOut buttons; the mobile hamburger button has `aria-label="Menu"` with the same attribute.
+- DevTools emulation gotcha (repeat): after F12, clicking near the page inside the emulated viewport can trigger element inspection instead of a page click on the first try — verify the intended state change (e.g. aria-expanded) and re-click if it didn't land.
