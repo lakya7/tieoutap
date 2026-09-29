@@ -35,6 +35,8 @@
   --color-night: #f5f9fa;
   --color-night-card: #ecf2f6;
   --color-night-warm: #e7effb;
+  --color-cyan: #13b5ea;
+  --color-mint: #00a870;
 }
 
 body {
@@ -60,4 +62,31 @@ body {
 .btn-primary:disabled {
   background-color: #e1e2e5;
   color: #66708c;
+}
+
+/* Numbered step badge: solid brand-blue square with a white figure. */
+.num-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  flex: none;
+  border-radius: 0.5rem;
+  background-color: #1f65d6;
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 1.05rem;
+}
+
+/* Emphatic inline text link: bold, underlined, navy. */
+.link-bold {
+  font-weight: 700;
+  color: #000856;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  text-decoration-thickness: 1.5px;
+}
+.link-bold:hover {
+  color: #1f65d6;
 }
