@@ -68,7 +68,7 @@ export function RunHistory({ onOpen }: { onOpen: (input: RunInput) => void }) {
                 </td>
                 <td
                   className={`py-2 pr-4 text-right font-mono text-xs tabular-nums ${
-                    e.unexplained === 0 ? 'text-pine-deep' : 'text-red-300'
+                    e.unexplained === 0 ? 'text-pine-deep' : 'text-red-700'
                   }`}
                 >
                   {formatCentsGrouped(e.unexplained)}
@@ -84,7 +84,7 @@ export function RunHistory({ onOpen }: { onOpen: (input: RunInput) => void }) {
                   <button
                     type="button"
                     onClick={() => open(e)}
-                    className="btn-gold px-3 py-1 text-xs font-semibold"
+                    className="btn-primary px-3 py-1 text-xs font-semibold"
                   >
                     Open
                   </button>

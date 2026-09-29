@@ -103,9 +103,9 @@ let guestRunUsedInTab = false
 let guestRunPending = false
 
 const CATEGORY_CHIP: Record<HoldCategory, string> = {
-  quantity: 'bg-amber-500/15 text-amber-300 border-amber-500/30',
-  price: 'bg-burgundy/20 text-gold-light border-burgundy/40',
-  tax: 'bg-sky-500/15 text-sky-300 border-sky-500/30',
+  quantity: 'bg-amber-500/15 text-amber-700 border-amber-500/30',
+  price: 'bg-burgundy/10 text-burgundy border-burgundy/30',
+  tax: 'bg-sky-500/15 text-sky-700 border-sky-500/30',
   admin: 'bg-cream text-ink-soft border-line',
   other: 'bg-cream text-ink-soft border-line',
 }
@@ -227,7 +227,7 @@ function InvoiceRow({
           </span>
         )}
         {age !== null && (
-          <span className={`font-mono text-xs ${age > 14 ? 'text-amber-300' : 'text-ink-faint'}`}>
+          <span className={`font-mono text-xs ${age > 14 ? 'text-amber-700' : 'text-ink-faint'}`}>
             {age} day{age === 1 ? '' : 's'} on hold
           </span>
         )}
@@ -294,7 +294,7 @@ function InvoiceRow({
             <p
               className={`border px-3 py-2 text-sm ${
                 proof.kind === 'error'
-                  ? 'border-amber-500/30 bg-amber-500/10 text-amber-300'
+                  ? 'border-amber-500/30 bg-amber-500/10 text-amber-700'
                   : 'border-pine/30 bg-moss text-pine-deep'
               }`}
             >
@@ -390,7 +390,7 @@ function SupplierCard({
                   <button
                     type="button"
                     onClick={() => markEmailSent(report.id, supplier.supplier, supplierKeys)}
-                    className="btn-gold px-3 py-1.5 text-sm font-semibold"
+                    className="btn-primary px-3 py-1.5 text-sm font-semibold"
                   >
                     Mark request as sent
                   </button>
@@ -571,7 +571,7 @@ export function HoldsPanel({
             everything after that is deterministic in your browser.
           </p>
           <div className="mt-4 flex flex-wrap items-center gap-3">
-            <label className="btn-gold cursor-pointer px-4 py-2 text-sm font-semibold">
+            <label className="btn-primary cursor-pointer px-4 py-2 text-sm font-semibold">
               Upload on-hold report
               <input
                 type="file"
@@ -599,7 +599,7 @@ export function HoldsPanel({
             </p>
           )}
           {error && (
-            <p className="mt-3 border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-sm text-amber-300">{error}</p>
+            <p className="mt-3 border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-sm text-amber-700">{error}</p>
           )}
         </div>
         {extracted !== null && totalCheck !== null && (
@@ -656,7 +656,7 @@ export function HoldsPanel({
                     setExtracted(null)
                   }
                 }}
-                className="btn-gold px-4 py-2 text-sm font-semibold"
+                className="btn-primary px-4 py-2 text-sm font-semibold"
               >
                 Load these holds
               </button>
@@ -715,14 +715,14 @@ export function HoldsPanel({
               setError(null)
               setReadError(null)
             }}
-            className="btn-gold px-3 py-1.5 text-sm font-semibold"
+            className="btn-primary px-3 py-1.5 text-sm font-semibold"
           >
             New report
           </button>
         </div>
       </div>
       {report.currencies.length > 1 && (
-        <p className="border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-sm text-amber-300">
+        <p className="border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-sm text-amber-700">
           The report mixes currencies ({report.currencies.join(', ')}) — the totals above add them
           without conversion, so read them per currency.
         </p>
@@ -768,7 +768,7 @@ export function HoldsPanel({
           <button
             type="button"
             onClick={onSignIn}
-            className="btn-gold ml-auto shrink-0 px-4 py-2 text-sm font-semibold"
+            className="btn-primary ml-auto shrink-0 px-4 py-2 text-sm font-semibold"
           >
             Sign in for the AI read
           </button>
@@ -777,14 +777,14 @@ export function HoldsPanel({
             type="button"
             onClick={() => void aiRead()}
             disabled={reading}
-            className="btn-gold ml-auto shrink-0 px-4 py-2 text-sm font-semibold disabled:opacity-60"
+            className="btn-primary ml-auto shrink-0 px-4 py-2 text-sm font-semibold disabled:opacity-60"
           >
             {reading ? 'Reading…' : reads ? 'Re-run AI read' : 'AI read of this report'}
           </button>
         )}
       </div>
       {readError && (
-        <p className="border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-sm text-amber-300">{readError}</p>
+        <p className="border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-sm text-amber-700">{readError}</p>
       )}
 
       <div className="space-y-3">

@@ -20,7 +20,7 @@ function Bar({
   const left = (lo / max) * 100
   const width = Math.max(((hi - lo) / max) * 100, 0.75)
   const color =
-    tone === 'total' ? 'bg-ink' : tone === 'up' ? 'bg-pine' : 'bg-red-400'
+    tone === 'total' ? 'bg-ink' : tone === 'up' ? 'bg-pine' : 'bg-red-600'
   return (
     <div aria-hidden="true" className="relative h-3 w-full min-w-24 bg-paper">
       <div
@@ -55,7 +55,7 @@ export function BridgeView({ bridge }: { bridge: Bridge }) {
         <span className="text-ink">{formatCentsGrouped(Math.abs(explained))}</span>
         {' '}={' '}
         <span className="text-ink">supplier statement {formatCentsGrouped(bridge.statement_total)}</span>
-        <span className={unexplained === 0 ? 'text-pine-deep' : 'text-red-300'}>
+        <span className={unexplained === 0 ? 'text-pine-deep' : 'text-red-700'}>
           {' '}· Unexplained {formatCentsGrouped(unexplained)}
         </span>
       </p>
@@ -89,7 +89,7 @@ export function BridgeView({ bridge }: { bridge: Bridge }) {
                   </td>
                   <td
                     className={`px-4 py-3 text-right font-mono tabular-nums ${
-                      adj.amount < 0 ? 'text-red-300' : 'text-pine'
+                      adj.amount < 0 ? 'text-red-700' : 'text-pine'
                     }`}
                   >
                     {adj.amount >= 0 ? '+' : ''}
@@ -112,7 +112,7 @@ export function BridgeView({ bridge }: { bridge: Bridge }) {
                       fully explained
                     </span>
                   ) : (
-                    <span className="bg-red-500/15 px-2 py-0.5 text-xs font-semibold text-red-300">
+                    <span className="bg-red-500/15 px-2 py-0.5 text-xs font-semibold text-red-700">
                       does not reconcile
                     </span>
                   )}
@@ -131,7 +131,7 @@ export function BridgeView({ bridge }: { bridge: Bridge }) {
                 <td className="px-4 py-3" />
                 <td
                   className={`px-4 py-3 text-right font-mono tabular-nums ${
-                    bridge.ties_out ? 'text-pine-deep' : 'text-red-300'
+                    bridge.ties_out ? 'text-pine-deep' : 'text-red-700'
                   }`}
                 >
                   {formatCentsGrouped(unexplained)}

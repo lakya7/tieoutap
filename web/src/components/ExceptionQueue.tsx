@@ -38,9 +38,9 @@ import {
 import type { ExceptionStatus, RunStatuses } from '../lib/statuses'
 
 const BUCKET_STYLES: Record<string, string> = {
-  cash_at_risk: 'bg-red-500/15 text-red-300',
-  unrecorded_liability: 'bg-amber-500/15 text-amber-300',
-  investigate: 'bg-sky-500/15 text-sky-300',
+  cash_at_risk: 'bg-red-500/15 text-red-700',
+  unrecorded_liability: 'bg-amber-500/15 text-amber-700',
+  investigate: 'bg-sky-500/15 text-sky-700',
   explained: 'bg-moss text-pine-deep',
 }
 
@@ -57,16 +57,16 @@ const METHOD_LABELS: Record<string, string> = {
 }
 
 const CHIP_STYLES: Record<ChipTone, string> = {
-  alert: 'bg-red-500/15 text-red-300',
-  warn: 'bg-amber-500/15 text-amber-300',
-  info: 'bg-sky-500/15 text-sky-300',
+  alert: 'bg-red-500/15 text-red-700',
+  warn: 'bg-amber-500/15 text-amber-700',
+  info: 'bg-sky-500/15 text-sky-700',
   ok: 'bg-moss text-pine-deep',
 }
 
 const STATUS_STYLES: Record<ExceptionStatus, string> = {
   open: 'border-line bg-cream text-ink',
-  investigating: 'border-sky-500/40 bg-sky-500/10 text-sky-200',
-  awaiting_supplier: 'border-amber-500/40 bg-amber-500/10 text-amber-200',
+  investigating: 'border-sky-500/40 bg-sky-500/10 text-sky-800',
+  awaiting_supplier: 'border-amber-500/40 bg-amber-500/10 text-amber-800',
   resolved: 'border-pine/40 bg-moss text-pine-deep',
   accepted: 'border-pine/40 bg-moss text-pine-deep',
 }
@@ -208,7 +208,7 @@ function ReviewPanel({
                 ...(needsTarget ? { reclassifiedTo } : {}),
               })
             }
-            className="btn-gold px-3 py-1.5 text-xs font-semibold disabled:cursor-not-allowed disabled:opacity-40"
+            className="btn-primary px-3 py-1.5 text-xs font-semibold disabled:cursor-not-allowed disabled:opacity-40"
           >
             {review ? 'Update' : 'Record'}
           </button>
@@ -382,7 +382,7 @@ export function ExceptionQueue({ run }: { run: Run }) {
 
   if (diagnostic !== null) {
     return (
-      <p className="border border-red-500/30 bg-red-500/10 p-6 text-sm text-red-300">
+      <p className="border border-red-500/30 bg-red-500/10 p-6 text-sm text-red-700">
         Reconciliation failed — the variance cannot be fully explained, so
         findings are suppressed. Diagnostic: <span className="font-mono">{diagnostic}</span>
       </p>
