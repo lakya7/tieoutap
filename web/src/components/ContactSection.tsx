@@ -54,21 +54,21 @@ export function ContactSection() {
   return (
     <section id="contact" className="border-t border-line bg-paper">
       <div className="mx-auto max-w-2xl px-6 py-24">
-        <p className="flex items-center justify-center gap-3 text-xs font-semibold uppercase tracking-[0.2em] text-pine">
-          <span className="font-mono">09</span>
-          <span aria-hidden="true" className="h-px w-8 bg-pine/40" />
-          Contact
+        <p className="text-center">
+          <span className="inline-flex items-center rounded-full bg-moss px-3.5 py-1 text-[13px] font-bold text-pine">
+            Contact
+          </span>
         </p>
-        <h2 className="mt-4 text-center font-serif text-3xl font-medium tracking-tight text-ink sm:text-4xl">
-          Get in touch
+        <h2 className="mt-5 text-center text-3xl font-extrabold leading-[1.15] tracking-tight text-ink sm:text-[2.5rem]">
+          Get in touch.
         </h2>
         <p className="mx-auto mt-4 max-w-xl text-center leading-relaxed text-ink-soft">
           Questions, a statement format we should support, or a walkthrough for your team —
           send a message and we&rsquo;ll reply by email.
         </p>
         {status === 'sent' ? (
-          <div className="mt-10 border border-pine/30 bg-moss p-8 text-center">
-            <p className="font-serif text-lg font-medium text-pine-deep">Message sent</p>
+          <div className="mt-10 rounded-2xl border border-pine/30 bg-moss p-8 text-center">
+            <p className="text-lg font-bold text-pine-deep">Message sent</p>
             <p className="mt-2 text-sm text-pine">
               Thanks for reaching out — we&rsquo;ll get back to you shortly.
             </p>

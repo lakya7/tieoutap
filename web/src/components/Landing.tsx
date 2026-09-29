@@ -23,17 +23,17 @@ const STATS = [
 
 const FEATURES = [
   {
-    n: '01',
+    n: '1',
     title: 'Every difference, named',
     body: 'Duplicate payments, invoices missing from your ledger, credits you haven\u2019t claimed, payments the supplier hasn\u2019t applied, amounts keyed differently, timing — sorted largest first, each with the evidence behind it.',
   },
   {
-    n: '02',
+    n: '2',
     title: 'An exact bridge',
     body: 'A signed waterfall from your ledger balance to the supplier statement balance. It either ties out to the penny or the tool tells you why it refused.',
   },
   {
-    n: '03',
+    n: '3',
     title: 'A drafted supplier email',
     body: 'A ready-to-send query list built from the findings. You review, edit, and send it yourself — nothing ever goes out automatically.',
   },
@@ -41,22 +41,22 @@ const FEATURES = [
 
 const STEPS = [
   {
-    n: '01',
+    n: '1',
     title: 'Match',
     body: 'Drop in the supplier statement — PDF, scan, Excel, or CSV — and your AP export. The engine matches invoices, payments, and credits line by line, in your browser.',
   },
   {
-    n: '02',
+    n: '2',
     title: 'Explain',
     body: 'Every unmatched line is classified in AP language, and the two balances are bridged exactly — 0.00 unexplained, or the tool tells you why it refused.',
   },
   {
-    n: '03',
+    n: '3',
     title: 'Investigate',
     body: 'Work the exception queue largest-first. Uncertain matches are flagged for your confirmation, never quietly applied.',
   },
   {
-    n: '04',
+    n: '4',
     title: 'Resolve',
     body: 'Copy the drafted supplier email, share the run with a link, and sign the statement off.',
   },
@@ -87,12 +87,10 @@ function downloadSample(name: string, text: string) {
 }
 
 function SectionHead({
-  n,
   eyebrow,
   title,
   center,
 }: {
-  n: string
   eyebrow: string
   title: string
   center?: boolean
@@ -100,16 +98,14 @@ function SectionHead({
   return (
     <div className={center ? 'mx-auto max-w-3xl text-center' : 'max-w-3xl'}>
       <p
-        className={`flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.2em] text-pine ${
+        className={`inline-flex items-center rounded-full bg-moss px-3.5 py-1 text-[13px] font-bold text-pine ${
           center ? 'justify-center' : ''
         }`}
       >
-        <span className="font-mono">{n}</span>
-        <span aria-hidden="true" className="h-px w-8 bg-pine/40" />
         {eyebrow}
       </p>
-      <h2 className="mt-4 font-serif text-3xl font-medium tracking-tight text-ink sm:text-4xl">
-        {title}
+      <h2 className="mt-5 text-3xl font-extrabold leading-[1.15] tracking-tight text-ink sm:text-[2.5rem]">
+        {title}.
       </h2>
     </div>
   )
@@ -151,11 +147,10 @@ export function Landing({ onOpenApp, onOpenHolds, onSampleRun }: LandingProps) {
 
         <div className="mx-auto grid max-w-6xl items-center gap-12 px-6 pb-24 pt-16 lg:grid-cols-2">
           <div>
-            <p className="flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.2em] text-pine">
+            <p className="inline-flex items-center rounded-full bg-moss px-3.5 py-1 text-[13px] font-bold text-pine">
               Supplier statement reconciliation
-              <span aria-hidden="true" className="h-px w-10 bg-pine/40" />
             </p>
-            <h1 className="mt-5 font-serif text-[2.65rem] font-bold leading-[1.06] tracking-tight text-ink sm:text-6xl">
+            <h1 className="mt-5 text-[2.65rem] font-extrabold leading-[1.06] tracking-tight text-ink sm:text-6xl">
               Know exactly why your supplier balance{' '}
               <span className="text-pine">doesn&rsquo;t match</span>.
             </h1>
@@ -170,22 +165,12 @@ export function Landing({ onOpenApp, onOpenHolds, onSampleRun }: LandingProps) {
               <button
                 type="button"
                 onClick={onSampleRun}
-                className="rounded-sm btn-primary px-7 py-3.5 text-sm font-semibold transition-colors"
+                className="btn-primary px-7 py-3.5 text-sm font-bold transition-colors"
               >
                 Try the sample reconciliation &mdash; no signup
               </button>
-              <button
-                type="button"
-                onClick={onOpenApp}
-                className="group text-sm font-semibold text-pine"
-              >
-                Reconcile your own statement{' '}
-                <span
-                  aria-hidden="true"
-                  className="inline-block transition-transform group-hover:translate-x-0.5"
-                >
-                  &rarr;
-                </span>
+              <button type="button" onClick={onOpenApp} className="link-bold text-sm">
+                Reconcile your own statement
               </button>
             </div>
             <ul className="mt-8 flex flex-wrap gap-x-6 gap-y-2 text-sm text-ink-soft">
@@ -195,7 +180,7 @@ export function Landing({ onOpenApp, onOpenHolds, onSampleRun }: LandingProps) {
                 'Your ledger never leaves your browser',
               ].map((item) => (
                 <li key={item} className="flex items-center gap-2">
-                  <span aria-hidden="true" className="text-pine">✓</span>
+                  <span aria-hidden="true" className="font-bold text-mint">✓</span>
                   {item}
                 </li>
               ))}
@@ -208,16 +193,11 @@ export function Landing({ onOpenApp, onOpenHolds, onSampleRun }: LandingProps) {
       </div>
 
       {/* Stats ledger strip */}
-      <div className="border-b border-line bg-cream">
-        <div className="mx-auto grid max-w-6xl grid-cols-1 divide-y divide-line px-6 sm:grid-cols-2 sm:divide-y-0 lg:grid-cols-4">
-          {STATS.map((s, i) => (
-            <div
-              key={s.value}
-              className={`py-8 sm:px-6 ${i > 0 ? 'lg:border-l lg:border-line' : ''} ${
-                i % 2 === 1 ? 'sm:border-l sm:border-line' : ''
-              } sm:first:pl-0`}
-            >
-              <p className="font-serif text-3xl font-medium text-ink">{s.value}</p>
+      <div className="border-b border-line">
+        <div className="mx-auto grid max-w-6xl grid-cols-1 gap-4 px-6 py-12 sm:grid-cols-2 lg:grid-cols-4">
+          {STATS.map((s) => (
+            <div key={s.value} className="rounded-2xl bg-cream p-6">
+              <p className="text-3xl font-extrabold tracking-tight text-ink">{s.value}</p>
               <p className="mt-2 text-sm leading-relaxed text-ink-soft">{s.label}</p>
             </div>
           ))}
@@ -227,15 +207,14 @@ export function Landing({ onOpenApp, onOpenHolds, onSampleRun }: LandingProps) {
       {/* Features */}
       <section id="features" className="mx-auto max-w-6xl scroll-mt-6 px-6 py-24">
         <SectionHead
-          n="01"
           eyebrow="What you get"
           title="Everything you need to clear a statement"
         />
-        <div className="mt-14 grid gap-12 md:grid-cols-3 md:gap-0 md:divide-x md:divide-line">
+        <div className="mt-14 grid gap-10 md:grid-cols-3">
           {FEATURES.map((f) => (
-            <div key={f.n} className="md:px-8 md:first:pl-0 md:last:pr-0">
-              <p className="font-mono text-sm text-pine">{f.n}</p>
-              <h3 className="mt-3 font-serif text-xl font-medium text-ink">{f.title}</h3>
+            <div key={f.n}>
+              <span className="num-chip">{f.n}</span>
+              <h3 className="mt-4 text-xl font-bold text-ink">{f.title}</h3>
               <p className="mt-3 text-[15px] leading-relaxed text-ink-soft">{f.body}</p>
             </div>
           ))}
@@ -245,12 +224,10 @@ export function Landing({ onOpenApp, onOpenHolds, onSampleRun }: LandingProps) {
       {/* AI vs determinism */}
       <section id="ai" className="scroll-mt-6 border-y border-line bg-cream text-ink">
         <div className="mx-auto max-w-6xl px-6 py-24">
-          <p className="flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.2em] text-pine">
-            <span className="font-mono">02</span>
-            <span aria-hidden="true" className="h-px w-8 bg-gold/40" />
+          <p className="inline-flex items-center rounded-full bg-paper px-3.5 py-1 text-[13px] font-bold text-pine">
             Where the AI stops
           </p>
-          <h2 className="mt-4 max-w-2xl font-serif text-3xl font-medium tracking-tight sm:text-4xl">
+          <h2 className="mt-5 max-w-2xl text-3xl font-extrabold leading-[1.15] tracking-tight sm:text-[2.5rem]">
             AI where it helps. Determinism where it counts.
           </h2>
           <p className="mt-5 max-w-2xl leading-relaxed text-ink-soft">
@@ -263,17 +240,17 @@ export function Landing({ onOpenApp, onOpenHolds, onSampleRun }: LandingProps) {
             <div className="divide-y divide-line">
               {AI_ITEMS.map((item) => (
                 <div key={item.label} className="py-6 first:pt-0 last:pb-0">
-                  <h3 className="font-serif text-lg font-medium text-ink">{item.label}</h3>
+                  <h3 className="text-lg font-bold text-ink">{item.label}</h3>
                   <p className="mt-2.5 text-sm leading-relaxed text-ink-soft">{item.body}</p>
                 </div>
               ))}
             </div>
-            <div className="rounded-xl border border-gold/25 bg-paper p-8 sm:p-10">
-              <p className="font-mono text-xs uppercase tracking-[0.2em] text-pine">
+            <div className="rounded-2xl bg-paper p-8 shadow-sm sm:p-10">
+              <p className="text-[13px] font-bold text-pine">
                 And then — no AI at all
               </p>
-              <h3 className="mt-4 font-serif text-2xl font-medium leading-snug text-ink">
-                Determinism does the maths
+              <h3 className="mt-3 text-2xl font-extrabold leading-snug tracking-tight text-ink">
+                Determinism does the maths.
               </h3>
               <p className="mt-4 text-sm leading-relaxed text-ink-soft">
                 Matching, arithmetic, classification and the bridge run in a
@@ -305,15 +282,14 @@ export function Landing({ onOpenApp, onOpenHolds, onSampleRun }: LandingProps) {
       <section id="how" className="scroll-mt-6 border-b border-line">
         <div className="mx-auto max-w-6xl px-6 py-24">
           <SectionHead
-            n="03"
             eyebrow="How it works"
             title="From statement to signed-off in minutes"
           />
           <div className="mt-14 grid gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-4">
             {STEPS.map((s) => (
-              <div key={s.n} className="border-t border-ink/25 pt-5">
-                <p className="font-mono text-sm text-pine">{s.n}</p>
-                <h3 className="mt-3 font-serif text-xl font-medium text-ink">{s.title}</h3>
+              <div key={s.n}>
+                <span className="num-chip">{s.n}</span>
+                <h3 className="mt-4 text-xl font-bold text-ink">{s.title}</h3>
                 <p className="mt-3 text-sm leading-relaxed text-ink-soft">{s.body}</p>
               </div>
             ))}
@@ -325,7 +301,6 @@ export function Landing({ onOpenApp, onOpenHolds, onSampleRun }: LandingProps) {
       <section id="results" className="scroll-mt-6 border-b border-line bg-cream">
         <div className="mx-auto max-w-6xl px-6 py-24">
           <SectionHead
-            n="04"
             eyebrow="The actual screen"
             title="This is the real output — not a mock-up"
           />
@@ -340,11 +315,11 @@ export function Landing({ onOpenApp, onOpenHolds, onSampleRun }: LandingProps) {
 
           <div className="mt-16 border-t border-line pt-12">
             <div className="max-w-3xl">
-              <p className="font-mono text-xs uppercase tracking-[0.2em] text-ink-faint">
+              <p className="inline-flex items-center rounded-full bg-paper px-3.5 py-1 text-[13px] font-bold text-pine">
                 Watch a real run
               </p>
-              <h3 className="mt-3 font-serif text-2xl font-medium text-ink">
-                From two files to a worked exception queue
+              <h3 className="mt-4 text-2xl font-extrabold tracking-tight text-ink">
+                From two files to a worked exception queue.
               </h3>
               <p className="mt-3 text-[15px] leading-relaxed text-ink-soft">
                 A real reconciliation, recorded in the app: upload a supplier statement
@@ -354,7 +329,7 @@ export function Landing({ onOpenApp, onOpenHolds, onSampleRun }: LandingProps) {
               </p>
             </div>
             <video
-              className="mt-8 w-full max-w-4xl rounded-xl border border-line bg-cream shadow-sm"
+              className="mt-8 w-full max-w-4xl rounded-2xl border border-line bg-cream shadow-sm"
               src="/demo-run.mp4"
               poster="/demo-run-poster.jpg"
               controls
@@ -372,7 +347,6 @@ export function Landing({ onOpenApp, onOpenHolds, onSampleRun }: LandingProps) {
       <section id="monthly" className="scroll-mt-6 border-b border-line">
         <div className="mx-auto max-w-6xl px-6 py-24">
           <SectionHead
-            n="05"
             eyebrow="Month after month"
             title="Built for the close that comes back every month"
           />
@@ -381,7 +355,7 @@ export function Landing({ onOpenApp, onOpenHolds, onSampleRun }: LandingProps) {
             recurring control it is &mdash; across your whole supplier list, and across
             closes.
           </p>
-          <div className="mt-14 grid gap-12 md:grid-cols-3 md:gap-0 md:divide-x md:divide-line">
+          <div className="mt-14 grid gap-6 md:grid-cols-3">
             {[
               {
                 title: 'Batch runs',
@@ -396,14 +370,14 @@ export function Landing({ onOpenApp, onOpenHolds, onSampleRun }: LandingProps) {
                 body: 'An exception still open from the previous saved run is flagged: \u201cRecurring \u2014 also open on the \u2026 run\u201d. Items you resolved or accepted stay resolved. The statement stops being re-discovered from scratch every close \u2014 you see exactly what has been sitting there since last month.',
               },
             ].map((p) => (
-              <div key={p.title} className="md:px-8 md:first:pl-0 md:last:pr-0">
-                <h3 className="font-serif text-xl font-medium text-ink">{p.title}</h3>
+              <div key={p.title} className="rounded-2xl bg-cream p-7">
+                <h3 className="text-xl font-bold text-ink">{p.title}</h3>
                 <p className="mt-3 text-[15px] leading-relaxed text-ink-soft">{p.body}</p>
               </div>
             ))}
           </div>
-          <div className="mt-12 max-w-xl border border-line bg-cream p-5">
-            <p className="font-mono text-xs uppercase tracking-[0.15em] text-ink-faint">
+          <div className="mt-12 max-w-xl rounded-2xl border border-line bg-paper p-6 shadow-sm">
+            <p className="text-[13px] font-bold text-pine">
               How it looks in the queue
             </p>
             <p className="mt-3 flex flex-wrap items-center gap-2 text-sm text-ink">
@@ -423,7 +397,6 @@ export function Landing({ onOpenApp, onOpenHolds, onSampleRun }: LandingProps) {
       <section id="holds" className="scroll-mt-6 border-b border-line bg-cream">
         <div className="mx-auto max-w-6xl px-6 py-24">
           <SectionHead
-            n="06"
             eyebrow="New — for buyers & AP"
             title="Invoices on hold, worked supplier by supplier"
           />
@@ -434,7 +407,7 @@ export function Landing({ onOpenApp, onOpenHolds, onSampleRun }: LandingProps) {
             proof. Drop your Invoices On Hold report into the holds workbench and TieOut
             does the legwork.
           </p>
-          <div className="mt-14 grid gap-12 md:grid-cols-2 md:gap-x-16 lg:grid-cols-4 lg:gap-8">
+          <div className="mt-14 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
             {[
               {
                 title: 'Supplier-wise hold queue',
@@ -453,13 +426,13 @@ export function Landing({ onOpenApp, onOpenHolds, onSampleRun }: LandingProps) {
                 body: 'Unanswered requests show their age with a one-click follow-up draft. When the supplier\u2019s proof document arrives, AI reads it and the deterministic engine compares quantities \u2014 every action lands in a per-invoice activity log, exported in the hold pack.',
               },
             ].map((p) => (
-              <div key={p.title} className="border-t border-ink/25 pt-5">
-                <h3 className="font-serif text-xl font-medium text-ink">{p.title}</h3>
+              <div key={p.title} className="rounded-2xl bg-paper p-7 shadow-sm">
+                <h3 className="text-xl font-bold text-ink">{p.title}</h3>
                 <p className="mt-3 text-[15px] leading-relaxed text-ink-soft">{p.body}</p>
               </div>
             ))}
           </div>
-          <div className="mt-12 flex flex-wrap items-center justify-between gap-6 border border-line bg-paper p-5">
+          <div className="mt-12 flex flex-wrap items-center justify-between gap-6 rounded-2xl border border-line bg-paper p-6">
             <p className="max-w-2xl text-sm leading-relaxed text-ink-soft">
               <span className="font-semibold text-ink">You stay in control:</span> the
               report is processed in your browser, no email is ever sent automatically,
@@ -469,7 +442,7 @@ export function Landing({ onOpenApp, onOpenHolds, onSampleRun }: LandingProps) {
             <button
               type="button"
               onClick={onOpenHolds}
-              className="rounded-sm btn-primary px-5 py-2.5 text-sm font-semibold transition-colors"
+              className="btn-primary px-6 py-3 text-sm font-bold transition-colors"
             >
               Open the holds workbench
             </button>
@@ -481,11 +454,10 @@ export function Landing({ onOpenApp, onOpenHolds, onSampleRun }: LandingProps) {
       <section className="border-b border-line">
         <div className="mx-auto max-w-6xl px-6 py-24">
           <SectionHead
-            n="07"
             eyebrow="Who it's for"
             title="For the teams still reconciling statements in spreadsheets"
           />
-          <div className="mt-14 grid gap-12 md:grid-cols-3 md:gap-0 md:divide-x md:divide-line">
+          <div className="mt-14 grid gap-6 md:grid-cols-3">
             {[
               {
                 title: 'Controllers',
@@ -500,14 +472,14 @@ export function Landing({ onOpenApp, onOpenHolds, onSampleRun }: LandingProps) {
                 body: 'Clearing supplier statements across many clients — each run is self-contained and shareable with a link.',
               },
             ].map((p) => (
-              <div key={p.title} className="md:px-8 md:first:pl-0 md:last:pr-0">
-                <h3 className="font-serif text-xl font-medium text-ink">{p.title}</h3>
+              <div key={p.title} className="rounded-2xl bg-cream p-7">
+                <h3 className="text-xl font-bold text-ink">{p.title}</h3>
                 <p className="mt-3 text-[15px] leading-relaxed text-ink-soft">{p.body}</p>
               </div>
             ))}
           </div>
           <div className="mt-14 border-t border-line pt-8">
-            <p className="font-mono text-xs uppercase tracking-[0.2em] text-ink-faint">
+            <p className="text-[13px] font-bold text-pine">
               When it earns its keep
             </p>
             <ul className="mt-4 grid gap-x-8 gap-y-2 text-[15px] text-ink-soft sm:grid-cols-2">
@@ -521,7 +493,7 @@ export function Landing({ onOpenApp, onOpenHolds, onSampleRun }: LandingProps) {
                 'Invoices on hold — a supplier-wise queue with reason-aware request drafts',
               ].map((item) => (
                 <li key={item} className="flex items-baseline gap-2">
-                  <span aria-hidden="true" className="text-pine">—</span>
+                  <span aria-hidden="true" className="font-bold text-mint">✓</span>
                   {item}
                 </li>
               ))}
@@ -533,10 +505,10 @@ export function Landing({ onOpenApp, onOpenHolds, onSampleRun }: LandingProps) {
       {/* Formats & privacy */}
       <section id="privacy" className="scroll-mt-6 border-b border-line bg-cream">
         <div className="mx-auto max-w-6xl px-6 py-24">
-          <SectionHead n="08" eyebrow="No IT project" title="Your files, your browser" />
-          <div className="mt-14 grid gap-12 md:grid-cols-2 md:gap-0 md:divide-x md:divide-line">
-            <div className="md:pr-12">
-              <h3 className="font-serif text-xl font-medium text-ink">
+          <SectionHead eyebrow="No IT project" title="Your files, your browser" />
+          <div className="mt-14 grid gap-6 md:grid-cols-2">
+            <div className="rounded-2xl bg-paper p-8 shadow-sm">
+              <h3 className="text-xl font-bold text-ink">
                 No ERP integration required
               </h3>
               <p className="mt-3 text-[15px] leading-relaxed text-ink-soft">
@@ -577,8 +549,8 @@ export function Landing({ onOpenApp, onOpenHolds, onSampleRun }: LandingProps) {
                 &nbsp;&mdash; the same files behind the sample run.
               </p>
             </div>
-            <div className="md:pl-12">
-              <h3 className="font-serif text-xl font-medium text-ink">
+            <div className="rounded-2xl bg-paper p-8 shadow-sm">
+              <h3 className="text-xl font-bold text-ink">
                 Your ledger never leaves your browser
               </h3>
               <p className="mt-3 text-[15px] leading-relaxed text-ink-soft">
@@ -588,8 +560,8 @@ export function Landing({ onOpenApp, onOpenHolds, onSampleRun }: LandingProps) {
                 then is discarded &mdash; never stored. Nothing is ever written to your
                 ERP or sent on your behalf.
               </p>
-              <a href="#security" className="mt-4 inline-block text-sm font-semibold text-pine hover:text-pine-deep">
-                Read the full security &amp; data-handling page &rarr;
+              <a href="#security" className="link-bold mt-4 inline-block text-sm">
+                Read the full security &amp; data-handling page
               </a>
             </div>
           </div>
@@ -599,7 +571,7 @@ export function Landing({ onOpenApp, onOpenHolds, onSampleRun }: LandingProps) {
       {/* Trust strip */}
       <section className="mx-auto max-w-3xl px-6 py-20 text-center">
         <div aria-hidden="true" className="double-rule mx-auto w-16 text-pine" />
-        <p className="mt-8 font-serif text-2xl font-medium leading-snug tracking-tight text-ink sm:text-[1.7rem]">
+        <p className="mt-8 text-2xl font-bold leading-snug tracking-tight text-ink sm:text-[1.7rem]">
           Built for controllers who need to trust the number: the same two files always
           produce the same findings, the same bridge, the same email.
         </p>
@@ -611,16 +583,16 @@ export function Landing({ onOpenApp, onOpenHolds, onSampleRun }: LandingProps) {
       {/* Pricing */}
       <section ref={pricingRef} id="pricing" className="scroll-mt-6 border-t border-line bg-cream">
         <div className="mx-auto max-w-5xl px-6 py-24">
-          <SectionHead n="09" eyebrow="Pricing" title="Simple pricing, no surprises" center />
+          <SectionHead eyebrow="Pricing" title="Simple pricing, no surprises" center />
           <div className="mx-auto mt-12 grid max-w-3xl gap-8 text-left md:grid-cols-2 md:gap-6">
             {/* Solo */}
-            <div className="border border-line bg-paper p-8">
-              <div className="flex items-baseline justify-between font-mono text-xs uppercase tracking-[0.2em] text-ink-faint">
-                <span>Solo</span>
-                <span>Per user, monthly</span>
+            <div className="rounded-2xl border border-line bg-paper p-8 shadow-sm">
+              <div className="flex items-baseline justify-between">
+                <span className="text-base font-bold text-ink">Solo</span>
+                <span className="text-xs font-semibold text-ink-faint">Per user, monthly</span>
               </div>
               <div className="mt-4 flex items-baseline gap-2">
-                <p className="font-serif text-4xl font-medium text-ink">$49</p>
+                <p className="text-4xl font-extrabold tracking-tight text-ink">$49</p>
                 <p className="text-sm text-ink-soft">/ month</p>
               </div>
               <ul className="mt-6 divide-y divide-line text-sm text-ink-soft">
@@ -632,13 +604,13 @@ export function Landing({ onOpenApp, onOpenHolds, onSampleRun }: LandingProps) {
                   'Excel exception exports, audit packs, shareable runs',
                 ].map((item) => (
                   <li key={item} className="flex items-baseline gap-2.5 py-2.5">
-                    <span aria-hidden="true" className="shrink-0 text-pine">✓</span>
+                    <span aria-hidden="true" className="shrink-0 font-bold text-mint">✓</span>
                     <span>{item}</span>
                   </li>
                 ))}
               </ul>
               <div aria-hidden="true" className="double-rule mt-5 text-ink/50" />
-              <p className="mt-4 text-sm font-medium text-pine">
+              <p className="mt-4 text-sm font-bold text-pine">
                 14-day free trial — no card required
               </p>
               <p className="mt-2 text-xs leading-relaxed text-ink-faint">
@@ -648,19 +620,19 @@ export function Landing({ onOpenApp, onOpenHolds, onSampleRun }: LandingProps) {
               <button
                 type="button"
                 onClick={onOpenApp}
-                className="mt-6 w-full rounded-sm btn-primary px-4 py-3 text-sm font-semibold transition-colors"
+                className="btn-primary mt-6 w-full px-4 py-3 text-sm font-bold transition-colors"
               >
                 Start free trial
               </button>
             </div>
             {/* Team / Firm */}
-            <div className="border border-line bg-paper p-8">
-              <div className="flex items-baseline justify-between font-mono text-xs uppercase tracking-[0.2em] text-ink-faint">
-                <span>Team &amp; Firm</span>
-                <span>By agreement</span>
+            <div className="rounded-2xl border border-line bg-paper p-8 shadow-sm">
+              <div className="flex items-baseline justify-between">
+                <span className="text-base font-bold text-ink">Team &amp; Firm</span>
+                <span className="text-xs font-semibold text-ink-faint">By agreement</span>
               </div>
               <div className="mt-4 flex items-baseline gap-2">
-                <p className="font-serif text-4xl font-medium text-ink">Let&rsquo;s talk</p>
+                <p className="text-4xl font-extrabold tracking-tight text-ink">Let&rsquo;s talk</p>
               </div>
               <ul className="mt-6 divide-y divide-line text-sm text-ink-soft">
                 {[
@@ -671,13 +643,13 @@ export function Landing({ onOpenApp, onOpenHolds, onSampleRun }: LandingProps) {
                   'Priority support',
                 ].map((item) => (
                   <li key={item} className="flex items-baseline gap-2.5 py-2.5">
-                    <span aria-hidden="true" className="shrink-0 text-pine">✓</span>
+                    <span aria-hidden="true" className="shrink-0 font-bold text-mint">✓</span>
                     <span>{item}</span>
                   </li>
                 ))}
               </ul>
               <div aria-hidden="true" className="double-rule mt-5 text-ink/50" />
-              <p className="mt-4 text-sm font-medium text-pine">
+              <p className="mt-4 text-sm font-bold text-pine">
                 For AP teams and accounting firms
               </p>
               <p className="mt-2 text-xs leading-relaxed text-ink-faint">
@@ -686,7 +658,7 @@ export function Landing({ onOpenApp, onOpenHolds, onSampleRun }: LandingProps) {
               </p>
               <a
                 href="#contact"
-                className="mt-6 block w-full rounded-sm border border-gold/40 px-4 py-3 text-center text-sm font-semibold text-pine transition-colors hover:bg-gold/10"
+                className="mt-6 block w-full rounded-full border-2 border-pine px-4 py-3 text-center text-sm font-bold text-pine transition-colors hover:bg-moss"
               >
                 Contact us
               </a>
@@ -709,21 +681,21 @@ export function Landing({ onOpenApp, onOpenHolds, onSampleRun }: LandingProps) {
       {/* Final CTA */}
       <section className="bg-ink text-white">
         <div className="mx-auto max-w-6xl px-6 py-20 text-center">
-          <h2 className="font-serif text-3xl font-medium tracking-tight sm:text-4xl">
-            Find out why it doesn&rsquo;t match &mdash; in minutes
+          <h2 className="text-3xl font-extrabold tracking-tight sm:text-[2.5rem]">
+            Find out why it doesn&rsquo;t match &mdash; in minutes.
           </h2>
           <div className="mt-9 flex flex-wrap justify-center gap-5">
             <button
               type="button"
               onClick={onOpenApp}
-              className="rounded-sm btn-primary px-7 py-3.5 text-sm font-semibold transition-colors"
+              className="btn-primary px-7 py-3.5 text-sm font-bold transition-colors"
             >
               Reconcile a statement
             </button>
             <button
               type="button"
               onClick={onSampleRun}
-              className="rounded-full border border-white/40 px-7 py-3.5 text-sm font-semibold text-white hover:bg-white/10"
+              className="rounded-full border-2 border-white/60 px-7 py-3.5 text-sm font-bold text-white hover:bg-white/10"
             >
               See a sample run
             </button>
@@ -731,7 +703,7 @@ export function Landing({ onOpenApp, onOpenHolds, onSampleRun }: LandingProps) {
         </div>
         <footer className="border-t border-white/15">
           <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-2 px-6 py-6 text-xs text-white/60 sm:flex-row">
-            <span className="font-serif text-sm text-white/80">
+            <span className="text-sm font-bold text-white/80">
               TieOut <span className="text-gold-light">AP</span> — tieoutap.com
             </span>
             <span className="flex flex-wrap items-center justify-center gap-4">

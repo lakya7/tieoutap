@@ -47,10 +47,12 @@ export function LeadCapture() {
   return (
     <section className="border-t border-line bg-gradient-to-br from-night-card via-night to-night-warm">
       <div className="mx-auto max-w-3xl px-6 py-16 text-center">
-        <p className="font-mono text-xs uppercase tracking-[0.2em] text-pine">
-          Design partners
+        <p>
+          <span className="inline-flex items-center rounded-full bg-paper px-3.5 py-1 text-[13px] font-bold text-pine">
+            Design partners
+          </span>
         </p>
-        <h2 className="mt-3 font-serif text-2xl font-medium tracking-tight text-ink sm:text-3xl">
+        <h2 className="mt-4 text-2xl font-extrabold tracking-tight text-ink sm:text-3xl">
           Reconcile supplier statements every month? Help shape TieOut AP.
         </h2>
         <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-ink-soft">
@@ -60,7 +62,7 @@ export function LeadCapture() {
           email and we&rsquo;ll get in touch.
         </p>
         {status === 'sent' ? (
-          <p className="mx-auto mt-6 max-w-md border border-pine/30 bg-moss px-4 py-3 text-sm font-medium text-pine-deep">
+          <p className="mx-auto mt-6 max-w-md rounded-2xl border border-pine/30 bg-moss px-4 py-3 text-sm font-medium text-pine-deep">
             Thanks — we&rsquo;ll be in touch shortly.
           </p>
         ) : (

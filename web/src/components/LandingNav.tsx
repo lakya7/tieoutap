@@ -114,15 +114,15 @@ export function LandingNav({ onOpenApp, onSampleRun }: LandingNavProps) {
     <nav ref={navRef} className="relative mx-auto max-w-6xl px-6">
       <div className="flex items-center justify-between py-5">
         <span className="flex items-center gap-3">
-          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-sm bg-gradient-to-br from-burgundy to-burgundy-soft font-serif text-lg font-semibold text-white">
+          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-pine text-lg font-extrabold text-white">
             TA
           </span>
           <span>
-            <span className="block font-serif text-xl font-semibold uppercase tracking-[0.18em] text-ink">
+            <span className="block text-xl font-extrabold tracking-tight text-ink">
               TieOut <span className="text-pine">AP</span>
             </span>
-            <span className="block font-accent text-sm italic tracking-[0.22em] text-pine">
-              EVERY DIFFERENCE EXPLAINED
+            <span className="block text-xs font-medium text-ink-faint">
+              Every difference explained
             </span>
           </span>
         </span>
@@ -135,10 +135,10 @@ export function LandingNav({ onOpenApp, onSampleRun }: LandingNavProps) {
               type="button"
               aria-expanded={open === menu.id}
               onClick={() => setOpen((o) => (o === menu.id ? null : menu.id))}
-              className={`flex items-center gap-1 rounded-sm px-3 py-2 text-sm font-semibold transition-colors ${
+              className={`flex items-center gap-1 rounded-full px-3.5 py-2 text-sm font-bold transition-colors ${
                 open === menu.id
                   ? 'btn-primary'
-                  : 'text-ink-soft hover:bg-ink/5 hover:text-pine'
+                  : 'text-ink hover:bg-moss hover:text-pine'
               }`}
             >
               {menu.label}
@@ -159,7 +159,7 @@ export function LandingNav({ onOpenApp, onSampleRun }: LandingNavProps) {
           <a
             href="#contact"
             onClick={closeAll}
-            className="rounded-sm px-3 py-2 text-sm font-semibold text-ink-soft hover:bg-ink/5 hover:text-pine"
+            className="rounded-full px-3.5 py-2 text-sm font-bold text-ink hover:bg-moss hover:text-pine"
           >
             Contact
           </a>
@@ -169,14 +169,14 @@ export function LandingNav({ onOpenApp, onSampleRun }: LandingNavProps) {
           <button
             type="button"
             onClick={onSampleRun}
-            className="hidden rounded-sm border border-ink/25 px-4 py-2 text-sm font-medium text-ink hover:bg-ink/5 sm:block"
+            className="hidden rounded-full border-2 border-line px-4 py-2 text-sm font-bold text-ink hover:border-pine hover:text-pine sm:block"
           >
             See a sample run
           </button>
           <button
             type="button"
             onClick={onOpenApp}
-            className="rounded-sm btn-primary px-4 py-2 text-sm font-semibold transition-colors"
+            className="btn-primary px-4.5 py-2 text-sm font-bold transition-colors"
           >
             Open the app
           </button>
@@ -220,7 +220,7 @@ export function LandingNav({ onOpenApp, onSampleRun }: LandingNavProps) {
               key={menu.id}
               className="absolute left-0 right-0 top-full z-20 hidden px-6 md:block"
             >
-              <div className="grid grid-cols-2 gap-x-8 gap-y-6 border border-line bg-cream p-8 shadow-xl shadow-ink/10 lg:grid-cols-4">
+              <div className="grid grid-cols-2 gap-x-8 gap-y-6 rounded-2xl border border-line bg-paper p-8 shadow-xl shadow-ink/10 lg:grid-cols-4">
                 {menu.items.map((item) => (
                   <a
                     key={item.title}
@@ -228,7 +228,7 @@ export function LandingNav({ onOpenApp, onSampleRun }: LandingNavProps) {
                     onClick={closeAll}
                     className="group block"
                   >
-                    <p className="font-serif text-base font-medium text-ink group-hover:text-pine">
+                    <p className="text-base font-bold text-ink group-hover:text-pine">
                       {item.title}
                     </p>
                     <p className="mt-1.5 text-sm leading-relaxed text-ink-soft">{item.desc}</p>
@@ -242,10 +242,10 @@ export function LandingNav({ onOpenApp, onSampleRun }: LandingNavProps) {
       {/* Mobile menu */}
       {mobileOpen && (
         <div className="absolute left-0 right-0 top-full z-20 px-6 md:hidden">
-          <div className="border border-line bg-cream p-5 shadow-xl shadow-ink/10">
+          <div className="rounded-2xl border border-line bg-paper p-5 shadow-xl shadow-ink/10">
             {MENUS.map((menu) => (
               <div key={menu.id} className="mb-4">
-                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-pine">
+                <p className="text-[13px] font-bold text-pine">
                   {menu.label}
                 </p>
                 <div className="mt-2 space-y-2">
