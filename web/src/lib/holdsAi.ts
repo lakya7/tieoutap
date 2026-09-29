@@ -149,6 +149,58 @@ export async function requestHoldsExtract(file: File, mediaType: string): Promis
 const HOLDS_CSV_HEADER =
   'supplier,invoice,po,hold reason,comments,amount,currency,qty invoiced,qty received,hold date,supplier email'
 
+const MONTHS: Record<string, string> = {
+  jan: '01',
+  feb: '02',
+  mar: '03',
+  apr: '04',
+  may: '05',
+  jun: '06',
+  jul: '07',
+  aug: '08',
+  sep: '09',
+  oct: '10',
+  nov: '11',
+  dec: '12',
+}
+
+function isoDate(year: string, month: string, day: string): string | null {
+  const y = year.length === 2 ? `20${year}` : year
+  const m = Number(month)
+  const d = Number(day)
+  if (m < 1 || m > 12 || d < 1 || d > 31) return null
+  return `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`
+}
+
+/** Deterministically rewrites a printed hold date into the ISO form the holds
+ * parser reads, covering the formats ERP reports print (`20-SEP-2026`,
+ * `2026/09/20`, `Sep 20, 2026`, and numeric dates like `09/20/2026` when the
+ * day makes month/day order unambiguous). Anything ambiguous or unrecognised
+ * passes through as printed. */
+export function normaliseHoldDate(raw: string): string {
+  const s = raw.trim()
+  let m = s.match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})$/)
+  if (m) return isoDate(m[1], m[2], m[3]) ?? s
+  m = s.match(/^(\d{1,2})[- ]([A-Za-z]{3,9})[- ,]+(\d{2}(?:\d{2})?)$/)
+  if (m) {
+    const month = MONTHS[m[2].slice(0, 3).toLowerCase()]
+    if (month) return isoDate(m[3], month, m[1]) ?? s
+  }
+  m = s.match(/^([A-Za-z]{3,9})[. ]+(\d{1,2}),?\s+(\d{2}(?:\d{2})?)$/)
+  if (m) {
+    const month = MONTHS[m[1].slice(0, 3).toLowerCase()]
+    if (month) return isoDate(m[3], month, m[2]) ?? s
+  }
+  m = s.match(/^(\d{1,2})[/-](\d{1,2})[/-](\d{4})$/)
+  if (m) {
+    const a = Number(m[1])
+    const b = Number(m[2])
+    if (a > 12 && b <= 12) return isoDate(m[3], m[2], m[1]) ?? s
+    if (b > 12 && a <= 12) return isoDate(m[3], m[1], m[2]) ?? s
+  }
+  return s
+}
+
 function csvField(field: string): string {
   return /[",\n\r]/.test(field) ? `"${field.replaceAll('"', '""')}"` : field
 }
@@ -167,7 +219,7 @@ export function extractedRowsToHoldsCsv(rows: HoldRowExtract[]): string {
       r.currency,
       r.qty_invoiced_text,
       r.qty_received_text,
-      r.hold_date_text,
+      normaliseHoldDate(r.hold_date_text),
       r.supplier_email,
     ]
       .map(csvField)

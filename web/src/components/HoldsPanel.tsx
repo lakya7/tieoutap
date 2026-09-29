@@ -49,6 +49,12 @@ type TotalCheck =
   | { kind: 'match' | 'mismatch' | 'no_total'; sum: string }
   | { kind: 'unparsed' }
 
+/** Parenthesised credits like `(25.00)` read as negative, matching how the
+ * holds parser reads amounts. */
+function parsePrintedAmount(raw: string): number {
+  return parseAmount(raw.trim().replace(/[()]/g, (c) => (c === '(' ? '-' : '')))
+}
+
 /** Deterministic check of an AI extraction: the extracted amounts must sum to
  * the report's own printed total (when one is printed). Mirrors the closing-
  * balance check on statement extraction. */
@@ -57,7 +63,7 @@ function extractedTotalCheck(rows: HoldRowExtract[], reportTotalText: string): T
   for (const row of rows) {
     if (row.amount_text.trim() === '') continue
     try {
-      sum += parseAmount(row.amount_text)
+      sum += parsePrintedAmount(row.amount_text)
     } catch {
       return { kind: 'unparsed' }
     }
@@ -65,7 +71,7 @@ function extractedTotalCheck(rows: HoldRowExtract[], reportTotalText: string): T
   const formatted = formatCentsGrouped(sum)
   if (reportTotalText.trim() === '') return { kind: 'no_total', sum: formatted }
   try {
-    return { kind: parseAmount(reportTotalText) === sum ? 'match' : 'mismatch', sum: formatted }
+    return { kind: parsePrintedAmount(reportTotalText) === sum ? 'match' : 'mismatch', sum: formatted }
   } catch {
     return { kind: 'unparsed' }
   }
@@ -442,6 +448,7 @@ export function HoldsPanel({
   } | null>(null)
   const [, setVersion] = useState(0)
   const reportIdRef = useRef(report?.id)
+  const extractSeqRef = useRef(0)
 
   useEffect(() => {
     reportIdRef.current = report?.id
@@ -480,7 +487,9 @@ export function HoldsPanel({
       setError(null)
       setExtracted(null)
       setExtracting(true)
+      const seq = ++extractSeqRef.current
       const result = await requestHoldsExtract(file, mediaType)
+      if (extractSeqRef.current !== seq) return
       setExtracting(false)
       if (!result.ok) {
         setError(`Could not read the report with AI: ${result.detail}`)
