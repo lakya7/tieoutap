@@ -114,7 +114,7 @@ export function LandingNav({ onOpenApp, onSampleRun }: LandingNavProps) {
     <nav ref={navRef} className="relative mx-auto max-w-6xl px-6">
       <div className="flex items-center justify-between py-5">
         <span className="flex items-center gap-3">
-          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-sm bg-gradient-to-br from-burgundy to-burgundy-soft font-serif text-lg font-semibold text-gold-light">
+          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-sm bg-gradient-to-br from-burgundy to-burgundy-soft font-serif text-lg font-semibold text-white">
             TA
           </span>
           <span>
@@ -137,7 +137,7 @@ export function LandingNav({ onOpenApp, onSampleRun }: LandingNavProps) {
               onClick={() => setOpen((o) => (o === menu.id ? null : menu.id))}
               className={`flex items-center gap-1 rounded-sm px-3 py-2 text-sm font-semibold transition-colors ${
                 open === menu.id
-                  ? 'btn-gold'
+                  ? 'btn-primary'
                   : 'text-ink-soft hover:bg-ink/5 hover:text-pine'
               }`}
             >
@@ -176,7 +176,7 @@ export function LandingNav({ onOpenApp, onSampleRun }: LandingNavProps) {
           <button
             type="button"
             onClick={onOpenApp}
-            className="rounded-sm btn-gold px-4 py-2 text-sm font-semibold transition-colors"
+            className="rounded-sm btn-primary px-4 py-2 text-sm font-semibold transition-colors"
           >
             Open the app
           </button>

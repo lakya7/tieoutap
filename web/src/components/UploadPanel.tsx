@@ -94,7 +94,7 @@ function FileDrop({
       {busy ? (
         <span className="text-xs text-ink-faint">Reading the statement…</span>
       ) : readError ? (
-        <span className="px-2 text-xs text-red-400">{readError}</span>
+        <span className="px-2 text-xs text-red-700">{readError}</span>
       ) : fileName ? (
         <span className="bg-moss px-2 py-0.5 font-mono text-xs text-pine-deep">
           {fileName}
@@ -399,7 +399,7 @@ export function UploadPanel({ onRun, error, guest = false, onSignIn }: UploadPan
           return (
             <div
               key={kind}
-              className="mt-4 border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-sm text-amber-300"
+              className="mt-4 border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-sm text-amber-700"
             >
               <p>
                 <span className="font-mono">{offer.name}</span> doesn&rsquo;t use the standard
@@ -414,7 +414,7 @@ export function UploadPanel({ onRun, error, guest = false, onSignIn }: UploadPan
                 )}
               </p>
               {offer.status === 'error' && (
-                <p className="mt-1 text-red-300">Mapping failed: {offer.detail}</p>
+                <p className="mt-1 text-red-700">Mapping failed: {offer.detail}</p>
               )}
               <div className="mt-2 flex flex-wrap items-center gap-3">
                 {offer.saved && (
@@ -422,7 +422,7 @@ export function UploadPanel({ onRun, error, guest = false, onSignIn }: UploadPan
                     type="button"
                     disabled={offer.status === 'busy'}
                     onClick={() => applySavedMapping(kind)}
-                    className="btn-gold px-3 py-1 text-xs font-semibold disabled:cursor-not-allowed"
+                    className="btn-primary px-3 py-1 text-xs font-semibold disabled:cursor-not-allowed"
                   >
                     Apply saved mapping
                   </button>
@@ -431,7 +431,7 @@ export function UploadPanel({ onRun, error, guest = false, onSignIn }: UploadPan
                   <button
                     type="button"
                     onClick={() => onSignIn?.()}
-                    className="btn-gold px-3 py-1 text-xs font-semibold"
+                    className="btn-primary px-3 py-1 text-xs font-semibold"
                   >
                     Sign in to map with AI
                   </button>
@@ -443,7 +443,7 @@ export function UploadPanel({ onRun, error, guest = false, onSignIn }: UploadPan
                     className={
                       offer.saved
                         ? 'text-xs text-ink-faint underline decoration-dotted underline-offset-4 hover:text-pine'
-                        : 'btn-gold px-3 py-1 text-xs font-semibold disabled:cursor-not-allowed'
+                        : 'btn-primary px-3 py-1 text-xs font-semibold disabled:cursor-not-allowed'
                     }
                   >
                     {offer.status === 'busy'
@@ -482,14 +482,14 @@ export function UploadPanel({ onRun, error, guest = false, onSignIn }: UploadPan
             className={`mt-4 border px-3 py-2 text-sm ${
               extractionNote.kind === 'ok'
                 ? 'border-pine/30 bg-moss text-pine-deep'
-                : 'border-amber-500/30 bg-amber-500/10 text-amber-300'
+                : 'border-amber-500/30 bg-amber-500/10 text-amber-700'
             }`}
           >
             {extractionNote.text}
           </p>
         )}
         {error && (
-          <p className="mt-4 border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-300">
+          <p className="mt-4 border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-700">
             {error}
           </p>
         )}
@@ -518,7 +518,7 @@ export function UploadPanel({ onRun, error, guest = false, onSignIn }: UploadPan
                 { sample: isSample },
               )
             }
-            className="btn-gold px-6 py-2.5 text-sm font-semibold transition-colors disabled:cursor-not-allowed"
+            className="btn-primary px-6 py-2.5 text-sm font-semibold transition-colors disabled:cursor-not-allowed"
           >
             Reconcile
           </button>

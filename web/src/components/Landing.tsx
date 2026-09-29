@@ -144,7 +144,7 @@ export function Landing({ onOpenApp, onOpenHolds, onSampleRun }: LandingProps) {
   return (
     <div className="bg-paper text-ink">
       {/* Hero */}
-      <div className="border-b border-line bg-gradient-to-br from-burgundy/50 via-night to-night">
+      <div className="border-b border-line bg-paper">
         <header className="border-b border-line/60">
           <LandingNav onOpenApp={onOpenApp} onSampleRun={onSampleRun} />
         </header>
@@ -155,9 +155,9 @@ export function Landing({ onOpenApp, onOpenHolds, onSampleRun }: LandingProps) {
               Supplier statement reconciliation
               <span aria-hidden="true" className="h-px w-10 bg-pine/40" />
             </p>
-            <h1 className="mt-5 font-serif text-[2.65rem] font-medium leading-[1.06] tracking-tight text-pine sm:text-6xl">
+            <h1 className="mt-5 font-serif text-[2.65rem] font-bold leading-[1.06] tracking-tight text-ink sm:text-6xl">
               Know exactly why your supplier balance{' '}
-              <span className="font-accent italic text-pine-deep">doesn&rsquo;t match</span>.
+              <span className="text-pine">doesn&rsquo;t match</span>.
             </h1>
             <p className="mt-6 max-w-xl text-lg leading-relaxed text-ink-soft">
               Turn a supplier-statement mismatch into an auditable explanation in
@@ -170,7 +170,7 @@ export function Landing({ onOpenApp, onOpenHolds, onSampleRun }: LandingProps) {
               <button
                 type="button"
                 onClick={onSampleRun}
-                className="rounded-sm btn-gold px-7 py-3.5 text-sm font-semibold transition-colors"
+                className="rounded-sm btn-primary px-7 py-3.5 text-sm font-semibold transition-colors"
               >
                 Try the sample reconciliation &mdash; no signup
               </button>
@@ -243,7 +243,7 @@ export function Landing({ onOpenApp, onOpenHolds, onSampleRun }: LandingProps) {
       </section>
 
       {/* AI vs determinism */}
-      <section id="ai" className="scroll-mt-6 border-y border-line bg-gradient-to-br from-night-card via-night to-night-warm text-ink">
+      <section id="ai" className="scroll-mt-6 border-y border-line bg-cream text-ink">
         <div className="mx-auto max-w-6xl px-6 py-24">
           <p className="flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.2em] text-pine">
             <span className="font-mono">02</span>
@@ -268,7 +268,7 @@ export function Landing({ onOpenApp, onOpenHolds, onSampleRun }: LandingProps) {
                 </div>
               ))}
             </div>
-            <div className="border border-gold/25 bg-night/60 p-8 sm:p-10">
+            <div className="rounded-xl border border-gold/25 bg-paper p-8 sm:p-10">
               <p className="font-mono text-xs uppercase tracking-[0.2em] text-pine">
                 And then — no AI at all
               </p>
@@ -354,7 +354,7 @@ export function Landing({ onOpenApp, onOpenHolds, onSampleRun }: LandingProps) {
               </p>
             </div>
             <video
-              className="mt-8 w-full max-w-4xl border border-line bg-night shadow-sm"
+              className="mt-8 w-full max-w-4xl rounded-xl border border-line bg-cream shadow-sm"
               src="/demo-run.mp4"
               poster="/demo-run-poster.jpg"
               controls
@@ -408,7 +408,7 @@ export function Landing({ onOpenApp, onOpenHolds, onSampleRun }: LandingProps) {
             </p>
             <p className="mt-3 flex flex-wrap items-center gap-2 text-sm text-ink">
               <span className="font-medium">Invoice missing from your ledger</span>
-              <span className="whitespace-nowrap bg-red-500/15 px-1.5 py-0.5 text-xs font-medium text-red-400">
+              <span className="whitespace-nowrap bg-red-500/15 px-1.5 py-0.5 text-xs font-medium text-red-700">
                 Recurring &mdash; also open on the 2026-08-31 run
               </span>
             </p>
@@ -469,7 +469,7 @@ export function Landing({ onOpenApp, onOpenHolds, onSampleRun }: LandingProps) {
             <button
               type="button"
               onClick={onOpenHolds}
-              className="rounded-sm btn-gold px-5 py-2.5 text-sm font-semibold transition-colors"
+              className="rounded-sm btn-primary px-5 py-2.5 text-sm font-semibold transition-colors"
             >
               Open the holds workbench
             </button>
@@ -648,7 +648,7 @@ export function Landing({ onOpenApp, onOpenHolds, onSampleRun }: LandingProps) {
               <button
                 type="button"
                 onClick={onOpenApp}
-                className="mt-6 w-full rounded-sm btn-gold px-4 py-3 text-sm font-semibold transition-colors"
+                className="mt-6 w-full rounded-sm btn-primary px-4 py-3 text-sm font-semibold transition-colors"
               >
                 Start free trial
               </button>
@@ -707,7 +707,7 @@ export function Landing({ onOpenApp, onOpenHolds, onSampleRun }: LandingProps) {
       <ContactSection />
 
       {/* Final CTA */}
-      <section className="bg-gradient-to-br from-burgundy via-night-warm to-night text-ink">
+      <section className="bg-ink text-white">
         <div className="mx-auto max-w-6xl px-6 py-20 text-center">
           <h2 className="font-serif text-3xl font-medium tracking-tight sm:text-4xl">
             Find out why it doesn&rsquo;t match &mdash; in minutes
@@ -716,35 +716,35 @@ export function Landing({ onOpenApp, onOpenHolds, onSampleRun }: LandingProps) {
             <button
               type="button"
               onClick={onOpenApp}
-              className="rounded-sm btn-gold px-7 py-3.5 text-sm font-semibold transition-colors"
+              className="rounded-sm btn-primary px-7 py-3.5 text-sm font-semibold transition-colors"
             >
               Reconcile a statement
             </button>
             <button
               type="button"
               onClick={onSampleRun}
-              className="rounded-sm border border-gold/40 px-7 py-3.5 text-sm font-semibold text-pine hover:bg-gold/10"
+              className="rounded-full border border-white/40 px-7 py-3.5 text-sm font-semibold text-white hover:bg-white/10"
             >
               See a sample run
             </button>
           </div>
         </div>
-        <footer className="border-t border-ink/15">
-          <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-2 px-6 py-6 text-xs text-ink-faint sm:flex-row">
-            <span className="font-serif text-sm text-ink-soft">
-              TieOut <span className="text-pine">AP</span> — tieoutap.com
+        <footer className="border-t border-white/15">
+          <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-2 px-6 py-6 text-xs text-white/60 sm:flex-row">
+            <span className="font-serif text-sm text-white/80">
+              TieOut <span className="text-gold-light">AP</span> — tieoutap.com
             </span>
             <span className="flex flex-wrap items-center justify-center gap-4">
-              <a href="#privacy-policy" className="text-ink-soft hover:text-pine">
+              <a href="#privacy-policy" className="text-white/80 hover:text-gold-light">
                 Privacy Policy
               </a>
-              <a href="#terms" className="text-ink-soft hover:text-pine">
+              <a href="#terms" className="text-white/80 hover:text-gold-light">
                 Terms
               </a>
-              <a href="#security" className="text-ink-soft hover:text-pine">
+              <a href="#security" className="text-white/80 hover:text-gold-light">
                 Security
               </a>
-              <a href="#contact" className="text-ink-soft hover:text-pine">
+              <a href="#contact" className="text-white/80 hover:text-gold-light">
                 Contact
               </a>
               <span>

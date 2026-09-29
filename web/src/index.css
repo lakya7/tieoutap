@@ -3,34 +3,38 @@
 @theme {
   --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI",
     Roboto, "Helvetica Neue", Arial, sans-serif;
-  --font-display: "Playfair Display", "Iowan Old Style", Georgia,
-    "Times New Roman", serif;
-  --font-serif: "Playfair Display", "Iowan Old Style", Georgia,
-    "Times New Roman", serif;
-  --font-accent: "Cormorant Garamond", "Iowan Old Style", Georgia,
-    "Times New Roman", serif;
+  --font-display: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+    Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-serif: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+    Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-accent: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+    Roboto, "Helvetica Neue", Arial, sans-serif;
   --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Consolas,
     "Liberation Mono", monospace;
 
-  /* Dark luxe palette: near-black surfaces, gold accents, burgundy brand.
-     Token names kept from the original ledger-paper theme so existing
-     class usage maps 1:1 (paper = page bg, ink = primary text, etc.). */
-  --color-paper: #0a0a0a;
-  --color-cream: #171717;
-  --color-ink: #f5f5f5;
-  --color-ink-soft: #c6c6c6;
-  --color-ink-faint: #8f8f8f;
-  --color-line: #2e2b24;
-  --color-pine: #d4af37;
-  --color-pine-deep: #e8ca6d;
-  --color-moss: #262010;
-  --color-gold: #d4af37;
-  --color-gold-light: #f4e4b0;
-  --color-burgundy: #8b1538;
-  --color-burgundy-soft: #a52a2a;
-  --color-night: #0a0a0a;
-  --color-night-card: #1a1a1a;
-  --color-night-warm: #2d1f1f;
+  /* Soften the default small radius so cards, inputs and chips feel rounded. */
+  --radius-sm: 0.5rem;
+
+  /* Light accounting-SaaS palette: white surfaces, deep-navy text, bright
+     blue accent. Token names kept from the earlier themes so existing
+     class usage maps 1:1 (paper = page bg, ink = primary text,
+     pine/gold = accent, night/burgundy = tinted panel surfaces). */
+  --color-paper: #ffffff;
+  --color-cream: #f5f9fa;
+  --color-ink: #000856;
+  --color-ink-soft: #3d4663;
+  --color-ink-faint: #66708c;
+  --color-line: #d6dade;
+  --color-pine: #1f65d6;
+  --color-pine-deep: #184390;
+  --color-moss: #e7effb;
+  --color-gold: #1f65d6;
+  --color-gold-light: #9cdbf5;
+  --color-burgundy: #000856;
+  --color-burgundy-soft: #1f65d6;
+  --color-night: #f5f9fa;
+  --color-night-card: #ecf2f6;
+  --color-night-warm: #e7effb;
 }
 
 body {
@@ -44,16 +48,16 @@ body {
   border-bottom: 2px solid currentColor;
 }
 
-/* Primary action: gold gradient with dark text. */
-.btn-gold {
-  background-image: linear-gradient(to right, #d4af37, #f4e4b0);
-  color: #0a0a0a;
+/* Primary action: solid brand-blue pill with white text. */
+.btn-primary {
+  border-radius: 9999px;
+  background-color: #1f65d6;
+  color: #ffffff;
 }
-.btn-gold:hover:not(:disabled) {
-  background-image: linear-gradient(to right, #e0c04f, #f8ecc6);
+.btn-primary:hover:not(:disabled) {
+  background-color: #184390;
 }
-.btn-gold:disabled {
-  background-image: none;
-  background-color: #3a3a3a;
-  color: #8f8f8f;
+.btn-primary:disabled {
+  background-color: #e1e2e5;
+  color: #66708c;
 }

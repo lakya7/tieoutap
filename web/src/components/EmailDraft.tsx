@@ -7,7 +7,7 @@ export function EmailDraft({ run }: { run: Run }) {
 
   if (run.result.diagnostic !== null) {
     return (
-      <p className="border border-red-500/30 bg-red-500/10 p-6 text-sm text-red-300">
+      <p className="border border-red-500/30 bg-red-500/10 p-6 text-sm text-red-700">
         No email drafted — reconciliation failed (the variance cannot be fully explained),
         so there is nothing safe to send the supplier. Diagnostic:{' '}
         <span className="font-mono">{run.result.diagnostic}</span>
@@ -38,7 +38,7 @@ export function EmailDraft({ run }: { run: Run }) {
         <div className="flex shrink-0 gap-2">
           <a
             href={mailto}
-            className="btn-gold px-3 py-1.5 text-sm font-semibold"
+            className="btn-primary px-3 py-1.5 text-sm font-semibold"
             title="Opens your email app with the subject and draft filled in — add the supplier's address and send from there. Very long drafts may be cut off by some email apps; use Copy if so."
           >
             Open in email app

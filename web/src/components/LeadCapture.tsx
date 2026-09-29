@@ -83,14 +83,14 @@ export function LeadCapture() {
             <button
               type="submit"
               disabled={status === 'sending'}
-              className="shrink-0 rounded-sm btn-gold px-5 py-2.5 text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-60"
+              className="shrink-0 rounded-sm btn-primary px-5 py-2.5 text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-60"
             >
               {status === 'sending' ? 'Sending…' : 'I\u2019m interested'}
             </button>
           </form>
         )}
         {status === 'error' && (
-          <p className="mt-3 text-sm font-medium text-red-400" role="alert">
+          <p className="mt-3 text-sm font-medium text-red-700" role="alert">
             Could not send — please try again, or use the contact form below.
           </p>
         )}

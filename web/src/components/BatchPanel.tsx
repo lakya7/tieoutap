@@ -163,7 +163,7 @@ export function BatchPanel({ session, onSession, onOpen, onSingle }: BatchPanelP
                           ))}
                         </select>
                         {item.error !== null && (
-                          <span className="mt-1 block max-w-[14rem] text-xs text-amber-300">
+                          <span className="mt-1 block max-w-[14rem] text-xs text-amber-700">
                             {item.error}
                           </span>
                         )}
@@ -177,7 +177,7 @@ export function BatchPanel({ session, onSession, onOpen, onSingle }: BatchPanelP
                       </td>
                       <td
                         className={`py-2 pr-4 text-right font-mono text-xs tabular-nums ${
-                          unexplained === null ? '' : unexplained === 0 ? 'text-pine-deep' : 'text-red-300'
+                          unexplained === null ? '' : unexplained === 0 ? 'text-pine-deep' : 'text-red-700'
                         }`}
                       >
                         {unexplained === null ? '—' : formatCentsGrouped(unexplained)}
@@ -190,7 +190,7 @@ export function BatchPanel({ session, onSession, onOpen, onSingle }: BatchPanelP
                           <button
                             type="button"
                             onClick={() => onOpen(item.run as Run)}
-                            className="btn-gold px-3 py-1 text-xs font-semibold"
+                            className="btn-primary px-3 py-1 text-xs font-semibold"
                           >
                             Open
                           </button>
@@ -321,7 +321,7 @@ export function BatchPanel({ session, onSession, onOpen, onSingle }: BatchPanelP
           </ul>
         )}
         {fileErrors.length > 0 && (
-          <div className="mt-4 border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-sm text-amber-300">
+          <div className="mt-4 border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-sm text-amber-700">
             {fileErrors.map((e) => (
               <p key={e}>{e}</p>
             ))}
@@ -332,7 +332,7 @@ export function BatchPanel({ session, onSession, onOpen, onSingle }: BatchPanelP
             type="button"
             disabled={!ready}
             onClick={reconcileAll}
-            className="btn-gold px-6 py-2.5 text-sm font-semibold transition-colors disabled:cursor-not-allowed"
+            className="btn-primary px-6 py-2.5 text-sm font-semibold transition-colors disabled:cursor-not-allowed"
           >
             Reconcile all
           </button>

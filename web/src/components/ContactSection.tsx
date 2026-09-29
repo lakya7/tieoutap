@@ -119,7 +119,7 @@ export function ContactSection() {
               />
             </div>
             {status === 'error' && (
-              <p className="text-sm font-medium text-red-400" role="alert">
+              <p className="text-sm font-medium text-red-700" role="alert">
                 {error}
               </p>
             )}
@@ -130,7 +130,7 @@ export function ContactSection() {
               <button
                 type="submit"
                 disabled={status === 'sending'}
-                className="shrink-0 rounded-lg btn-gold px-6 py-2.5 text-sm font-semibold shadow-sm transition-colors disabled:cursor-not-allowed disabled:opacity-60"
+                className="shrink-0 rounded-lg btn-primary px-6 py-2.5 text-sm font-semibold shadow-sm transition-colors disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {status === 'sending' ? 'Sending…' : 'Send message'}
               </button>
