@@ -12,14 +12,16 @@ export async function pingSupabase(): Promise<KeepaliveResult> {
   const anonKey = process.env.SUPABASE_ANON_KEY ?? process.env.VITE_SUPABASE_ANON_KEY
   if (!url || !anonKey) return { ok: true, detail: 'Supabase not configured on this deployment' }
   const headers = { apikey: anonKey, authorization: `Bearer ${anonKey}` }
-  const checks: Record<string, number> = {}
-  for (const path of ['/auth/v1/health', '/rest/v1/']) {
-    try {
-      checks[path] = (await fetch(`${url}${path}`, { headers })).status
-    } catch {
-      checks[path] = 0
-    }
-  }
-  const reached = Object.values(checks).some((status) => status > 0 && status < 500)
+  const paths = ['/auth/v1/health', '/rest/v1/']
+  const statuses = await Promise.all(
+    paths.map((path) =>
+      fetch(`${url}${path}`, { headers, signal: AbortSignal.timeout(10_000) }).then(
+        (response) => response.status,
+        () => 0,
+      ),
+    ),
+  )
+  const checks = Object.fromEntries(paths.map((path, i) => [path, statuses[i]]))
+  const reached = statuses.some((status) => status >= 200 && status < 300)
   return { ok: reached, detail: reached ? 'Supabase pinged' : 'Supabase unreachable', checks }
 }
